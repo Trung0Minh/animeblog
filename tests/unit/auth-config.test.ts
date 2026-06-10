@@ -1,0 +1,134 @@
+import type { NextAuthConfig } from "next-auth"
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
+
+const mocks = vi.hoisted(() => ({
+  nextAuth: vi.fn((config: unknown) => ({
+    auth: "auth",
+    handlers: "handlers",
+    signIn: "signIn",
+    signOut: "signOut",
+    config,
+  })),
+  prismaAdapter: vi.fn(() => ({ name: "prisma-adapter" })),
+  resendProvider: vi.fn((options: unknown) => ({
+    id: "resend",
+    options,
+  })),
+  userFindUnique: vi.fn(),
+}))
+
+vi.mock("next-auth", () => ({ default: mocks.nextAuth }))
+vi.mock("@auth/prisma-adapter", () => ({
+  PrismaAdapter: mocks.prismaAdapter,
+}))
+vi.mock("next-auth/providers/resend", () => ({
+  default: mocks.resendProvider,
+}))
+vi.mock("@/lib/prisma", () => ({
+  prisma: {
+    user: {
+      findUnique: mocks.userFindUnique,
+    },
+  },
+}))
+
+let config: NextAuthConfig
+
+beforeAll(async () => {
+  await import("@/lib/auth")
+  config = mocks.nextAuth.mock.calls[0][0] as NextAuthConfig
+})
+
+beforeEach(() => {
+  mocks.userFindUnique.mockReset()
+})
+
+describe("NextAuth configuration", () => {
+  it("uses database sessions and the custom auth pages", () => {
+    expect(config.session).toEqual({ strategy: "database" })
+    expect(config.pages).toEqual({
+      signIn: "/login",
+      error: "/login",
+      verifyRequest: "/login?verify=1",
+    })
+  })
+
+  it("configures the Resend provider from environment variables", () => {
+    expect(mocks.resendProvider).toHaveBeenCalledWith({
+      apiKey: process.env.RESEND_API_KEY,
+      from: process.env.RESEND_FROM_EMAIL,
+    })
+  })
+
+  it("blocks sign-in when the email has no account", async () => {
+    mocks.userFindUnique.mockResolvedValue(null)
+    const signInCallback = config.callbacks?.signIn
+
+    const result = await signInCallback?.({
+      account: null,
+      credentials: undefined,
+      email: { verificationRequest: true },
+      profile: undefined,
+      user: { id: "candidate", email: "missing@example.com" },
+    })
+
+    expect(result).toBe(false)
+    expect(mocks.userFindUnique).toHaveBeenCalledWith({
+      where: { email: "missing@example.com" },
+      select: { id: true },
+    })
+  })
+
+  it("allows sign-in when the email has an account", async () => {
+    mocks.userFindUnique.mockResolvedValue({ id: "writer-1" })
+    const signInCallback = config.callbacks?.signIn
+
+    const result = await signInCallback?.({
+      account: null,
+      credentials: undefined,
+      email: { verificationRequest: true },
+      profile: undefined,
+      user: { id: "writer-1", email: "writer@example.com" },
+    })
+
+    expect(result).toBe(true)
+  })
+
+  it("adds role, username, and avatar URL to database sessions", async () => {
+    mocks.userFindUnique.mockResolvedValue({
+      role: "WRITER",
+      username: "writer",
+      avatarUrl: "https://example.com/avatar.png",
+    })
+    const session = {
+      expires: new Date(Date.now() + 60_000).toISOString(),
+      user: {
+        id: "writer-1",
+        name: "Writer",
+        email: "writer@example.com",
+        role: "WRITER" as const,
+        username: "",
+        avatarUrl: null,
+      },
+    }
+    const sessionCallback = config.callbacks?.session as unknown as (options: {
+      session: typeof session
+      user: { id: string }
+    }) => Promise<typeof session>
+
+    const result = await sessionCallback({
+      session,
+      user: { id: "writer-1" },
+    })
+
+    expect(result.user).toMatchObject({
+      role: "WRITER",
+      username: "writer",
+      avatarUrl: "https://example.com/avatar.png",
+    })
+    expect(mocks.userFindUnique).toHaveBeenCalledWith({
+      where: { id: "writer-1" },
+      select: { role: true, username: true, avatarUrl: true },
+    })
+  })
+})

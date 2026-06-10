@@ -102,27 +102,27 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/02_auth.md`
 
-- [ ] **3.1** Create `lib/auth.ts` with NextAuth config (Resend provider, PrismaAdapter, signIn + session callbacks)
+- [x] **3.1** Create `lib/auth.ts` with NextAuth config (Resend provider, PrismaAdapter, signIn + session callbacks)
 
-- [ ] **3.2** Create `types/next-auth.d.ts` to extend session with `role`, `username`, `avatarUrl`
+- [x] **3.2** Create `types/next-auth.d.ts` to extend session with `role`, `username`, `avatarUrl`
 
-- [ ] **3.3** Create `app/api/auth/[...nextauth]/route.ts` exporting handlers
+- [x] **3.3** Create `app/api/auth/[...nextauth]/route.ts` exporting handlers
 
-- [ ] **3.4** Create `proxy.ts` with route protection for `/dashboard/*` and `/admin/*`
+- [x] **3.4** Create `proxy.ts` with route protection for `/dashboard/*` and `/admin/*`
 
-- [ ] **3.5** Create `POST /api/invite/route.ts` — admin creates invite link
+- [x] **3.5** Create `POST /api/invite/route.ts` — admin creates invite link
 
-- [ ] **3.6** Create `POST /api/invite/accept/route.ts` — writer accepts invite and creates account
+- [x] **3.6** Create `POST /api/invite/accept/route.ts` — writer accepts invite and creates account
 
-- [ ] **3.7** Create `app/(auth)/login/page.tsx`
+- [x] **3.7** Create `app/(auth)/login/page.tsx`
 
-- [ ] **3.8** Create `app/(auth)/invite/[token]/page.tsx` (Server Component, validates token)
+- [x] **3.8** Create `app/(auth)/invite/[token]/page.tsx` (Server Component, validates token)
 
-- [ ] **3.9** Create `components/auth/InviteForm.tsx` (Client Component)
+- [x] **3.9** Create `components/auth/InviteForm.tsx` (Client Component)
 
-- [ ] **3.10** Create `emails/InviteEmail.tsx`
+- [x] **3.10** Create `emails/InviteEmail.tsx`
 
-- [ ] **3.11** Create `lib/resend.ts` with `sendInviteEmail` helper
+- [x] **3.11** Create `lib/resend.ts` with `sendInviteEmail` helper
 
 - [ ] **3.12** Verify end-to-end: send invite from admin → receive email → create account → login → reach `/dashboard`
 
