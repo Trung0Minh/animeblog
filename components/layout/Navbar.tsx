@@ -32,6 +32,7 @@ export function Navbar() {
               className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               href={link.href}
               key={link.href}
+              prefetch={false}
             >
               {link.label}
             </Link>
@@ -45,7 +46,7 @@ export function Navbar() {
             size="icon"
             variant="ghost"
           >
-            <Link aria-label="Search posts" href="/search">
+            <Link aria-label="Search posts" href="/search" prefetch={false}>
               <Search aria-hidden="true" />
             </Link>
           </Button>

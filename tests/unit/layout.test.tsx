@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import type { AnchorHTMLAttributes } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const themeMocks = vi.hoisted(() => ({
@@ -13,6 +14,14 @@ vi.mock("next-themes", () => ({
     setTheme: themeMocks.setTheme,
     theme: themeMocks.theme,
   }),
+}))
+vi.mock("next/link", () => ({
+  default: ({
+    prefetch,
+    ...props
+  }: AnchorHTMLAttributes<HTMLAnchorElement> & { prefetch?: boolean }) => (
+    <a data-prefetch={String(prefetch)} {...props} />
+  ),
 }))
 
 import { Footer } from "@/components/layout/Footer"
@@ -43,18 +52,16 @@ describe("Navbar", () => {
   it("renders publication navigation and search access", () => {
     render(<Navbar />)
 
-    expect(screen.getByRole("link", { name: "Contributors" })).toHaveAttribute(
-      "href",
-      "/contributors",
-    )
+    const contributors = screen.getByRole("link", { name: "Contributors" })
+    expect(contributors).toHaveAttribute("href", "/contributors")
+    expect(contributors).toHaveAttribute("data-prefetch", "false")
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute(
       "href",
       "/about",
     )
-    expect(screen.getByRole("link", { name: "Search posts" })).toHaveAttribute(
-      "href",
-      "/search",
-    )
+    const search = screen.getByRole("link", { name: "Search posts" })
+    expect(search).toHaveAttribute("href", "/search")
+    expect(search).toHaveAttribute("data-prefetch", "false")
   })
 })
 
@@ -78,10 +85,9 @@ describe("MobileNav", () => {
     expect(
       screen.getByText("Browse publication pages and search posts."),
     ).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Search posts" })).toHaveAttribute(
-      "href",
-      "/search",
-    )
+    const search = screen.getByRole("link", { name: "Search posts" })
+    expect(search).toHaveAttribute("href", "/search")
+    expect(search).toHaveAttribute("data-prefetch", "false")
     expect(screen.getByRole("button", { name: "Close" })).toHaveClass(
       "h-11",
       "w-11",

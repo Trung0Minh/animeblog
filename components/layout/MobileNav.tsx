@@ -45,6 +45,7 @@ export function MobileNav({ links }: MobileNavProps) {
               href={link.href}
               key={link.href}
               onClick={() => setOpen(false)}
+              prefetch={false}
             >
               {link.label}
             </Link>
@@ -57,6 +58,7 @@ export function MobileNav({ links }: MobileNavProps) {
             className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             href="/search"
             onClick={() => setOpen(false)}
+            prefetch={false}
           >
             <Search aria-hidden="true" className="h-4 w-4" />
             Search posts
