@@ -132,25 +132,25 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/08_ui_components.md`, `plan/DESIGN.md`
 
-- [ ] **4.1** Create `components/layout/ThemeProvider.tsx`
+- [x] **4.1** Create `components/layout/ThemeProvider.tsx`
 
-- [ ] **4.2** Update `app/layout.tsx` — Inter font (with Vietnamese subset), ThemeProvider, Navbar, Footer
+- [x] **4.2** Update `app/layout.tsx` — Inter font (with Vietnamese subset), ThemeProvider, Navbar, Footer
 
-- [ ] **4.3** Create `components/layout/Navbar.tsx`
+- [x] **4.3** Create `components/layout/Navbar.tsx`
 
-- [ ] **4.4** Create `components/layout/ThemeToggle.tsx`
+- [x] **4.4** Create `components/layout/ThemeToggle.tsx`
 
-- [ ] **4.5** Create `components/layout/MobileNav.tsx` (shadcn/ui Sheet drawer)
+- [x] **4.5** Create `components/layout/MobileNav.tsx` (shadcn/ui Sheet drawer)
 
-- [ ] **4.6** Create `components/layout/Sidebar.tsx`
+- [x] **4.6** Create `components/layout/Sidebar.tsx`
 
-- [ ] **4.7** Create `components/layout/Footer.tsx`
+- [x] **4.7** Create `components/layout/Footer.tsx`
 
-- [ ] **4.8** Create `lib/utils.ts` with `cn`, `formatDate`, `generateSlug`, `ensureUniqueSlug`
+- [x] **4.8** Create `lib/utils.ts` with `cn`, `formatDate`, `generateSlug`, `ensureUniqueSlug`
 
-- [ ] **4.9** Verify dark/light mode toggle works and persists on reload
+- [x] **4.9** Verify dark/light mode toggle works and persists on reload
 
-- [ ] **4.10** Verify Navbar is sticky and Sidebar hidden on mobile
+- [x] **4.10** Verify Navbar is sticky and Sidebar hidden on mobile
 
 ---
 

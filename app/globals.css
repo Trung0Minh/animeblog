@@ -62,11 +62,26 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   :focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .cover-zoom {
+    @apply overflow-hidden;
+  }
+
+  .cover-zoom img {
+    @apply transition-transform duration-300;
+  }
+
+  .cover-zoom:hover img {
+    @apply scale-[1.015];
   }
 }
 

@@ -9,5 +9,9 @@ test("shows the editorial publication foundation", async ({ page }) => {
       name: "Serious writing about Japanese animation.",
     }),
   ).toBeVisible()
-  await expect(page.getByText("Anime Blog", { exact: true })).toBeVisible()
+  await expect(page.getByRole("banner").getByRole("link").first()).toHaveAttribute(
+    "href",
+    "/",
+  )
+  await expect(page.locator("html")).toHaveAttribute("lang", "vi")
 })

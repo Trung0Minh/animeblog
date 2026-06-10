@@ -1,0 +1,142 @@
+import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+const themeMocks = vi.hoisted(() => ({
+  setTheme: vi.fn(),
+  theme: "light",
+}))
+
+vi.mock("next-themes", () => ({
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
+  useTheme: () => ({
+    setTheme: themeMocks.setTheme,
+    theme: themeMocks.theme,
+  }),
+}))
+
+import { Footer } from "@/components/layout/Footer"
+import { MobileNav } from "@/components/layout/MobileNav"
+import { Navbar } from "@/components/layout/Navbar"
+import { Sidebar } from "@/components/layout/Sidebar"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
+
+describe("ThemeToggle", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    themeMocks.theme = "light"
+  })
+
+  it("switches from light to dark mode", async () => {
+    const user = userEvent.setup()
+    render(<ThemeToggle />)
+
+    await user.click(
+      await screen.findByRole("button", { name: "Switch to dark mode" }),
+    )
+
+    expect(themeMocks.setTheme).toHaveBeenCalledWith("dark")
+  })
+})
+
+describe("Navbar", () => {
+  it("renders publication navigation and search access", () => {
+    render(<Navbar />)
+
+    expect(screen.getByRole("link", { name: "Contributors" })).toHaveAttribute(
+      "href",
+      "/contributors",
+    )
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute(
+      "href",
+      "/about",
+    )
+    expect(screen.getByRole("link", { name: "Search posts" })).toHaveAttribute(
+      "href",
+      "/search",
+    )
+  })
+})
+
+describe("MobileNav", () => {
+  it("opens a drawer containing navigation and search links", async () => {
+    const user = userEvent.setup()
+    render(
+      <MobileNav
+        links={[
+          { href: "/contributors", label: "Contributors" },
+          { href: "/about", label: "About" },
+        ]}
+      />,
+    )
+
+    await user.click(
+      screen.getByRole("button", { name: "Open navigation menu" }),
+    )
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument()
+    expect(
+      screen.getByText("Browse publication pages and search posts."),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Search posts" })).toHaveAttribute(
+      "href",
+      "/search",
+    )
+    expect(screen.getByRole("button", { name: "Close" })).toHaveClass(
+      "h-11",
+      "w-11",
+    )
+  })
+})
+
+describe("Sidebar", () => {
+  it("renders newsletter content, categories, and recent posts", () => {
+    render(
+      <Sidebar
+        categories={[
+          {
+            _count: { posts: 2 },
+            children: [
+              { id: "child-1", name: "Animation", slug: "animation" },
+            ],
+            id: "category-1",
+            name: "Production",
+            slug: "production",
+          },
+        ]}
+        newsletter={<form aria-label="Newsletter signup" />}
+        recentPosts={[
+          {
+            publishedAt: new Date("2024-04-01T00:00:00Z"),
+            slug: "frieren",
+            title: "Frieren and the passage of time",
+          },
+        ]}
+      />,
+    )
+
+    expect(screen.getByRole("form", { name: "Newsletter signup" })).toBeVisible()
+    expect(screen.getByRole("link", { name: /Production/ })).toHaveAttribute(
+      "href",
+      "/category/production",
+    )
+    expect(
+      screen.getByRole("link", { name: "Frieren and the passage of time" }),
+    ).toHaveAttribute("href", "/frieren")
+  })
+})
+
+describe("Footer", () => {
+  it("renders publication links", () => {
+    render(<Footer />)
+
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute(
+      "href",
+      "/about",
+    )
+    expect(screen.getByRole("link", { name: "Contributors" })).toHaveAttribute(
+      "href",
+      "/contributors",
+    )
+  })
+})

@@ -1,6 +1,10 @@
 import type { Metadata } from "next"
 import { Inter, Lora } from "next/font/google"
 
+import { Footer } from "@/components/layout/Footer"
+import { Navbar } from "@/components/layout/Navbar"
+import { ThemeProvider } from "@/components/layout/ThemeProvider"
+
 import "./globals.css"
 
 const inter = Inter({
@@ -33,11 +37,24 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="vi"
       className={`${inter.variable} ${lora.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen font-sans">{children}</body>
+      <body className="min-h-screen font-sans">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          disableTransitionOnChange
+          enableSystem
+        >
+          <div className="flex min-h-screen flex-col">
+            <Navbar />
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </div>
+        </ThemeProvider>
+      </body>
     </html>
   )
 }
