@@ -299,7 +299,8 @@ BEGIN
     setweight(to_tsvector('simple', COALESCE(NEW."contentText", '')), 'C');
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql
+SET search_path = pg_catalog, public;
 
 -- Trigger: fire before every INSERT or UPDATE on posts
 CREATE TRIGGER posts_search_vector_trigger
@@ -470,23 +471,28 @@ main()
   .finally(() => prisma.$disconnect())
 ```
 
-Add to `package.json`:
-```json
-{
-  "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
-  }
-}
+Add to `prisma.config.ts`:
+```typescript
+import { defineConfig } from 'prisma/config'
+
+export default defineConfig({
+  schema: 'prisma/schema.prisma',
+  migrations: {
+    path: 'prisma/migrations',
+    seed: 'ts-node --compiler-options \'{"module":"CommonJS"}\' prisma/seed.ts',
+  },
+})
 ```
 
 ---
 
 ## 7. Checklist
 
-- [ ] Create `prisma/schema.prisma` with all models above
-- [ ] Run `npx prisma migrate dev --name init`
-- [ ] Manually create the full-text search migration SQL file
-- [ ] Run `npx prisma db seed`
-- [ ] Create `lib/prisma.ts` with the singleton pattern shown above
-- [ ] Confirm all tables exist in the Supabase dashboard
-- [ ] Confirm the `posts_search_vector_trigger` trigger is active (check in Supabase SQL editor: `SELECT tgname FROM pg_trigger WHERE tgrelid = 'posts'::regclass;`)
+- [x] Create `prisma/schema.prisma` with all models above
+- [x] Run `npx prisma migrate dev --name init`
+- [x] Manually create the full-text search migration SQL file
+- [x] Run `npx prisma db seed`
+- [x] Create `lib/prisma.ts` with the singleton pattern shown above
+- [x] Confirm all tables exist in the Supabase dashboard
+- [x] Confirm the `posts_search_vector_trigger` trigger is active (check in Supabase SQL editor: `SELECT tgname FROM pg_trigger WHERE tgrelid = 'posts'::regclass;`)
+- [x] Enable RLS on every table in the exposed `public` schema before using Supabase API keys

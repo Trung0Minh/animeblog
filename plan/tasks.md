@@ -75,24 +75,26 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 - [x] **2.1** Create `prisma/schema.prisma` with the full schema — all models, enums, indexes
   → `plan/01_database_schema.md` section 2
 
-- [ ] **2.2** Run initial migration
+- [x] **2.2** Run initial migration
   ```bash
   npx prisma migrate dev --name init
   ```
 
-- [ ] **2.3** Create the full-text search migration SQL file and apply it
+- [x] **2.3** Create the full-text search migration SQL file and apply it
   → `plan/01_database_schema.md` section 3
 
 - [x] **2.4** Create `lib/prisma.ts` with the singleton pattern
 
 - [x] **2.5** Create `prisma/seed.ts` with admin user, categories, and tags
 
-- [ ] **2.6** Run seed
+- [x] **2.6** Run seed
   ```bash
   npx prisma db seed
   ```
 
-- [ ] **2.7** Verify in Supabase dashboard: all tables exist and `posts_search_vector_trigger` is active
+- [x] **2.7** Verify in Supabase dashboard: all tables exist and `posts_search_vector_trigger` is active
+
+- [x] **2.8** Enable RLS on every table in the exposed `public` schema before using Supabase API keys
 
 ---
 
