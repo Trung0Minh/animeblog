@@ -4,6 +4,7 @@ import { Inter, Lora } from "next/font/google"
 import { Footer } from "@/components/layout/Footer"
 import { Navbar } from "@/components/layout/Navbar"
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
+import { DEFAULT_DESCRIPTION, getAppName, getAppUrl } from "@/lib/seo"
 
 import "./globals.css"
 
@@ -21,13 +22,16 @@ const lora = Lora({
 
 export const metadata: Metadata = {
   title: {
-    default: process.env.NEXT_PUBLIC_APP_NAME ?? "Anime Blog",
-    template: `%s | ${process.env.NEXT_PUBLIC_APP_NAME ?? "Anime Blog"}`,
+    default: getAppName(),
+    template: `%s | ${getAppName()}`,
   },
-  description: "In-depth anime analysis and reviews.",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  ),
+  description: DEFAULT_DESCRIPTION,
+  metadataBase: new URL(getAppUrl()),
+  openGraph: {
+    locale: "vi_VN",
+    siteName: getAppName(),
+    type: "website",
+  },
 }
 
 export default function RootLayout({

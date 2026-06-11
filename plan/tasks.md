@@ -393,23 +393,23 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/09_seo.md`
 
-- [ ] **11.1** Create `lib/seo.ts` with `buildMetadata` helper
+- [x] **11.1** Create `lib/seo.ts` with `buildMetadata` helper
 
-- [ ] **11.2** Add `generateMetadata` to all public pages: `/`, `/[slug]`, `/category/[slug]`, `/tag/[slug]`, `/authors/[username]`, `/search`, `/contributors`
+- [x] **11.2** Add `generateMetadata` to all public pages: `/`, `/[slug]`, `/category/[slug]`, `/tag/[slug]`, `/authors/[username]`, `/search`, `/contributors`
 
-- [ ] **11.3** Add `robots: { index: false }` to all dashboard and admin layouts
+- [x] **11.3** Add `robots: { index: false }` to all dashboard and admin layouts
 
-- [ ] **11.4** Create `app/sitemap.ts`
+- [x] **11.4** Create `app/sitemap.ts`
 
-- [ ] **11.5** Create `app/robots.ts`
+- [x] **11.5** Create `app/robots.ts`
 
-- [ ] **11.6** Create `components/posts/PostJsonLd.tsx` and add to post detail page
+- [x] **11.6** Create `components/posts/PostJsonLd.tsx` and add to post detail page
 
-- [ ] **11.7** Place `public/og-default.png` fallback OG image (1200×630px) — create manually
+- [x] **11.7** Place `public/og-default.png` fallback OG image (1200×630px) — create manually
 
-- [ ] **11.8** Verify: `/sitemap.xml` lists all published posts
+- [x] **11.8** Verify: `/sitemap.xml` lists all published posts
 
-- [ ] **11.9** Verify: `/robots.txt` disallows `/dashboard/` and `/admin/`
+- [x] **11.9** Verify: `/robots.txt` disallows `/dashboard/` and `/admin/`
 
 - [ ] **11.10** Verify OG tags with https://opengraph.xyz
 

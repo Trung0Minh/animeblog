@@ -1,7 +1,10 @@
+import type { Metadata } from "next"
+
 import { Sidebar } from "@/components/layout/Sidebar"
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm"
 import { PostList } from "@/components/posts/PostList"
 import { prisma } from "@/lib/prisma"
+import { buildMetadata, getAppUrl } from "@/lib/seo"
 
 interface HomePageProps {
   searchParams: Promise<{ page?: string }>
@@ -13,6 +16,22 @@ function parsePage(page?: string) {
   const parsedPage = Number(page ?? "1")
 
   return Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1
+}
+
+export async function generateMetadata({
+  searchParams,
+}: HomePageProps): Promise<Metadata> {
+  const { page: pageParam } = await searchParams
+  const page = parsePage(pageParam)
+
+  return buildMetadata({
+    canonicalPath: "/",
+    ...(page > 1 && {
+      canonicalUrl: `${getAppUrl()}?page=${page}`,
+      noIndex: true,
+      noIndexFollow: true,
+    }),
+  })
 }
 
 export default async function HomePage({ searchParams }: HomePageProps) {

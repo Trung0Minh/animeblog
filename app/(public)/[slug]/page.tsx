@@ -5,8 +5,10 @@ import type { JSONContent } from "@tiptap/react"
 import { CommentSection } from "@/components/comments/CommentSection"
 import { PostBody } from "@/components/posts/PostBody"
 import { PostHeader } from "@/components/posts/PostHeader"
+import { PostJsonLd } from "@/components/posts/PostJsonLd"
 import { TableOfContents } from "@/components/posts/TableOfContents"
 import { prisma } from "@/lib/prisma"
+import { buildMetadata } from "@/lib/seo"
 
 interface PostPageProps {
   params: Promise<{ slug: string }>
@@ -17,22 +19,38 @@ export async function generateMetadata({
 }: PostPageProps): Promise<Metadata> {
   const { slug } = await params
   const post = await prisma.post.findUnique({
-    select: { coverUrl: true, excerpt: true, title: true },
+    select: {
+      author: { select: { name: true } },
+      coverUrl: true,
+      excerpt: true,
+      publishedAt: true,
+      tags: { select: { tag: { select: { name: true } } } },
+      title: true,
+    },
     where: { slug, status: "PUBLISHED" },
   })
 
   if (!post) {
-    return {}
+    return buildMetadata({ canonicalPath: `/${slug}`, noIndex: true })
   }
 
-  return {
+  const base = buildMetadata({
+    canonicalPath: `/${slug}`,
     description: post.excerpt ?? undefined,
-    openGraph: {
-      description: post.excerpt ?? undefined,
-      images: post.coverUrl ? [post.coverUrl] : [],
-      title: post.title,
-    },
+    ogImage: post.coverUrl ?? undefined,
+    ogType: "article",
     title: post.title,
+  })
+
+  return {
+    ...base,
+    openGraph: {
+      ...base.openGraph,
+      authors: [post.author.name],
+      publishedTime: post.publishedAt?.toISOString(),
+      tags: post.tags.map(({ tag }) => tag.name),
+      type: "article",
+    },
   }
 }
 
@@ -95,12 +113,14 @@ export default async function PostPage({ params }: PostPageProps) {
       excerpt: true,
       id: true,
       publishedAt: true,
+      slug: true,
       tags: {
         select: {
           tag: { select: { name: true, slug: true } },
         },
       },
       title: true,
+      updatedAt: true,
     },
     where: { slug, status: "PUBLISHED" },
   })
@@ -112,20 +132,31 @@ export default async function PostPage({ params }: PostPageProps) {
   const content = post.content as JSONContent
 
   return (
-    <article className="container py-8 sm:py-10">
-      <PostHeader post={post} />
-      <div className="mx-auto mt-8 flex max-w-5xl gap-8">
-        <div className="min-w-0 flex-1">
-          <PostBody content={content} />
-          <CommentSection
-            initialComments={post.comments}
-            postId={post.id}
-          />
+    <>
+      <PostJsonLd
+        authorName={post.author.name}
+        coverUrl={post.coverUrl}
+        description={post.excerpt}
+        publishedAt={post.publishedAt}
+        slug={post.slug}
+        title={post.title}
+        updatedAt={post.updatedAt}
+      />
+      <article className="container py-8 sm:py-10">
+        <PostHeader post={post} />
+        <div className="mx-auto mt-8 flex max-w-5xl gap-8">
+          <div className="min-w-0 flex-1">
+            <PostBody content={content} />
+            <CommentSection
+              initialComments={post.comments}
+              postId={post.id}
+            />
+          </div>
+          <aside className="hidden w-56 shrink-0 xl:block">
+            <TableOfContents content={content} />
+          </aside>
         </div>
-        <aside className="hidden w-56 shrink-0 xl:block">
-          <TableOfContents content={content} />
-        </aside>
-      </div>
-    </article>
+      </article>
+    </>
   )
 }

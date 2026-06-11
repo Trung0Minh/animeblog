@@ -1,7 +1,9 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { PostList } from "@/components/posts/PostList"
 import { prisma } from "@/lib/prisma"
+import { buildMetadata } from "@/lib/seo"
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
@@ -14,6 +16,27 @@ function parsePage(page?: string) {
   const parsedPage = Number(page ?? "1")
 
   return Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1
+}
+
+export async function generateMetadata({
+  params,
+}: CategoryPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const category = await prisma.category.findUnique({
+    select: { description: true, name: true },
+    where: { slug },
+  })
+
+  if (!category) {
+    return buildMetadata({ canonicalPath: `/category/${slug}`, noIndex: true })
+  }
+
+  return buildMetadata({
+    canonicalPath: `/category/${slug}`,
+    description:
+      category.description ?? `Posts in the ${category.name} category`,
+    title: category.name,
+  })
 }
 
 export default async function CategoryPage({

@@ -1,7 +1,9 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { PostList } from "@/components/posts/PostList"
 import { prisma } from "@/lib/prisma"
+import { buildMetadata } from "@/lib/seo"
 
 interface TagPageProps {
   params: Promise<{ slug: string }>
@@ -14,6 +16,26 @@ function parsePage(page?: string) {
   const parsedPage = Number(page ?? "1")
 
   return Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1
+}
+
+export async function generateMetadata({
+  params,
+}: TagPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const tag = await prisma.tag.findUnique({
+    select: { name: true },
+    where: { slug },
+  })
+
+  if (!tag) {
+    return buildMetadata({ canonicalPath: `/tag/${slug}`, noIndex: true })
+  }
+
+  return buildMetadata({
+    canonicalPath: `/tag/${slug}`,
+    description: `Posts tagged with ${tag.name}`,
+    title: `#${tag.name}`,
+  })
 }
 
 export default async function TagPage({ params, searchParams }: TagPageProps) {

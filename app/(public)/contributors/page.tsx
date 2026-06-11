@@ -1,6 +1,16 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 
 import { prisma } from "@/lib/prisma"
+import { buildMetadata, getAppName } from "@/lib/seo"
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
+    canonicalPath: "/contributors",
+    description: `Meet the writers behind ${getAppName()}.`,
+    title: "Contributors",
+  })
+}
 
 export default async function ContributorsPage() {
   const contributors = await prisma.user.findMany({

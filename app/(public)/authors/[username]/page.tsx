@@ -1,7 +1,9 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { PostList } from "@/components/posts/PostList"
 import { prisma } from "@/lib/prisma"
+import { buildMetadata } from "@/lib/seo"
 
 interface AuthorPageProps {
   params: Promise<{ username: string }>
@@ -14,6 +16,27 @@ function parsePage(page?: string) {
   const parsedPage = Number(page ?? "1")
 
   return Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1
+}
+
+export async function generateMetadata({
+  params,
+}: AuthorPageProps): Promise<Metadata> {
+  const { username } = await params
+  const author = await prisma.user.findUnique({
+    select: { avatarUrl: true, bio: true, name: true },
+    where: { username },
+  })
+
+  if (!author) {
+    return buildMetadata({ canonicalPath: `/authors/${username}`, noIndex: true })
+  }
+
+  return buildMetadata({
+    canonicalPath: `/authors/${username}`,
+    description: author.bio ?? `Posts by ${author.name}`,
+    ogImage: author.avatarUrl ?? undefined,
+    title: author.name,
+  })
 }
 
 export default async function AuthorPage({

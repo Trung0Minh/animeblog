@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 
 import { Pagination } from "@/components/ui/Pagination"
@@ -7,6 +8,7 @@ import {
   sanitizeSearchSnippet,
   type SearchResult,
 } from "@/lib/search"
+import { buildMetadata } from "@/lib/seo"
 import { formatDate } from "@/lib/utils"
 
 interface SearchPageProps {
@@ -18,6 +20,19 @@ const PAGE_SIZE = 10
 function parsePage(value: string | undefined) {
   const page = Number.parseInt(value ?? "1", 10)
   return Number.isFinite(page) && page > 0 ? page : 1
+}
+
+export async function generateMetadata({
+  searchParams,
+}: SearchPageProps): Promise<Metadata> {
+  const { q } = await searchParams
+  const query = (q ?? "").trim()
+
+  return buildMetadata({
+    canonicalPath: query ? `/search?q=${encodeURIComponent(query)}` : "/search",
+    noIndex: true,
+    title: query ? `Search: ${query}` : "Search",
+  })
 }
 
 function EmptySearchState({ query }: { query: string }) {
