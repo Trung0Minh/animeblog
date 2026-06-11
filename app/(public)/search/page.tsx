@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { SearchPageTracker } from "@/components/search/SearchPageTracker"
 import { Pagination } from "@/components/ui/Pagination"
 import { prisma } from "@/lib/prisma"
 import {
@@ -141,6 +142,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <main className="container max-w-4xl py-10">
+      <SearchPageTracker query={query} />
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
         Search archive
       </p>

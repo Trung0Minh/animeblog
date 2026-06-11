@@ -5,6 +5,7 @@ import { useId, useState, type FormEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { trackEvent } from "@/lib/analytics"
 import type { CommentWithReplies, PublicComment } from "@/types"
 
 interface CommentFormProps {
@@ -13,6 +14,7 @@ interface CommentFormProps {
   onSuccess: (comment: CommentWithReplies) => void
   parentId?: string
   postId: string
+  postSlug?: string
 }
 
 interface CommentResponse {
@@ -26,6 +28,7 @@ export function CommentForm({
   onSuccess,
   parentId,
   postId,
+  postSlug,
 }: CommentFormProps) {
   const id = useId()
   const [authorEmail, setAuthorEmail] = useState("")
@@ -62,6 +65,9 @@ export function CommentForm({
       }
 
       onSuccess({ ...result.data, replies: [] })
+      if (postSlug) {
+        trackEvent("comment_submitted", { postSlug })
+      }
       setAuthorEmail("")
       setAuthorName("")
       setContent("")

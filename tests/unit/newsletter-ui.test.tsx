@@ -2,6 +2,14 @@ import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+const analyticsMocks = vi.hoisted(() => ({
+  trackEvent: vi.fn(),
+}))
+
+vi.mock("@/lib/analytics", () => ({
+  trackEvent: analyticsMocks.trackEvent,
+}))
+
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm"
 
 describe("NewsletterForm", () => {
@@ -54,6 +62,9 @@ describe("NewsletterForm", () => {
     })
     expect(await screen.findByRole("status")).toHaveTextContent(
       "Subscribed successfully.",
+    )
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith(
+      "newsletter_subscribed",
     )
     expect(screen.getByRole("textbox", { name: "Email address" })).toHaveValue(
       "",

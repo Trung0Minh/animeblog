@@ -2,6 +2,14 @@ import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+const analyticsMocks = vi.hoisted(() => ({
+  trackEvent: vi.fn(),
+}))
+
+vi.mock("@/lib/analytics", () => ({
+  trackEvent: analyticsMocks.trackEvent,
+}))
+
 import { CommentForm } from "@/components/comments/CommentForm"
 import { CommentSection } from "@/components/comments/CommentSection"
 import type { CommentWithReplies } from "@/types"
@@ -49,7 +57,13 @@ describe("CommentForm", () => {
     )
     vi.stubGlobal("fetch", fetchMock)
 
-    render(<CommentForm onSuccess={onSuccess} postId="post-1" />)
+    render(
+      <CommentForm
+        onSuccess={onSuccess}
+        postId="post-1"
+        postSlug="frieren-memory"
+      />,
+    )
 
     expect(
       screen.getByText("Your email stays private. We only use it for replies."),
@@ -72,6 +86,10 @@ describe("CommentForm", () => {
       )
     })
     expect(await screen.findByText("Comment posted.")).toBeVisible()
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith(
+      "comment_submitted",
+      { postSlug: "frieren-memory" },
+    )
 
     const init = fetchMock.mock.calls[0]?.[1] as RequestInit | undefined
     const body = JSON.parse(String(init?.body)) as Record<string, unknown>
@@ -92,7 +110,11 @@ describe("CommentSection", () => {
 
   it("renders comments as plain text and never displays email addresses", () => {
     const { container } = render(
-      <CommentSection initialComments={[topComment]} postId="post-1" />,
+      <CommentSection
+        initialComments={[topComment]}
+        postId="post-1"
+        postSlug="frieren-memory"
+      />,
     )
 
     expect(screen.getByRole("heading", { name: "2 comments" })).toBeVisible()
@@ -121,7 +143,13 @@ describe("CommentSection", () => {
     )
     vi.stubGlobal("fetch", fetchMock)
 
-    render(<CommentSection initialComments={[topComment]} postId="post-1" />)
+    render(
+      <CommentSection
+        initialComments={[topComment]}
+        postId="post-1"
+        postSlug="frieren-memory"
+      />,
+    )
 
     await user.click(
       screen.getByRole("button", { name: "Reply to Mina's comment" }),

@@ -1,9 +1,10 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { useState, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { trackEvent } from "@/lib/analytics"
 
 type FormState = "error" | "idle" | "loading" | "success"
 
@@ -63,6 +64,7 @@ export function NewsletterForm() {
       setEmail("")
       setMessage(getApiMessage(result))
       setState("success")
+      trackEvent("newsletter_subscribed")
     } catch {
       setMessage("Something went wrong. Please try again.")
       setState("error")

@@ -67,6 +67,9 @@ vi.mock("@/components/admin/NewsletterBroadcastForm", () => ({
     </div>
   ),
 }))
+vi.mock("@/components/admin/AnalyticsWidget", () => ({
+  AnalyticsWidget: () => <div data-testid="analytics-widget">Analytics widget</div>,
+}))
 
 import AdminCommentsPage from "@/app/(admin)/admin/comments/page"
 import AdminLayout, { metadata } from "@/app/(admin)/admin/layout"
@@ -136,6 +139,7 @@ describe("admin server pages", () => {
     expect(screen.getByText("Published posts")).toBeVisible()
     expect(screen.getByText("Drafts")).toBeVisible()
     expect(screen.getByText("Active subscribers")).toBeVisible()
+    expect(screen.getByTestId("analytics-widget")).toBeVisible()
     expect(mocks.prisma.newsletterSubscriber.count).toHaveBeenCalledWith({
       where: { status: "ACTIVE" },
     })

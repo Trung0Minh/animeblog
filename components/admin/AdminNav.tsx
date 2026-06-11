@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  BarChart3,
   FileText,
   LayoutDashboard,
   LogOut,
@@ -21,6 +22,7 @@ const ADMIN_LINKS = [
   { href: "/admin/writers", icon: Users, label: "Writers" },
   { href: "/admin/comments", icon: MessageSquare, label: "Comments" },
   { href: "/admin/newsletter", icon: Mail, label: "Newsletter" },
+  { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
 ]
 
 function isActivePath(pathname: string, href: string) {

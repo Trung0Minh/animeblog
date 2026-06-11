@@ -9,6 +9,7 @@ import type { CommentWithReplies } from "@/types"
 interface CommentSectionProps {
   initialComments: CommentWithReplies[]
   postId: string
+  postSlug?: string
 }
 
 function countComments(comments: CommentWithReplies[]) {
@@ -21,6 +22,7 @@ function countComments(comments: CommentWithReplies[]) {
 export function CommentSection({
   initialComments,
   postId,
+  postSlug,
 }: CommentSectionProps) {
   const [comments, setComments] =
     useState<CommentWithReplies[]>(initialComments)
@@ -61,7 +63,11 @@ export function CommentSection({
         </p>
       </div>
 
-      <CommentForm onSuccess={handleNewComment} postId={postId} />
+      <CommentForm
+        onSuccess={handleNewComment}
+        postId={postId}
+        postSlug={postSlug}
+      />
 
       {comments.length > 0 && (
         <div className="mt-8">
@@ -69,6 +75,7 @@ export function CommentSection({
             comments={comments}
             onReply={handleNewComment}
             postId={postId}
+            postSlug={postSlug}
           />
         </div>
       )}

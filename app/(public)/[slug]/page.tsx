@@ -6,6 +6,7 @@ import { CommentSection } from "@/components/comments/CommentSection"
 import { PostBody } from "@/components/posts/PostBody"
 import { PostHeader } from "@/components/posts/PostHeader"
 import { PostJsonLd } from "@/components/posts/PostJsonLd"
+import { PostReadTracker } from "@/components/posts/PostReadTracker"
 import { TableOfContents } from "@/components/posts/TableOfContents"
 import { prisma } from "@/lib/prisma"
 import { buildMetadata } from "@/lib/seo"
@@ -142,6 +143,7 @@ export default async function PostPage({ params }: PostPageProps) {
         title={post.title}
         updatedAt={post.updatedAt}
       />
+      <PostReadTracker slug={post.slug} title={post.title} />
       <article className="container py-8 sm:py-10">
         <PostHeader post={post} />
         <div className="mx-auto mt-8 flex max-w-5xl gap-8">
@@ -150,6 +152,7 @@ export default async function PostPage({ params }: PostPageProps) {
             <CommentSection
               initialComments={post.comments}
               postId={post.id}
+              postSlug={post.slug}
             />
           </div>
           <aside className="hidden w-56 shrink-0 xl:block">

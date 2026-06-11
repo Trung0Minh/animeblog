@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import Link from "next/link"
 import {
   FileText,
@@ -7,6 +8,7 @@ import {
   Users,
 } from "lucide-react"
 
+import { AnalyticsWidget } from "@/components/admin/AnalyticsWidget"
 import { Button } from "@/components/ui/button"
 import { prisma } from "@/lib/prisma"
 
@@ -108,13 +110,15 @@ export default async function AdminDashboardPage() {
         ))}
       </section>
 
-      <section className="rounded-2xl border border-dashed p-5">
-        <p className="text-sm font-medium">Analytics summary arrives in Phase 13</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          The admin dashboard is ready for the Umami widget once the analytics
-          integration is added.
-        </p>
-      </section>
+      <Suspense
+        fallback={
+          <section className="rounded-2xl border p-5 text-sm text-muted-foreground">
+            Loading analytics...
+          </section>
+        }
+      >
+        <AnalyticsWidget />
+      </Suspense>
     </div>
   )
 }

@@ -60,6 +60,10 @@ describe("admin client components", () => {
       "href",
       "/admin/posts",
     )
+    expect(screen.getByRole("link", { name: /analytics/i })).toHaveAttribute(
+      "href",
+      "/admin/analytics",
+    )
     expect(screen.getByRole("link", { name: /posts/i })).toHaveAttribute(
       "aria-current",
       "page",

@@ -12,6 +12,7 @@ interface CommentListProps {
   comments: CommentWithReplies[]
   onReply: (comment: CommentWithReplies) => void
   postId: string
+  postSlug?: string
 }
 
 function getInitial(name: string) {
@@ -60,10 +61,12 @@ function CommentThread({
   comment,
   onReply,
   postId,
+  postSlug,
 }: {
   comment: CommentWithReplies
   onReply: (comment: CommentWithReplies) => void
   postId: string
+  postSlug?: string
 }) {
   const [isReplying, setIsReplying] = useState(false)
 
@@ -99,6 +102,7 @@ function CommentThread({
             onSuccess={handleReply}
             parentId={comment.id}
             postId={postId}
+            postSlug={postSlug}
           />
         </div>
       )}
@@ -120,7 +124,12 @@ function CommentThread({
   )
 }
 
-export function CommentList({ comments, onReply, postId }: CommentListProps) {
+export function CommentList({
+  comments,
+  onReply,
+  postId,
+  postSlug,
+}: CommentListProps) {
   return (
     <div className="space-y-4">
       {comments.map((comment) => (
@@ -129,6 +138,7 @@ export function CommentList({ comments, onReply, postId }: CommentListProps) {
           key={comment.id}
           onReply={onReply}
           postId={postId}
+          postSlug={postSlug}
         />
       ))}
     </div>

@@ -461,25 +461,25 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 - [ ] **13.2** Add Umami env variables to `.env.local`
 
-- [ ] **13.3** Add Umami `<Script>` to `app/layout.tsx` (production only)
+- [x] **13.3** Add Umami `<Script>` to `app/layout.tsx` (production only)
 
-- [ ] **13.4** Create `lib/analytics.ts` with `trackEvent` helper
+- [x] **13.4** Create `lib/analytics.ts` with `trackEvent` helper
 
-- [ ] **13.5** Create `lib/umami.ts` with `getUmamiStats`, `getUmamiTopPages`, `getPostViewCount`
+- [x] **13.5** Create `lib/umami.ts` with `getUmamiStats`, `getUmamiTopPages`, `getPostViewCount`
 
-- [ ] **13.6** Create `components/posts/PostReadTracker.tsx` and add to post detail page
+- [x] **13.6** Create `components/posts/PostReadTracker.tsx` and add to post detail page
 
-- [ ] **13.7** Add `trackEvent` calls to `CommentForm` and `NewsletterForm`
+- [x] **13.7** Add `trackEvent` calls to `CommentForm` and `NewsletterForm`
 
-- [ ] **13.8** Create `components/admin/AnalyticsWidget.tsx`
+- [x] **13.8** Create `components/admin/AnalyticsWidget.tsx`
 
-- [ ] **13.9** Add `AnalyticsWidget` to `/admin` page wrapped in `<Suspense>`
+- [x] **13.9** Add `AnalyticsWidget` to `/admin` page wrapped in `<Suspense>`
 
-- [ ] **13.10** Create `app/(admin)/admin/analytics/page.tsx` (full-page view with link to Umami)
+- [x] **13.10** Create `app/(admin)/admin/analytics/page.tsx` (full-page view with link to Umami)
 
 - [ ] **13.11** Verify: page views appear in Umami realtime dashboard
 
-- [ ] **13.12** Verify: `AnalyticsWidget` falls back gracefully if Umami is down
+- [x] **13.12** Verify: `AnalyticsWidget` falls back gracefully if Umami is down
 
 ---
 
