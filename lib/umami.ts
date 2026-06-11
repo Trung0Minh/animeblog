@@ -1,5 +1,17 @@
-interface UmamiConfig {
+type UmamiConfig =
+  | UmamiCloudConfig
+  | UmamiSelfHostedConfig
+
+interface UmamiCloudConfig {
   apiUrl: string
+  apiKey: string
+  mode: "cloud"
+  websiteId: string
+}
+
+interface UmamiSelfHostedConfig {
+  apiUrl: string
+  mode: "self-hosted"
   password: string
   username: string
   websiteId: string
@@ -47,18 +59,38 @@ function normalizeApiUrl(apiUrl: string) {
 }
 
 function getUmamiConfig(): UmamiConfig {
-  const apiUrl = process.env.UMAMI_API_URL
-  const username = process.env.UMAMI_USERNAME
-  const password = process.env.UMAMI_PASSWORD
+  const apiKey = process.env.UMAMI_API_KEY
   const websiteId =
     process.env.UMAMI_WEBSITE_ID ?? process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
 
-  if (!apiUrl || !username || !password || !websiteId) {
+  if (!websiteId) {
+    throw new Error("Umami is not configured")
+  }
+
+  if (apiKey) {
+    return {
+      apiKey,
+      apiUrl: normalizeApiUrl(
+        process.env.UMAMI_API_URL ||
+          process.env.UMAMI_API_CLIENT_ENDPOINT ||
+          "https://api.umami.is/v1",
+      ),
+      mode: "cloud",
+      websiteId,
+    }
+  }
+
+  const apiUrl = process.env.UMAMI_API_URL
+  const username = process.env.UMAMI_USERNAME
+  const password = process.env.UMAMI_PASSWORD
+
+  if (!apiUrl || !username || !password) {
     throw new Error("Umami is not configured")
   }
 
   return {
     apiUrl: normalizeApiUrl(apiUrl),
+    mode: "self-hosted",
     password,
     username,
     websiteId,
@@ -90,7 +122,7 @@ function getTokenFromResponse(value: unknown) {
   throw new Error("Umami auth response did not include a token")
 }
 
-async function getUmamiToken(config: UmamiConfig): Promise<string> {
+async function getUmamiToken(config: UmamiSelfHostedConfig): Promise<string> {
   const response = await fetch(`${config.apiUrl}/api/auth/login`, {
     body: JSON.stringify({
       password: config.password,
@@ -106,6 +138,26 @@ async function getUmamiToken(config: UmamiConfig): Promise<string> {
   }
 
   return getTokenFromResponse(await response.json())
+}
+
+async function getAuthHeaders(config: UmamiConfig): Promise<HeadersInit> {
+  if (config.mode === "cloud") {
+    return {
+      Accept: "application/json",
+      "x-umami-api-key": config.apiKey,
+    }
+  }
+
+  const token = await getUmamiToken(config)
+  return { Authorization: `Bearer ${token}` }
+}
+
+function getEndpoint(config: UmamiConfig, path: string) {
+  if (config.mode === "cloud") {
+    return `${config.apiUrl}${path}`
+  }
+
+  return `${config.apiUrl}/api${path}`
 }
 
 function normalizeStats(stats: RawUmamiStats): UmamiStats {
@@ -161,16 +213,16 @@ export async function getUmamiStats(
   endAt: number,
 ): Promise<UmamiStats> {
   const config = getUmamiConfig()
-  const token = await getUmamiToken(config)
+  const headers = await getAuthHeaders(config)
   const params = new URLSearchParams({
     endAt: String(endAt),
     startAt: String(startAt),
   })
 
   const response = await fetch(
-    `${config.apiUrl}/api/websites/${config.websiteId}/stats?${params}`,
+    `${getEndpoint(config, `/websites/${config.websiteId}/stats`)}?${params}`,
     {
-      headers: { Authorization: `Bearer ${token}` },
+      headers,
       next: { revalidate: 300 },
     },
   )
@@ -188,7 +240,7 @@ export async function getUmamiTopPages(
   limit = 10,
 ): Promise<UmamiTopPage[]> {
   const config = getUmamiConfig()
-  const token = await getUmamiToken(config)
+  const headers = await getAuthHeaders(config)
   const params = new URLSearchParams({
     endAt: String(endAt),
     limit: String(limit),
@@ -197,9 +249,9 @@ export async function getUmamiTopPages(
   })
 
   const response = await fetch(
-    `${config.apiUrl}/api/websites/${config.websiteId}/metrics?${params}`,
+    `${getEndpoint(config, `/websites/${config.websiteId}/metrics`)}?${params}`,
     {
-      headers: { Authorization: `Bearer ${token}` },
+      headers,
       next: { revalidate: 300 },
     },
   )

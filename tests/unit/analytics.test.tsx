@@ -177,6 +177,42 @@ describe("Umami API helper", () => {
     expect(url).toContain("limit=3")
   })
 
+  it("uses Umami Cloud API keys without a username/password login", async () => {
+    vi.stubEnv("UMAMI_API_KEY", "cloud-key")
+    vi.stubEnv("UMAMI_API_URL", "")
+    vi.stubEnv("UMAMI_USERNAME", "")
+    vi.stubEnv("UMAMI_PASSWORD", "")
+
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          bounces: 0,
+          comparison: {},
+          pageviews: 3,
+          totaltime: 0,
+          visitors: 2,
+          visits: 2,
+        }),
+        { status: 200 },
+      ),
+    )
+    vi.stubGlobal("fetch", fetchMock)
+
+    await expect(getUmamiStats(1000, 2000)).resolves.toMatchObject({
+      pageviews: { value: 3 },
+      visitors: { value: 2 },
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "https://api.umami.is/v1/websites/website-server/stats?",
+      ),
+      expect.objectContaining({
+        headers: expect.objectContaining({ "x-umami-api-key": "cloud-key" }),
+      }),
+    )
+  })
+
   it("returns a post's exact path view count and falls back to zero on errors", async () => {
     const fetchMock = vi
       .fn()
