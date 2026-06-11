@@ -1,8 +1,9 @@
 "use client"
 
-import { Menu, Search } from "lucide-react"
-import Link from "next/link"
 import { useState } from "react"
+import { FileText, LogOut, Menu, Search, User } from "lucide-react"
+import Link from "next/link"
+import { signOut } from "next-auth/react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -12,13 +13,21 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import type { WriterMenuUser } from "@/components/layout/WriterMenu"
 
 interface MobileNavProps {
   links: { href: string; label: string }[]
+  user?: WriterMenuUser | null
 }
 
-export function MobileNav({ links }: MobileNavProps) {
+export function MobileNav({ links, user }: MobileNavProps) {
   const [open, setOpen] = useState(false)
+  const menuUser = user ?? null
+
+  function handleSignOut() {
+    setOpen(false)
+    void signOut({ callbackUrl: "/" })
+  }
 
   return (
     <Sheet onOpenChange={setOpen} open={open}>
@@ -64,6 +73,55 @@ export function MobileNav({ links }: MobileNavProps) {
             Search posts
           </Link>
         </div>
+
+        {menuUser ? (
+          <div className="mt-6 border-t pt-6">
+            <div className="px-3 pb-3">
+              <p className="truncate text-sm font-medium">{menuUser.name}</p>
+              <p className="truncate text-xs text-muted-foreground">
+                @{menuUser.username}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Link
+                className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                href="/dashboard"
+                onClick={() => setOpen(false)}
+                prefetch={false}
+              >
+                <FileText aria-hidden="true" className="h-4 w-4" />
+                My posts
+              </Link>
+              <Link
+                className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                href="/dashboard/profile"
+                onClick={() => setOpen(false)}
+                prefetch={false}
+              >
+                <User aria-hidden="true" className="h-4 w-4" />
+                Edit profile
+              </Link>
+              <Link
+                className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                href={`/authors/${menuUser.username}`}
+                onClick={() => setOpen(false)}
+                prefetch={false}
+              >
+                <User aria-hidden="true" className="h-4 w-4" />
+                View public profile
+              </Link>
+              <Button
+                className="min-h-11 justify-start gap-2 px-3 text-muted-foreground"
+                onClick={handleSignOut}
+                type="button"
+                variant="ghost"
+              >
+                <LogOut aria-hidden="true" className="h-4 w-4" />
+                Sign out
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </SheetContent>
     </Sheet>
   )

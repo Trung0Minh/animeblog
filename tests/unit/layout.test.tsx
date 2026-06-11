@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import type { AnchorHTMLAttributes } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
@@ -71,6 +71,48 @@ describe("Navbar", () => {
       screen.getByRole("searchbox", { name: "Search posts" }),
     ).toBeInTheDocument()
   })
+
+  it("keeps the desktop writer menu hidden on mobile", () => {
+    render(
+      <Navbar
+        user={{ avatarUrl: null, name: "Mina Writer", username: "mina" }}
+      />,
+    )
+
+    expect(screen.getByTestId("desktop-writer-menu")).toHaveClass(
+      "hidden",
+      "md:block",
+    )
+  })
+
+  it("loads the writer session once for navbar controls", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            user: {
+              avatarUrl: null,
+              name: "Mina Writer",
+              username: "mina",
+            },
+          }),
+        ),
+      )
+
+    try {
+      render(<Navbar />)
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: "Open writer menu" }),
+        ).toBeInTheDocument()
+      })
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+    } finally {
+      fetchMock.mockRestore()
+    }
+  })
 })
 
 describe("WriterMenu", () => {
@@ -133,6 +175,36 @@ describe("MobileNav", () => {
       "h-11",
       "w-11",
     )
+  })
+
+  it("shows writer links in the mobile drawer for signed-in writers", async () => {
+    const user = userEvent.setup()
+    render(
+      <MobileNav
+        links={[
+          { href: "/contributors", label: "Contributors" },
+          { href: "/about", label: "About" },
+        ]}
+        user={{ avatarUrl: null, name: "Mina Writer", username: "mina" }}
+      />,
+    )
+
+    await user.click(
+      screen.getByRole("button", { name: "Open navigation menu" }),
+    )
+
+    expect(screen.getByRole("link", { name: "My posts" })).toHaveAttribute(
+      "href",
+      "/dashboard",
+    )
+    expect(screen.getByRole("link", { name: "Edit profile" })).toHaveAttribute(
+      "href",
+      "/dashboard/profile",
+    )
+
+    await user.click(screen.getByRole("button", { name: "Sign out" }))
+
+    expect(themeMocks.signOut).toHaveBeenCalledWith({ callbackUrl: "/" })
   })
 })
 

@@ -21,7 +21,7 @@ export interface WriterMenuUser {
   username: string
 }
 
-function getSessionUser(value: unknown): WriterMenuUser | null {
+export function getSessionUser(value: unknown): WriterMenuUser | null {
   if (
     typeof value === "object" &&
     value !== null &&

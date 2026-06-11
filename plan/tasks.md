@@ -487,8 +487,8 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/15_responsive.md`
 
-- [ ] **15.1** Update `Navbar` — hide nav links, SearchBar, WriterMenu on mobile; show hamburger
-- [ ] **15.2** Update `MobileNav` drawer — add search link and WriterMenu items when logged in
+- [x] **15.1** Update `Navbar` — hide nav links, SearchBar, WriterMenu on mobile; show hamburger
+- [x] **15.2** Update `MobileNav` drawer — add search link and WriterMenu items when logged in
 - [ ] **15.3** Update homepage layout — sidebar stacks below post list on mobile (`flex-col lg:flex-row`)
 - [ ] **15.4** Update `PostCard` — smaller title font on mobile, hide excerpt below sm
 - [ ] **15.5** Update post detail page — TOC `hidden xl:block`, title `text-2xl md:text-3xl`

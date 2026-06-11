@@ -1,8 +1,8 @@
 import Link from "next/link"
 
-import { MobileNav } from "@/components/layout/MobileNav"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
-import { WriterMenu, type WriterMenuUser } from "@/components/layout/WriterMenu"
+import { WriterNavControls } from "@/components/layout/WriterNavControls"
+import type { WriterMenuUser } from "@/components/layout/WriterMenu"
 import { SearchBar } from "@/components/search/SearchBar"
 
 const NAV_LINKS = [
@@ -39,14 +39,13 @@ export function Navbar({ user }: { user?: WriterMenuUser | null }) {
           ))}
         </nav>
 
-        <div className="hidden w-64 lg:block">
+        <div className="hidden w-64 md:block">
           <SearchBar />
         </div>
 
         <div className="ml-auto flex items-center gap-1 md:ml-0">
           <ThemeToggle />
-          <WriterMenu user={user} />
-          <MobileNav links={NAV_LINKS} />
+          <WriterNavControls links={NAV_LINKS} user={user} />
         </div>
       </div>
     </header>
