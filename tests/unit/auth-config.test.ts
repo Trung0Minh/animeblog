@@ -61,7 +61,7 @@ describe("NextAuth configuration", () => {
     })
   })
 
-  it("blocks sign-in when the email has no account", async () => {
+  it("blocks sign-in when the email has no active account", async () => {
     mocks.userFindUnique.mockResolvedValue(null)
     const signInCallback = config.callbacks?.signIn
 
@@ -76,12 +76,12 @@ describe("NextAuth configuration", () => {
     expect(result).toBe(false)
     expect(mocks.userFindUnique).toHaveBeenCalledWith({
       where: { email: "missing@example.com" },
-      select: { id: true },
+      select: { id: true, role: true },
     })
   })
 
   it("allows sign-in when the email has an account", async () => {
-    mocks.userFindUnique.mockResolvedValue({ id: "writer-1" })
+    mocks.userFindUnique.mockResolvedValue({ id: "writer-1", role: "WRITER" })
     const signInCallback = config.callbacks?.signIn
 
     const result = await signInCallback?.({
@@ -93,6 +93,21 @@ describe("NextAuth configuration", () => {
     })
 
     expect(result).toBe(true)
+  })
+
+  it("blocks sign-in for revoked writers", async () => {
+    mocks.userFindUnique.mockResolvedValue({ id: "writer-1", role: "REVOKED" })
+    const signInCallback = config.callbacks?.signIn
+
+    const result = await signInCallback?.({
+      account: null,
+      credentials: undefined,
+      email: { verificationRequest: true },
+      profile: undefined,
+      user: { id: "writer-1", email: "writer@example.com" },
+    })
+
+    expect(result).toBe(false)
   })
 
   it("adds role, username, and avatar URL to database sessions", async () => {

@@ -368,6 +368,28 @@ describe("single post API", () => {
     await expect(response.json()).resolves.toEqual({ error: "Forbidden" })
     expect(mocks.prisma.post.delete).not.toHaveBeenCalled()
   })
+
+  it("allows admins to delete another writer's post", async () => {
+    mocks.auth.mockResolvedValue({
+      user: { id: "admin-1", role: "ADMIN" },
+    })
+    mocks.prisma.post.findUnique.mockResolvedValue({ authorId: "writer-1" })
+    mocks.prisma.post.delete.mockResolvedValue({ id: "post-1" })
+
+    const response = await DELETE(
+      new Request("https://example.test/api/posts/post-1"),
+      routeContext("post-1"),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({
+      data: { message: "Post deleted" },
+    })
+    expect(mocks.prisma.post.delete).toHaveBeenCalledWith({
+      select: { id: true },
+      where: { id: "post-1" },
+    })
+  })
 })
 
 describe("tags API", () => {

@@ -419,37 +419,37 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/10_admin.md`
 
-- [ ] **12.1** Create `app/(admin)/admin/layout.tsx` with auth guard + `AdminNav`
+- [x] **12.1** Create `app/(admin)/admin/layout.tsx` with auth guard + `AdminNav`
 
-- [ ] **12.2** Create `components/admin/AdminNav.tsx`
+- [x] **12.2** Create `components/admin/AdminNav.tsx`
 
-- [ ] **12.3** Create `app/(admin)/admin/page.tsx` — stats grid (Umami widget added in Phase 13)
+- [x] **12.3** Create `app/(admin)/admin/page.tsx` — stats grid (Umami widget added in Phase 13)
 
-- [ ] **12.4** Create `app/(admin)/admin/posts/page.tsx`
+- [x] **12.4** Create `app/(admin)/admin/posts/page.tsx`
 
-- [ ] **12.5** Create `components/admin/AdminPostsTable.tsx`
+- [x] **12.5** Create `components/admin/AdminPostsTable.tsx`
 
-- [ ] **12.6** Create `app/(admin)/admin/writers/page.tsx`
+- [x] **12.6** Create `app/(admin)/admin/writers/page.tsx`
 
-- [ ] **12.7** Create `components/admin/InviteWriterForm.tsx`
+- [x] **12.7** Create `components/admin/InviteWriterForm.tsx`
 
-- [ ] **12.8** Create `components/admin/WritersTable.tsx`
+- [x] **12.8** Create `components/admin/WritersTable.tsx`
 
-- [ ] **12.9** Create `components/admin/PendingInvitesTable.tsx`
+- [x] **12.9** Create `components/admin/PendingInvitesTable.tsx`
 
-- [ ] **12.10** Create `DELETE /api/admin/writers/[id]/route.ts`
+- [x] **12.10** Create `DELETE /api/admin/writers/[id]/route.ts`
 
-- [ ] **12.11** Create `app/(admin)/admin/comments/page.tsx`
+- [x] **12.11** Create `app/(admin)/admin/comments/page.tsx`
 
-- [ ] **12.12** Create `components/admin/AdminCommentsTable.tsx`
+- [x] **12.12** Create `components/admin/AdminCommentsTable.tsx`
 
-- [ ] **12.13** Create `app/(admin)/admin/newsletter/page.tsx`
+- [x] **12.13** Create `app/(admin)/admin/newsletter/page.tsx`
 
-- [ ] **12.14** Create `components/admin/NewsletterBroadcastForm.tsx`
+- [x] **12.14** Create `components/admin/NewsletterBroadcastForm.tsx`
 
-- [ ] **12.15** Verify: admin can delete any post regardless of author
+- [x] **12.15** Verify: admin can delete any post regardless of author
 
-- [ ] **12.16** Verify: removing writer with posts revokes login only (posts remain)
+- [x] **12.16** Verify: removing writer with posts revokes login only (posts remain)
 
 ---
 

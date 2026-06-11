@@ -29,10 +29,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       const existingUser = await prisma.user.findUnique({
         where: { email: user.email },
-        select: { id: true },
+        select: { id: true, role: true },
       })
 
-      return Boolean(existingUser)
+      return Boolean(existingUser && existingUser.role !== "REVOKED")
     },
     async session({ session, user }) {
       const dbUser = await prisma.user.findUnique({
