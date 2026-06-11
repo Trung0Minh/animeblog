@@ -39,8 +39,10 @@ vi.mock("@/components/editor/TiptapEditor", () => ({
 
 import { CoverImageUpload } from "@/components/posts/CoverImageUpload"
 import { Pagination } from "@/components/ui/Pagination"
+import { PostBody } from "@/components/posts/PostBody"
 import { PostCard } from "@/components/posts/PostCard"
 import { PostEditor } from "@/components/posts/PostEditor"
+import { PostHeader } from "@/components/posts/PostHeader"
 import { TableOfContents } from "@/components/posts/TableOfContents"
 import { TagInput, type TagOption } from "@/components/posts/TagInput"
 
@@ -87,24 +89,56 @@ describe("PostCard", () => {
     )
     expect(screen.getByText("2 comments")).toBeVisible()
   })
+
+  it("uses mobile-first title sizing and hides excerpts below small screens", () => {
+    render(<PostCard post={post} />)
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Frieren Animation" }),
+    ).toHaveClass("text-lg", "sm:text-xl")
+    expect(screen.getByText("A compact summary of the article.")).toHaveClass(
+      "hidden",
+      "sm:block",
+      "line-clamp-3",
+    )
+  })
+})
+
+describe("Post detail responsive components", () => {
+  it("sizes the post detail title from mobile to desktop", () => {
+    render(<PostHeader post={post} />)
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Frieren Animation" }),
+    ).toHaveClass("text-2xl", "md:text-3xl")
+  })
+
+  it("sizes the post body from mobile to desktop", () => {
+    const { container } = render(
+      <PostBody content={{ content: [], type: "doc" }} />,
+    )
+
+    expect(container.querySelector(".post-content")).toHaveClass(
+      "text-base",
+      "md:text-lg",
+    )
+  })
 })
 
 describe("Pagination", () => {
   it("renders previous and next links with the current page window", () => {
     render(<Pagination page={2} pageSize={10} total={35} />)
 
-    expect(screen.getByRole("link", { name: "Previous" })).toHaveAttribute(
-      "href",
-      "?page=1",
-    )
+    const previous = screen.getByRole("link", { name: "Previous" })
+    expect(previous).toHaveAttribute("href", "?page=1")
+    expect(previous).toHaveClass("min-h-11", "min-w-11")
     expect(screen.getByRole("link", { name: "Next" })).toHaveAttribute(
       "href",
       "?page=3",
     )
-    expect(screen.getByRole("link", { name: "Page 4" })).toHaveAttribute(
-      "href",
-      "?page=4",
-    )
+    const pageFour = screen.getByRole("link", { name: "Page 4" })
+    expect(pageFour).toHaveAttribute("href", "?page=4")
+    expect(pageFour).toHaveClass("min-h-11", "min-w-11")
   })
 })
 
@@ -216,6 +250,20 @@ describe("TagInput", () => {
     ])
   })
 
+  it("uses an expanded tap area for removing selected tags", () => {
+    render(
+      <TagInput
+        onChange={vi.fn()}
+        selectedTags={[{ id: "tag-1", name: "Sakuga", slug: "sakuga" }]}
+      />,
+    )
+
+    expect(screen.getByRole("button", { name: "Remove Sakuga" })).toHaveClass(
+      "-m-1.5",
+      "p-1.5",
+    )
+  })
+
   it("creates a new tag when no exact match exists", async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()
@@ -315,6 +363,30 @@ describe("PostEditor", () => {
       title: "New Post",
     })
     expect(routerMocks.push).toHaveBeenCalledWith("/new-post")
+  })
+
+  it("uses responsive title and sticky footer controls", () => {
+    render(
+      <PostEditor categories={[]} currentUserId="writer-1" writers={[]} />,
+    )
+
+    expect(screen.getByLabelText("Title")).toHaveClass(
+      "text-xl",
+      "md:text-3xl",
+    )
+
+    const saveDraftButton = screen.getByRole("button", { name: "Save draft" })
+    const footer = saveDraftButton.closest(".sticky")
+    if (!footer) {
+      throw new Error("Editor footer not found")
+    }
+
+    expect(footer).toHaveClass("flex-col", "sm:flex-row")
+    expect(saveDraftButton).toHaveClass("flex-1", "sm:flex-none")
+    expect(screen.getByRole("button", { name: "Publish" })).toHaveClass(
+      "flex-1",
+      "sm:flex-none",
+    )
   })
 
   it("autosaves existing post content after the debounce delay", async () => {

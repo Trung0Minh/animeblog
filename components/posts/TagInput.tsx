@@ -203,7 +203,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
               {tag.name}
               <button
                 aria-label={`Remove ${tag.name}`}
-                className="text-muted-foreground transition-colors hover:text-foreground"
+                className="-m-1.5 inline-flex items-center justify-center rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() =>
                   onChange(
                     selectedTags.filter(

@@ -68,6 +68,9 @@ describe("admin client components", () => {
       "aria-current",
       "page",
     )
+    expect(
+      screen.getByRole("link", { name: /overview/i }).parentElement,
+    ).toHaveClass("overflow-x-auto")
 
     await user.click(screen.getByRole("button", { name: /sign out/i }))
 

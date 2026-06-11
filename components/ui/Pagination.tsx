@@ -10,6 +10,9 @@ interface PaginationProps {
   total: number
 }
 
+const paginationLinkClass =
+  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border px-3 text-sm transition-colors hover:bg-muted"
+
 function getPageWindow(page: number, totalPages: number) {
   const start = Math.max(1, page - 2)
   const end = Math.min(totalPages, start + 4)
@@ -59,7 +62,7 @@ export function Pagination({
     >
       {page > 1 && (
         <Link
-          className="rounded-md border px-3 py-2 text-sm transition-colors hover:bg-muted"
+          className={paginationLinkClass}
           href={buildPageHref(page - 1, query)}
         >
           Previous
@@ -71,7 +74,7 @@ export function Pagination({
           aria-current={pageNumber === page ? "page" : undefined}
           aria-label={`Page ${pageNumber}`}
           className={cn(
-            "rounded-md border px-3 py-2 text-sm transition-colors hover:bg-muted",
+            paginationLinkClass,
             pageNumber === page &&
               "border-primary bg-primary text-primary-foreground hover:bg-primary",
           )}
@@ -84,7 +87,7 @@ export function Pagination({
 
       {page < totalPages && (
         <Link
-          className="rounded-md border px-3 py-2 text-sm transition-colors hover:bg-muted"
+          className={paginationLinkClass}
           href={buildPageHref(page + 1, query)}
         >
           Next

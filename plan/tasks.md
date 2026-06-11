@@ -489,18 +489,18 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 - [x] **15.1** Update `Navbar` — hide nav links, SearchBar, WriterMenu on mobile; show hamburger
 - [x] **15.2** Update `MobileNav` drawer — add search link and WriterMenu items when logged in
-- [ ] **15.3** Update homepage layout — sidebar stacks below post list on mobile (`flex-col lg:flex-row`)
-- [ ] **15.4** Update `PostCard` — smaller title font on mobile, hide excerpt below sm
-- [ ] **15.5** Update post detail page — TOC `hidden xl:block`, title `text-2xl md:text-3xl`
-- [ ] **15.6** Update `PostBody` — body font `text-base md:text-lg`
-- [ ] **15.7** Update `CommentForm` — name/email `grid-cols-1 sm:grid-cols-2`, submit button `w-full sm:w-auto`
-- [ ] **15.8** Update `PostEditor` — title font `text-xl md:text-3xl`, sticky footer `flex-col sm:flex-row`
-- [ ] **15.9** Update `AdminNav` — add `overflow-x-auto` to prevent overflow on small screens
-- [ ] **15.10** Update dashboard layout nav — add `overflow-x-auto whitespace-nowrap`
-- [ ] **15.11** Update `AvatarUpload` — `flex-col sm:flex-row`
-- [ ] **15.12** Fix touch targets — tag remove button, comment reply button, pagination buttons
-- [ ] **15.13** Verify no horizontal scroll at 375px width on any page
-- [ ] **15.14** Test on Chrome DevTools device emulation: 375px (iPhone SE), 390px (iPhone 14), 768px (iPad), 1280px (desktop)
+- [x] **15.3** Update homepage layout — sidebar stacks below post list on mobile (`flex-col lg:flex-row`)
+- [x] **15.4** Update `PostCard` — smaller title font on mobile, hide excerpt below sm
+- [x] **15.5** Update post detail page — TOC `hidden xl:block`, title `text-2xl md:text-3xl`
+- [x] **15.6** Update `PostBody` — body font `text-base md:text-lg`
+- [x] **15.7** Update `CommentForm` — name/email `grid-cols-1 sm:grid-cols-2`, submit button `w-full sm:w-auto`
+- [x] **15.8** Update `PostEditor` — title font `text-xl md:text-3xl`, sticky footer `flex-col sm:flex-row`
+- [x] **15.9** Update `AdminNav` — add `overflow-x-auto` to prevent overflow on small screens
+- [x] **15.10** Update dashboard layout nav — add `overflow-x-auto whitespace-nowrap`
+- [x] **15.11** Update `AvatarUpload` — `flex-col sm:flex-row`
+- [x] **15.12** Fix touch targets — tag remove button, comment reply button, pagination buttons
+- [x] **15.13** Verify no horizontal scroll at 375px width on any page
+- [x] **15.14** Test on Chrome DevTools device emulation: 375px (iPhone SE), 390px (iPhone 14), 768px (iPad), 1280px (desktop)
 
 ---
 

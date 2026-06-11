@@ -8,7 +8,7 @@ interface PostBodyProps {
 
 export function PostBody({ content }: PostBodyProps) {
   return (
-    <div className="post-content">
+    <div className="post-content text-base md:text-lg">
       <TiptapEditor content={content} editable={false} />
     </div>
   )

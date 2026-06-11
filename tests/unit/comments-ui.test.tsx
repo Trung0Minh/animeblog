@@ -101,6 +101,21 @@ describe("CommentForm", () => {
       postId: "post-1",
     })
   })
+
+  it("stacks identity fields and full-width actions on mobile", () => {
+    render(<CommentForm onSuccess={vi.fn()} postId="post-1" />)
+
+    const identityGrid = screen.getByLabelText("Name").closest(".grid")
+    if (!identityGrid) {
+      throw new Error("Identity grid not found")
+    }
+
+    expect(identityGrid).toHaveClass("grid-cols-1", "sm:grid-cols-2")
+    expect(screen.getByRole("button", { name: "Post comment" })).toHaveClass(
+      "w-full",
+      "sm:w-auto",
+    )
+  })
 })
 
 describe("CommentSection", () => {
@@ -121,6 +136,9 @@ describe("CommentSection", () => {
     expect(screen.getByText("<script>alert(1)</script>")).toBeVisible()
     expect(container.querySelector("script")).toBeNull()
     expect(screen.queryByText(/@example\.com/)).not.toBeInTheDocument()
+    expect(
+      screen.getByRole("button", { name: "Reply to Mina's comment" }),
+    ).toHaveClass("min-h-11")
   })
 
   it("adds a successful reply under the selected parent comment", async () => {

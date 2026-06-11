@@ -114,4 +114,15 @@ describe("AvatarUpload", () => {
     expect(request.method).toBe("POST")
     expect(request.body.get("folder")).toBe("avatars")
   })
+
+  it("stacks avatar controls on mobile and aligns them on wider screens", () => {
+    const { container } = render(
+      <AvatarUpload name="Mina Writer" onChange={vi.fn()} value="" />,
+    )
+
+    expect(container.firstElementChild).toHaveClass(
+      "flex-col",
+      "sm:flex-row",
+    )
+  })
 })

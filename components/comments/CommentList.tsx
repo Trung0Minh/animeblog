@@ -84,7 +84,7 @@ function CommentThread({
       <div className="mt-3 pl-11">
         <Button
           aria-label={`Reply to ${comment.authorName}'s comment`}
-          className="h-9 px-3 text-xs"
+          className="min-h-11 px-3 py-2 text-xs"
           onClick={() => setIsReplying((value) => !value)}
           type="button"
           variant="ghost"
