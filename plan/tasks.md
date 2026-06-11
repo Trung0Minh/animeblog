@@ -508,44 +508,44 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/11_testing.md`
 
-- [ ] **16.1** Create `tests/setup.ts`
+- [x] **16.1** Create `tests/setup.ts`
 
-- [ ] **16.2** Create `tests/integration/helpers/db.ts` with truncation and factory functions
+- [x] **16.2** Create `tests/integration/helpers/db.ts` with truncation and factory functions
 
-- [ ] **16.3** Create `tests/unit/utils.test.ts`
+- [x] **16.3** Create `tests/unit/utils.test.ts`
 
-- [ ] **16.4** Create `tests/unit/search.test.ts`
+- [x] **16.4** Create `tests/unit/search.test.ts`
 
-- [ ] **16.5** Create `tests/unit/seo.test.ts`
+- [x] **16.5** Create `tests/unit/seo.test.ts`
 
-- [ ] **16.6** Create `tests/integration/posts.test.ts`
+- [x] **16.6** Create `tests/integration/posts.test.ts`
 
-- [ ] **16.7** Create `tests/integration/comments.test.ts`
+- [x] **16.7** Create `tests/integration/comments.test.ts`
 
-- [ ] **16.8** Create `tests/integration/auth.test.ts`
+- [x] **16.8** Create `tests/integration/auth.test.ts`
 
-- [ ] **16.9** Create `tests/integration/newsletter.test.ts`
+- [x] **16.9** Create `tests/integration/newsletter.test.ts`
 
-- [ ] **16.10** Create `app/api/test/login/route.ts` (NODE_ENV=test only)
+- [x] **16.10** Create `app/api/test/login/route.ts` (NODE_ENV=test only)
 
-- [ ] **16.11** Create `app/api/test/newsletter-token/route.ts` (NODE_ENV=test only)
+- [x] **16.11** Create `app/api/test/newsletter-token/route.ts` (NODE_ENV=test only)
 
-- [ ] **16.12** Create `tests/e2e/post-flow.spec.ts`
+- [x] **16.12** Create `tests/e2e/post-flow.spec.ts`
 
-- [ ] **16.13** Create `tests/e2e/comment-flow.spec.ts`
+- [x] **16.13** Create `tests/e2e/comment-flow.spec.ts`
 
-- [ ] **16.14** Create `tests/e2e/search-flow.spec.ts`
+- [x] **16.14** Create `tests/e2e/search-flow.spec.ts`
 
-- [ ] **16.15** Create `tests/e2e/newsletter-flow.spec.ts`
+- [x] **16.15** Create `tests/e2e/newsletter-flow.spec.ts`
 
-- [ ] **16.16** Create `.github/workflows/test.yml`
+- [x] **16.16** Create `.github/workflows/test.yml`
 
-- [ ] **16.17** Run all unit + integration tests and confirm they pass
+- [x] **16.17** Run all unit + integration tests and confirm they pass
   ```bash
   npx vitest run
   ```
 
-- [ ] **16.18** Run E2E tests and confirm they pass
+- [x] **16.18** Run E2E tests and confirm they pass
   ```bash
   npx playwright test
   ```
