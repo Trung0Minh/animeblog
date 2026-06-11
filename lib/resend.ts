@@ -2,6 +2,8 @@ import { Resend } from "resend"
 
 import { CommentReplyEmail } from "@/emails/CommentReplyEmail"
 import { InviteEmail } from "@/emails/InviteEmail"
+import { NewsletterEmail } from "@/emails/NewsletterEmail"
+import { SubscribeConfirmationEmail } from "@/emails/SubscribeConfirmationEmail"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -69,6 +71,83 @@ export async function sendCommentReplyEmail({
       toName,
     }),
     subject: `${repliedByName} replied to your comment on "${postTitle}"`,
+    to,
+  })
+
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`)
+  }
+}
+
+interface SendSubscribeConfirmationEmailOptions {
+  to: string
+}
+
+export async function sendSubscribeConfirmationEmail({
+  to,
+}: SendSubscribeConfirmationEmailOptions) {
+  const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "Anime Blog"
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL
+  const from = process.env.RESEND_FROM_EMAIL
+
+  if (!appUrl || !from) {
+    throw new Error("Resend email environment variables are not configured")
+  }
+
+  const { error } = await resend.emails.send({
+    from,
+    react: SubscribeConfirmationEmail({ appName, appUrl }),
+    subject: `You are subscribed to ${appName}`,
+    to,
+  })
+
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`)
+  }
+}
+
+interface NewsletterFeaturedPost {
+  coverUrl: string | null
+  excerpt: string | null
+  title: string
+  url: string
+}
+
+interface SendNewsletterBroadcastOptions {
+  customBody?: string
+  featuredPost: NewsletterFeaturedPost | null
+  previewText?: string
+  subject: string
+  to: string
+  unsubscribeUrl: string
+}
+
+export async function sendNewsletterBroadcast({
+  customBody,
+  featuredPost,
+  previewText,
+  subject,
+  to,
+  unsubscribeUrl,
+}: SendNewsletterBroadcastOptions) {
+  const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "Anime Blog"
+  const from = process.env.RESEND_FROM_EMAIL
+
+  if (!from) {
+    throw new Error("Resend email environment variables are not configured")
+  }
+
+  const { error } = await resend.emails.send({
+    from,
+    react: NewsletterEmail({
+      appName,
+      customBody,
+      featuredPost,
+      previewText,
+      subject,
+      unsubscribeUrl,
+    }),
+    subject,
     to,
   })
 

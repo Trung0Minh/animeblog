@@ -363,29 +363,29 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/07_newsletter.md`
 
-- [ ] **10.1** Create `POST /api/newsletter/subscribe/route.ts`
+- [x] **10.1** Create `POST /api/newsletter/subscribe/route.ts`
 
-- [ ] **10.2** Create `POST /api/newsletter/unsubscribe/route.ts`
+- [x] **10.2** Create `POST /api/newsletter/unsubscribe/route.ts`
 
-- [ ] **10.3** Create `POST /api/newsletter/broadcast/route.ts`
+- [x] **10.3** Create `POST /api/newsletter/broadcast/route.ts`
 
-- [ ] **10.4** Create `app/(public)/unsubscribe/page.tsx`
+- [x] **10.4** Create `app/(public)/unsubscribe/page.tsx`
 
-- [ ] **10.5** Create `components/newsletter/NewsletterForm.tsx`
+- [x] **10.5** Create `components/newsletter/NewsletterForm.tsx`
 
-- [ ] **10.6** Add `NewsletterForm` to `Sidebar`
+- [x] **10.6** Add `NewsletterForm` to `Sidebar`
 
-- [ ] **10.7** Create `emails/SubscribeConfirmationEmail.tsx`
+- [x] **10.7** Create `emails/SubscribeConfirmationEmail.tsx`
 
-- [ ] **10.8** Create `emails/NewsletterEmail.tsx`
+- [x] **10.8** Create `emails/NewsletterEmail.tsx`
 
-- [ ] **10.9** Add `sendSubscribeConfirmationEmail` and `sendNewsletterBroadcast` to `lib/resend.ts`
+- [x] **10.9** Add `sendSubscribeConfirmationEmail` and `sendNewsletterBroadcast` to `lib/resend.ts`
 
-- [ ] **10.10** Verify: new subscriber receives confirmation email
+- [x] **10.10** Verify: new subscriber receives confirmation email
 
-- [ ] **10.11** Verify: previously unsubscribed email is reactivated on re-subscribe
+- [x] **10.11** Verify: previously unsubscribed email is reactivated on re-subscribe
 
-- [ ] **10.12** Verify: unsubscribe link sets status to UNSUBSCRIBED
+- [x] **10.12** Verify: unsubscribe link sets status to UNSUBSCRIBED
 
 ---
 

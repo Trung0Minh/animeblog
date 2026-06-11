@@ -13,7 +13,14 @@ vi.mock("resend", () => ({
 
 import { InviteEmail } from "@/emails/InviteEmail"
 import { CommentReplyEmail } from "@/emails/CommentReplyEmail"
-import { sendCommentReplyEmail, sendInviteEmail } from "@/lib/resend"
+import { NewsletterEmail } from "@/emails/NewsletterEmail"
+import { SubscribeConfirmationEmail } from "@/emails/SubscribeConfirmationEmail"
+import {
+  sendCommentReplyEmail,
+  sendInviteEmail,
+  sendNewsletterBroadcast,
+  sendSubscribeConfirmationEmail,
+} from "@/lib/resend"
 
 describe("InviteEmail", () => {
   it("renders the inviter and invitation link", () => {
@@ -46,6 +53,50 @@ describe("CommentReplyEmail", () => {
     expect(html).toContain("Frieren and memory")
     expect(html).toContain("A sharp point about the final scene.")
     expect(html).toContain("https://animeblog.example/frieren#comment-reply-1")
+  })
+})
+
+describe("SubscribeConfirmationEmail", () => {
+  it("renders the app name and blog link", () => {
+    const html = renderToStaticMarkup(
+      SubscribeConfirmationEmail({
+        appName: "Anime Blog",
+        appUrl: "https://animeblog.example",
+      }),
+    )
+
+    expect(html).toContain("Anime Blog")
+    expect(html).toContain("https://animeblog.example")
+    expect(html).toContain("You can unsubscribe at any time")
+  })
+})
+
+describe("NewsletterEmail", () => {
+  it("renders custom body, featured post, and unsubscribe link", () => {
+    const html = renderToStaticMarkup(
+      NewsletterEmail({
+        appName: "Anime Blog",
+        customBody: "Production notes from this week.",
+        featuredPost: {
+          coverUrl: null,
+          excerpt: "A close read of stillness and memory.",
+          title: "Frieren and memory",
+          url: "https://animeblog.example/frieren-memory",
+        },
+        previewText: "A new essay is live.",
+        subject: "New essay",
+        unsubscribeUrl:
+          "https://animeblog.example/unsubscribe?token=subscriber-token",
+      }),
+    )
+
+    expect(html).toContain("New essay")
+    expect(html).toContain("Production notes from this week.")
+    expect(html).toContain("Frieren and memory")
+    expect(html).toContain("https://animeblog.example/frieren-memory")
+    expect(html).toContain(
+      "https://animeblog.example/unsubscribe?token=subscriber-token",
+    )
   })
 })
 
@@ -122,6 +173,67 @@ describe("sendCommentReplyEmail", () => {
     const message = mocks.send.mock.calls[0][0] as { react: React.ReactNode }
     expect(renderToStaticMarkup(message.react)).toContain(
       "https://animeblog.example/frieren#comment-reply-1",
+    )
+  })
+})
+
+describe("sendSubscribeConfirmationEmail", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    process.env.NEXT_PUBLIC_APP_NAME = "Anime Blog"
+    process.env.NEXT_PUBLIC_APP_URL = "https://animeblog.example"
+    process.env.RESEND_FROM_EMAIL = "Anime Blog <no-reply@example.com>"
+  })
+
+  it("sends a subscription confirmation email", async () => {
+    mocks.send.mockResolvedValue({ data: { id: "email-1" }, error: null })
+
+    await sendSubscribeConfirmationEmail({ to: "reader@example.com" })
+
+    expect(mocks.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: "Anime Blog <no-reply@example.com>",
+        subject: "You are subscribed to Anime Blog",
+        to: "reader@example.com",
+      }),
+    )
+    const message = mocks.send.mock.calls[0][0] as { react: React.ReactNode }
+    expect(renderToStaticMarkup(message.react)).toContain(
+      "https://animeblog.example",
+    )
+  })
+})
+
+describe("sendNewsletterBroadcast", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    process.env.NEXT_PUBLIC_APP_NAME = "Anime Blog"
+    process.env.RESEND_FROM_EMAIL = "Anime Blog <no-reply@example.com>"
+  })
+
+  it("sends a newsletter broadcast with a unique unsubscribe URL", async () => {
+    mocks.send.mockResolvedValue({ data: { id: "email-1" }, error: null })
+
+    await sendNewsletterBroadcast({
+      customBody: "Production notes from this week.",
+      featuredPost: null,
+      previewText: "A new essay is live.",
+      subject: "New essay",
+      to: "reader@example.com",
+      unsubscribeUrl:
+        "https://animeblog.example/unsubscribe?token=subscriber-token",
+    })
+
+    expect(mocks.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: "Anime Blog <no-reply@example.com>",
+        subject: "New essay",
+        to: "reader@example.com",
+      }),
+    )
+    const message = mocks.send.mock.calls[0][0] as { react: React.ReactNode }
+    expect(renderToStaticMarkup(message.react)).toContain(
+      "https://animeblog.example/unsubscribe?token=subscriber-token",
     )
   })
 })

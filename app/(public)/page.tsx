@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/layout/Sidebar"
+import { NewsletterForm } from "@/components/newsletter/NewsletterForm"
 import { PostList } from "@/components/posts/PostList"
 import { prisma } from "@/lib/prisma"
 
@@ -99,7 +100,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             posts={posts}
           />
         </section>
-        <Sidebar categories={categories} recentPosts={recentPosts} />
+        <Sidebar
+          categories={categories}
+          newsletter={<NewsletterForm />}
+          recentPosts={recentPosts}
+        />
       </div>
     </main>
   )
