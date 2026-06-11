@@ -339,23 +339,23 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/06_search.md`
 
-- [ ] **9.1** Create `lib/search.ts` with `buildSearchQuery` and `SearchResult` type
+- [x] **9.1** Create `lib/search.ts` with `buildSearchQuery` and `SearchResult` type
 
-- [ ] **9.2** Create `hooks/useDebounce.ts`
+- [x] **9.2** Create `hooks/useDebounce.ts`
 
-- [ ] **9.3** Create `GET /api/search/route.ts`
+- [x] **9.3** Create `GET /api/search/route.ts`
 
-- [ ] **9.4** Create `components/search/SearchBar.tsx`
+- [x] **9.4** Create `components/search/SearchBar.tsx`
 
-- [ ] **9.5** Add `SearchBar` to `Navbar`
+- [x] **9.5** Add `SearchBar` to `Navbar`
 
-- [ ] **9.6** Create `app/(public)/search/page.tsx`
+- [x] **9.6** Create `app/(public)/search/page.tsx`
 
-- [ ] **9.7** Verify: search "frieren" returns posts containing "Frieren"
+- [x] **9.7** Verify: search "frieren" returns posts containing "Frieren"
 
-- [ ] **9.8** Verify: partial query "ufota" returns posts containing "ufotable" (prefix matching)
+- [x] **9.8** Verify: partial query "ufota" returns posts containing "ufotable" (prefix matching)
 
-- [ ] **9.9** Verify: draft posts do not appear in results
+- [x] **9.9** Verify: draft posts do not appear in results
 
 ---
 

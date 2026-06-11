@@ -1,10 +1,9 @@
-import { Search } from "lucide-react"
 import Link from "next/link"
 
 import { MobileNav } from "@/components/layout/MobileNav"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { WriterMenu, type WriterMenuUser } from "@/components/layout/WriterMenu"
-import { Button } from "@/components/ui/button"
+import { SearchBar } from "@/components/search/SearchBar"
 
 const NAV_LINKS = [
   { href: "/contributors", label: "Contributors" },
@@ -40,17 +39,11 @@ export function Navbar({ user }: { user?: WriterMenuUser | null }) {
           ))}
         </nav>
 
+        <div className="hidden w-64 lg:block">
+          <SearchBar />
+        </div>
+
         <div className="ml-auto flex items-center gap-1 md:ml-0">
-          <Button
-            asChild
-            className="hidden h-11 w-11 text-muted-foreground md:inline-flex"
-            size="icon"
-            variant="ghost"
-          >
-            <Link aria-label="Search posts" href="/search" prefetch={false}>
-              <Search aria-hidden="true" />
-            </Link>
-          </Button>
           <ThemeToggle />
           <WriterMenu user={user} />
           <MobileNav links={NAV_LINKS} />

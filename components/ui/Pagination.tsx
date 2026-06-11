@@ -6,6 +6,7 @@ interface PaginationProps {
   className?: string
   page: number
   pageSize: number
+  query?: Record<string, number | string | undefined>
   total: number
 }
 
@@ -20,7 +21,29 @@ function getPageWindow(page: number, totalPages: number) {
   )
 }
 
-export function Pagination({ className, page, pageSize, total }: PaginationProps) {
+function buildPageHref(
+  page: number,
+  query?: Record<string, number | string | undefined>,
+) {
+  const searchParams = new URLSearchParams()
+
+  for (const [key, value] of Object.entries(query ?? {})) {
+    if (value !== undefined && String(value).trim()) {
+      searchParams.set(key, String(value))
+    }
+  }
+
+  searchParams.set("page", String(page))
+  return `?${searchParams.toString()}`
+}
+
+export function Pagination({
+  className,
+  page,
+  pageSize,
+  query,
+  total,
+}: PaginationProps) {
   const totalPages = Math.ceil(total / pageSize)
 
   if (totalPages <= 1) {
@@ -37,7 +60,7 @@ export function Pagination({ className, page, pageSize, total }: PaginationProps
       {page > 1 && (
         <Link
           className="rounded-md border px-3 py-2 text-sm transition-colors hover:bg-muted"
-          href={`?page=${page - 1}`}
+          href={buildPageHref(page - 1, query)}
         >
           Previous
         </Link>
@@ -52,7 +75,7 @@ export function Pagination({ className, page, pageSize, total }: PaginationProps
             pageNumber === page &&
               "border-primary bg-primary text-primary-foreground hover:bg-primary",
           )}
-          href={`?page=${pageNumber}`}
+          href={buildPageHref(pageNumber, query)}
           key={pageNumber}
         >
           {pageNumber}
@@ -62,7 +85,7 @@ export function Pagination({ className, page, pageSize, total }: PaginationProps
       {page < totalPages && (
         <Link
           className="rounded-md border px-3 py-2 text-sm transition-colors hover:bg-muted"
-          href={`?page=${page + 1}`}
+          href={buildPageHref(page + 1, query)}
         >
           Next
         </Link>

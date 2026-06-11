@@ -27,6 +27,9 @@ vi.mock("next/link", () => ({
     <a data-prefetch={String(prefetch)} {...props} />
   ),
 }))
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}))
 
 import { Footer } from "@/components/layout/Footer"
 import { MobileNav } from "@/components/layout/MobileNav"
@@ -55,7 +58,7 @@ describe("ThemeToggle", () => {
 
 describe("Navbar", () => {
   it("renders publication navigation and search access", () => {
-    render(<Navbar />)
+    render(<Navbar user={null} />)
 
     const contributors = screen.getByRole("link", { name: "Contributors" })
     expect(contributors).toHaveAttribute("href", "/contributors")
@@ -64,9 +67,9 @@ describe("Navbar", () => {
       "href",
       "/about",
     )
-    const search = screen.getByRole("link", { name: "Search posts" })
-    expect(search).toHaveAttribute("href", "/search")
-    expect(search).toHaveAttribute("data-prefetch", "false")
+    expect(
+      screen.getByRole("searchbox", { name: "Search posts" }),
+    ).toBeInTheDocument()
   })
 })
 
