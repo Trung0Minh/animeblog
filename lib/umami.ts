@@ -1,21 +1,11 @@
-type UmamiConfig =
-  | UmamiCloudConfig
-  | UmamiSelfHostedConfig
-
-interface UmamiCloudConfig {
-  apiUrl: string
-  apiKey: string
-  mode: "cloud"
-  websiteId: string
-}
-
 interface UmamiSelfHostedConfig {
   apiUrl: string
-  mode: "self-hosted"
   password: string
   username: string
   websiteId: string
 }
+
+type UmamiConfig = UmamiSelfHostedConfig
 
 export interface UmamiMetric {
   prev: number
@@ -59,25 +49,11 @@ function normalizeApiUrl(apiUrl: string) {
 }
 
 function getUmamiConfig(): UmamiConfig {
-  const apiKey = process.env.UMAMI_API_KEY
   const websiteId =
     process.env.UMAMI_WEBSITE_ID ?? process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
 
   if (!websiteId) {
     throw new Error("Umami is not configured")
-  }
-
-  if (apiKey) {
-    return {
-      apiKey,
-      apiUrl: normalizeApiUrl(
-        process.env.UMAMI_API_URL ||
-          process.env.UMAMI_API_CLIENT_ENDPOINT ||
-          "https://api.umami.is/v1",
-      ),
-      mode: "cloud",
-      websiteId,
-    }
   }
 
   const apiUrl = process.env.UMAMI_API_URL
@@ -90,7 +66,6 @@ function getUmamiConfig(): UmamiConfig {
 
   return {
     apiUrl: normalizeApiUrl(apiUrl),
-    mode: "self-hosted",
     password,
     username,
     websiteId,
@@ -141,22 +116,11 @@ async function getUmamiToken(config: UmamiSelfHostedConfig): Promise<string> {
 }
 
 async function getAuthHeaders(config: UmamiConfig): Promise<HeadersInit> {
-  if (config.mode === "cloud") {
-    return {
-      Accept: "application/json",
-      "x-umami-api-key": config.apiKey,
-    }
-  }
-
   const token = await getUmamiToken(config)
   return { Authorization: `Bearer ${token}` }
 }
 
 function getEndpoint(config: UmamiConfig, path: string) {
-  if (config.mode === "cloud") {
-    return `${config.apiUrl}${path}`
-  }
-
   return `${config.apiUrl}/api${path}`
 }
 
