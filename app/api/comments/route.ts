@@ -1,0 +1,136 @@
+import { ZodError, z } from "zod"
+
+import { prisma } from "@/lib/prisma"
+import { sendCommentReplyEmail } from "@/lib/resend"
+
+class RouteError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+  ) {
+    super(message)
+  }
+}
+
+const createCommentSchema = z.object({
+  authorEmail: z.string().trim().email(),
+  authorName: z.string().trim().min(1).max(80),
+  content: z.string().trim().min(1).max(2000),
+  notifyReply: z.boolean().default(true),
+  parentId: z.string().min(1).optional(),
+  postId: z.string().min(1),
+})
+
+const publicCommentSelect = {
+  authorName: true,
+  content: true,
+  createdAt: true,
+  id: true,
+  parentId: true,
+  postId: true,
+  status: true,
+}
+
+export async function POST(request: Request) {
+  try {
+    const data = createCommentSchema.parse(await request.json())
+
+    const post = await prisma.post.findUnique({
+      select: { id: true, slug: true, title: true },
+      where: { id: data.postId, status: "PUBLISHED" },
+    })
+
+    if (!post) {
+      throw new RouteError("Post not found", 404)
+    }
+
+    let parent:
+      | {
+          authorEmail: string
+          authorName: string
+          id: string
+          notifyReply: boolean
+          parentId: string | null
+          postId: string
+        }
+      | null = null
+
+    if (data.parentId) {
+      parent = await prisma.comment.findUnique({
+        select: {
+          authorEmail: true,
+          authorName: true,
+          id: true,
+          notifyReply: true,
+          parentId: true,
+          postId: true,
+        },
+        where: { id: data.parentId },
+      })
+
+      if (!parent) {
+        throw new RouteError("Parent comment not found", 404)
+      }
+
+      if (parent.postId !== data.postId) {
+        throw new RouteError("Parent comment does not belong to this post", 400)
+      }
+
+      if (parent.parentId) {
+        throw new RouteError("Replies to replies are not allowed", 400)
+      }
+    }
+
+    const comment = await prisma.comment.create({
+      data: {
+        authorEmail: data.authorEmail,
+        authorName: data.authorName,
+        content: data.content,
+        notifyReply: data.notifyReply,
+        parentId: data.parentId ?? null,
+        postId: data.postId,
+        status: "APPROVED",
+      },
+      select: publicCommentSelect,
+    })
+
+    if (
+      parent &&
+      parent.notifyReply &&
+      parent.authorEmail.toLowerCase() !== data.authorEmail.toLowerCase()
+    ) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL
+
+      if (appUrl) {
+        try {
+          await sendCommentReplyEmail({
+            postTitle: post.title,
+            postUrl: `${appUrl}/${post.slug}#comment-${comment.id}`,
+            repliedByName: data.authorName,
+            replyContent: data.content,
+            to: parent.authorEmail,
+            toName: parent.authorName,
+          })
+        } catch (error) {
+          console.error(
+            "[POST /api/comments] Failed to send reply email:",
+            error,
+          )
+        }
+      }
+    }
+
+    return Response.json({ data: comment }, { status: 201 })
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return Response.json({ error: "Invalid request" }, { status: 400 })
+    }
+
+    if (error instanceof RouteError) {
+      return Response.json({ error: error.message }, { status: error.status })
+    }
+
+    console.error("[POST /api/comments]", error)
+    return Response.json({ error: "Something went wrong" }, { status: 500 })
+  }
+}

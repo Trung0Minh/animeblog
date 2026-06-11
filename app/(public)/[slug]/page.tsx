@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import type { JSONContent } from "@tiptap/react"
 
+import { CommentSection } from "@/components/comments/CommentSection"
 import { PostBody } from "@/components/posts/PostBody"
 import { PostHeader } from "@/components/posts/PostHeader"
 import { TableOfContents } from "@/components/posts/TableOfContents"
@@ -62,10 +63,37 @@ export default async function PostPage({ params }: PostPageProps) {
           },
         },
       },
+      comments: {
+        orderBy: { createdAt: "asc" },
+        select: {
+          authorName: true,
+          content: true,
+          createdAt: true,
+          id: true,
+          parentId: true,
+          postId: true,
+          replies: {
+            orderBy: { createdAt: "asc" },
+            select: {
+              authorName: true,
+              content: true,
+              createdAt: true,
+              id: true,
+              parentId: true,
+              postId: true,
+              status: true,
+            },
+            where: { status: "APPROVED" },
+          },
+          status: true,
+        },
+        where: { parentId: null, status: "APPROVED" },
+      },
       content: true,
       coverAlt: true,
       coverUrl: true,
       excerpt: true,
+      id: true,
       publishedAt: true,
       tags: {
         select: {
@@ -89,6 +117,10 @@ export default async function PostPage({ params }: PostPageProps) {
       <div className="mx-auto mt-8 flex max-w-5xl gap-8">
         <div className="min-w-0 flex-1">
           <PostBody content={content} />
+          <CommentSection
+            initialComments={post.comments}
+            postId={post.id}
+          />
         </div>
         <aside className="hidden w-56 shrink-0 xl:block">
           <TableOfContents content={content} />

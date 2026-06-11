@@ -12,7 +12,8 @@ vi.mock("resend", () => ({
 }))
 
 import { InviteEmail } from "@/emails/InviteEmail"
-import { sendInviteEmail } from "@/lib/resend"
+import { CommentReplyEmail } from "@/emails/CommentReplyEmail"
+import { sendCommentReplyEmail, sendInviteEmail } from "@/lib/resend"
 
 describe("InviteEmail", () => {
   it("renders the inviter and invitation link", () => {
@@ -26,6 +27,25 @@ describe("InviteEmail", () => {
     expect(html).toContain("Admin Writer")
     expect(html).toContain("https://animeblog.example/invite/token")
     expect(html).toContain("This link expires in 7 days")
+  })
+})
+
+describe("CommentReplyEmail", () => {
+  it("renders the reply summary and post link", () => {
+    const html = renderToStaticMarkup(
+      CommentReplyEmail({
+        postTitle: "Frieren and memory",
+        postUrl: "https://animeblog.example/frieren#comment-reply-1",
+        repliedByName: "Mina",
+        replyContent: "A sharp point about the final scene.",
+        toName: "Ken",
+      }),
+    )
+
+    expect(html).toContain("Mina")
+    expect(html).toContain("Frieren and memory")
+    expect(html).toContain("A sharp point about the final scene.")
+    expect(html).toContain("https://animeblog.example/frieren#comment-reply-1")
   })
 })
 
@@ -71,5 +91,37 @@ describe("sendInviteEmail", () => {
         invitedByName: "Admin Writer",
       })
     ).rejects.toThrow("Resend error: Invalid sender")
+  })
+})
+
+describe("sendCommentReplyEmail", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    process.env.RESEND_FROM_EMAIL = "Anime Blog <no-reply@example.com>"
+  })
+
+  it("sends a reply notification", async () => {
+    mocks.send.mockResolvedValue({ data: { id: "email-1" }, error: null })
+
+    await sendCommentReplyEmail({
+      postTitle: "Frieren and memory",
+      postUrl: "https://animeblog.example/frieren#comment-reply-1",
+      repliedByName: "Mina",
+      replyContent: "A sharp point about the final scene.",
+      to: "ken@example.com",
+      toName: "Ken",
+    })
+
+    expect(mocks.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: "Anime Blog <no-reply@example.com>",
+        subject: 'Mina replied to your comment on "Frieren and memory"',
+        to: "ken@example.com",
+      }),
+    )
+    const message = mocks.send.mock.calls[0][0] as { react: React.ReactNode }
+    expect(renderToStaticMarkup(message.react)).toContain(
+      "https://animeblog.example/frieren#comment-reply-1",
+    )
   })
 })

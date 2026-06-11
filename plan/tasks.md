@@ -307,31 +307,31 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/05_comments.md`
 
-- [ ] **8.1** Create `POST /api/comments/route.ts`
+- [x] **8.1** Create `POST /api/comments/route.ts`
 
-- [ ] **8.2** Create `DELETE /api/comments/[id]/route.ts`
+- [x] **8.2** Create `DELETE /api/comments/[id]/route.ts`
 
-- [ ] **8.3** Add `CommentWithReplies` type to `types/index.ts`
+- [x] **8.3** Add `CommentWithReplies` type to `types/index.ts`
 
-- [ ] **8.4** Create `components/comments/CommentSection.tsx`
+- [x] **8.4** Create `components/comments/CommentSection.tsx`
 
-- [ ] **8.5** Create `components/comments/CommentForm.tsx`
+- [x] **8.5** Create `components/comments/CommentForm.tsx`
 
-- [ ] **8.6** Create `components/comments/CommentList.tsx`
+- [x] **8.6** Create `components/comments/CommentList.tsx`
 
-- [ ] **8.7** Create `emails/CommentReplyEmail.tsx`
+- [x] **8.7** Create `emails/CommentReplyEmail.tsx`
 
-- [ ] **8.8** Add `sendCommentReplyEmail` to `lib/resend.ts`
+- [x] **8.8** Add `sendCommentReplyEmail` to `lib/resend.ts`
 
-- [ ] **8.9** Add `CommentSection` to the post detail page
+- [x] **8.9** Add `CommentSection` to the post detail page
 
-- [ ] **8.10** Verify: guest posts a comment → appears immediately
+- [x] **8.10** Verify: guest posts a comment → appears immediately
 
-- [ ] **8.11** Verify: reply triggers notification email to parent author
+- [x] **8.11** Verify: reply triggers notification email to parent author
 
-- [ ] **8.12** Verify: `authorEmail` is never in any API response
+- [x] **8.12** Verify: `authorEmail` is never in any API response
 
-- [ ] **8.13** Verify: reply-to-reply returns 400
+- [x] **8.13** Verify: reply-to-reply returns 400
 
 ---
 
