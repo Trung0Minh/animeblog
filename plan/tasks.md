@@ -158,35 +158,35 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/03_editor.md`
 
-- [ ] **5.1** Create `components/editor/extensions/SpoilerExtension.ts`
+- [x] **5.1** Create `components/editor/extensions/SpoilerExtension.ts`
 
-- [ ] **5.2** Create `components/editor/extensions/VideoEmbedExtension.ts`
+- [x] **5.2** Create `components/editor/extensions/VideoEmbedExtension.ts`
 
-- [ ] **5.3** Create `components/editor/SpoilerView.tsx` (React NodeView)
+- [x] **5.3** Create `components/editor/SpoilerView.tsx` (React NodeView)
 
-- [ ] **5.4** Create `components/editor/TiptapEditor.tsx` with all extensions wired in
+- [x] **5.4** Create `components/editor/TiptapEditor.tsx` with all extensions wired in
 
-- [ ] **5.5** Create `components/editor/EditorToolbar.tsx`
+- [x] **5.5** Create `components/editor/EditorToolbar.tsx`
 
-- [ ] **5.6** Create `components/editor/BubbleMenu.tsx`
+- [x] **5.6** Create `components/editor/BubbleMenu.tsx`
 
-- [ ] **5.7** Create `lib/r2.ts` with `uploadToR2` function
+- [x] **5.7** Create `lib/r2.ts` with `uploadToR2` function
 
-- [ ] **5.8** Create `app/api/upload/route.ts`
+- [x] **5.8** Create `app/api/upload/route.ts`
 
-- [ ] **5.9** Create `components/editor/MediaUpload.tsx`
+- [x] **5.9** Create `components/editor/MediaUpload.tsx`
 
-- [ ] **5.10** Create `components/editor/VideoEmbedModal.tsx`
+- [x] **5.10** Create `components/editor/VideoEmbedModal.tsx`
 
-- [ ] **5.11** Create `components/posts/PostBody.tsx` (read-only Tiptap renderer)
+- [x] **5.11** Create `components/posts/PostBody.tsx` (read-only Tiptap renderer)
 
-- [ ] **5.12** Complete R2 bucket setup in Cloudflare dashboard (public access, CORS policy)
+- [x] **5.12** Complete R2 bucket setup in Cloudflare dashboard (public access, CORS policy)
 
-- [ ] **5.13** Verify: upload a GIF in the editor → it appears inline with correct URL
+- [x] **5.13** Verify: upload a GIF in the editor → it appears inline with correct URL
 
-- [ ] **5.14** Verify: insert a YouTube URL → rendered as iframe embed
+- [x] **5.14** Verify: insert a YouTube URL → rendered as iframe embed
 
-- [ ] **5.15** Verify: spoiler block blurs content and reveals on click
+- [x] **5.15** Verify: spoiler block blurs content and reveals on click
 
 ---
 
