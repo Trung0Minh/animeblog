@@ -3,6 +3,7 @@ import StarterKit from "@tiptap/starter-kit"
 import { describe, expect, it } from "vitest"
 
 import {
+  HeadingWithIdExtension,
   SpoilerExtension,
   VideoEmbedExtension,
 } from "@/components/editor/extensions"
@@ -44,6 +45,21 @@ describe("SpoilerExtension", () => {
 
     expect(editor.getHTML()).toContain('data-type="spoiler"')
     expect(editor.getHTML()).toContain("Major reveal")
+    editor.destroy()
+  })
+})
+
+describe("HeadingWithIdExtension", () => {
+  it("renders heading IDs that match table of contents anchors", () => {
+    const editor = new Editor({
+      content: "<h2>Đạo diễn tập</h2>",
+      extensions: [
+        StarterKit.configure({ heading: false }),
+        HeadingWithIdExtension,
+      ],
+    })
+
+    expect(editor.getHTML()).toContain('<h2 id="dao-dien-tap">')
     editor.destroy()
   })
 })

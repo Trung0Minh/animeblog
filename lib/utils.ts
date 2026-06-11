@@ -27,9 +27,13 @@ export function generateSlug(title: string): string {
   return githubSlug(normalized)
 }
 
+interface SlugLookupClient {
+  post: Pick<PrismaClient["post"], "findUnique">
+}
+
 export async function ensureUniqueSlug(
   baseSlug: string,
-  prisma: PrismaClient,
+  prisma: SlugLookupClient,
   excludeId?: string,
 ): Promise<string> {
   let slug = baseSlug

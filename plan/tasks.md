@@ -194,49 +194,49 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/04_posts.md`
 
-- [ ] **6.1** Create `GET + POST /api/posts/route.ts`
+- [x] **6.1** Create `GET + POST /api/posts/route.ts`
 
-- [ ] **6.2** Create `GET + PATCH + DELETE /api/posts/[id]/route.ts`
+- [x] **6.2** Create `GET + PATCH + DELETE /api/posts/[id]/route.ts`
 
-- [ ] **6.3** Create `GET + POST /api/tags/route.ts` — tag search + inline creation by writers
+- [x] **6.3** Create `GET + POST /api/tags/route.ts` — tag search + inline creation by writers
 
-- [ ] **6.4** Create `components/posts/PostHeader.tsx`
+- [x] **6.4** Create `components/posts/PostHeader.tsx`
 
-- [ ] **6.5** Create `components/posts/PostCard.tsx`
+- [x] **6.5** Create `components/posts/PostCard.tsx`
 
-- [ ] **6.6** Create `components/posts/PostList.tsx`
+- [x] **6.6** Create `components/posts/PostList.tsx`
 
-- [ ] **6.7** Create `components/ui/Pagination.tsx`
+- [x] **6.7** Create `components/ui/Pagination.tsx`
 
-- [ ] **6.8** Create `components/posts/CoverImageUpload.tsx`
+- [x] **6.8** Create `components/posts/CoverImageUpload.tsx`
 
-- [ ] **6.9** Create `components/posts/TagInput.tsx` — autocomplete + inline tag creation
+- [x] **6.9** Create `components/posts/TagInput.tsx` — autocomplete + inline tag creation
 
-- [ ] **6.10** Create `components/posts/TableOfContents.tsx`
+- [x] **6.10** Create `components/posts/TableOfContents.tsx`
 
-- [ ] **6.11** Create `components/posts/PostEditor.tsx`
+- [x] **6.11** Create `components/posts/PostEditor.tsx`
 
-- [ ] **6.12** Create `app/(public)/page.tsx` — Homepage
+- [x] **6.12** Create `app/(public)/page.tsx` — Homepage
 
-- [ ] **6.13** Create `app/(public)/[slug]/page.tsx` — Post detail page
+- [x] **6.13** Create `app/(public)/[slug]/page.tsx` — Post detail page
 
-- [ ] **6.14** Create `app/(public)/authors/[username]/page.tsx` — Author profile
+- [x] **6.14** Create `app/(public)/authors/[username]/page.tsx` — Author profile
 
-- [ ] **6.15** Create `app/(public)/category/[slug]/page.tsx` — Category listing
+- [x] **6.15** Create `app/(public)/category/[slug]/page.tsx` — Category listing
 
-- [ ] **6.16** Create `app/(public)/tag/[slug]/page.tsx` — Tag listing
+- [x] **6.16** Create `app/(public)/tag/[slug]/page.tsx` — Tag listing
 
-- [ ] **6.17** Create `app/(public)/contributors/page.tsx`
+- [x] **6.17** Create `app/(public)/contributors/page.tsx`
 
-- [ ] **6.18** Create `app/(writer)/dashboard/page.tsx`
+- [x] **6.18** Create `app/(writer)/dashboard/page.tsx`
 
-- [ ] **6.19** Create `app/(writer)/dashboard/new/page.tsx`
+- [x] **6.19** Create `app/(writer)/dashboard/new/page.tsx`
 
-- [ ] **6.20** Create `app/(writer)/dashboard/edit/[id]/page.tsx`
+- [x] **6.20** Create `app/(writer)/dashboard/edit/[id]/page.tsx`
 
-- [ ] **6.21** Verify: create post as draft → not visible to visitors → publish → visible
+- [x] **6.21** Verify: create post as draft → not visible to visitors → publish → visible
 
-- [ ] **6.22** Verify: two posts with same title get unique slugs (`my-title` and `my-title-1`)
+- [x] **6.22** Verify: two posts with same title get unique slugs (`my-title` and `my-title-1`)
 
 ---
 

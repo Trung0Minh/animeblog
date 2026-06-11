@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { formatDate } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 
 interface SidebarProps {
   categories: {
@@ -10,6 +10,7 @@ interface SidebarProps {
     name: string
     slug: string
   }[]
+  className?: string
   newsletter?: React.ReactNode
   recentPosts: {
     publishedAt: Date | null
@@ -20,11 +21,12 @@ interface SidebarProps {
 
 export function Sidebar({
   categories,
+  className,
   newsletter,
   recentPosts,
 }: SidebarProps) {
   return (
-    <aside className="hidden w-60 shrink-0 space-y-8 lg:block xl:w-72">
+    <aside className={cn("w-full shrink-0 space-y-8 lg:w-60 xl:w-72", className)}>
       {newsletter && (
         <SidebarSection title="Newsletter">{newsletter}</SidebarSection>
       )}

@@ -13,6 +13,7 @@ import { common, createLowlight } from "lowlight"
 import { BubbleMenuComponent } from "@/components/editor/BubbleMenu"
 import { EditorToolbar } from "@/components/editor/EditorToolbar"
 import {
+  HeadingWithIdExtension,
   SpoilerExtension,
   VideoEmbedExtension,
 } from "@/components/editor/extensions"
@@ -44,8 +45,9 @@ export function TiptapEditor({
     extensions: [
       StarterKit.configure({
         codeBlock: false,
-        heading: { levels: [2, 3, 4] },
+        heading: false,
       }),
+      HeadingWithIdExtension,
       Image.configure({
         allowBase64: false,
         HTMLAttributes: {

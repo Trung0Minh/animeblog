@@ -1,0 +1,199 @@
+import type { Prisma, PostStatus } from "@prisma/client"
+import type { Session } from "next-auth"
+import { ZodError, z } from "zod"
+
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
+import { ensureUniqueSlug, generateSlug } from "@/lib/utils"
+
+const querySchema = z.object({
+  authorUsername: z.string().trim().min(1).optional(),
+  categorySlug: z.string().trim().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(50).default(10),
+  page: z.coerce.number().int().min(1).default(1),
+  status: z.enum(["DRAFT", "PUBLISHED"]).optional(),
+  tagSlug: z.string().trim().min(1).optional(),
+})
+
+const createSchema = z.object({
+  categoryId: z.string().min(1).optional(),
+  coAuthorIds: z.array(z.string().min(1)).default([]),
+  content: z.record(z.string(), z.unknown()),
+  contentText: z.string().optional(),
+  coverAlt: z.string().max(200).optional(),
+  coverUrl: z.string().url().optional(),
+  excerpt: z.string().trim().max(500).optional(),
+  status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
+  tagIds: z.array(z.string().min(1)).default([]),
+  title: z.string().trim().min(1).max(200),
+})
+
+const postListSelect = {
+  _count: { select: { comments: true } },
+  author: {
+    select: { avatarUrl: true, id: true, name: true, username: true },
+  },
+  category: { select: { id: true, name: true, slug: true } },
+  coAuthors: {
+    orderBy: { order: "asc" },
+    select: {
+      order: true,
+      user: {
+        select: { avatarUrl: true, id: true, name: true, username: true },
+      },
+    },
+  },
+  coverAlt: true,
+  coverUrl: true,
+  excerpt: true,
+  id: true,
+  publishedAt: true,
+  slug: true,
+  status: true,
+  tags: {
+    select: {
+      tag: { select: { id: true, name: true, slug: true } },
+    },
+  },
+  title: true,
+} satisfies Prisma.PostSelect
+
+function uniqueIds(ids: string[]) {
+  return Array.from(new Set(ids))
+}
+
+function getVisibilityWhere(
+  session: Session | null,
+  status?: PostStatus,
+): Prisma.PostWhereInput {
+  if (session?.user.role === "ADMIN") {
+    return status ? { status } : {}
+  }
+
+  if (session) {
+    if (status === "DRAFT") {
+      return { authorId: session.user.id, status: "DRAFT" }
+    }
+
+    if (status === "PUBLISHED") {
+      return { status: "PUBLISHED" }
+    }
+
+    return {
+      OR: [
+        { status: "PUBLISHED" },
+        { authorId: session.user.id, status: "DRAFT" },
+      ],
+    }
+  }
+
+  return { status: "PUBLISHED" }
+}
+
+export async function GET(request: Request) {
+  const session = await auth()
+
+  try {
+    const { searchParams } = new URL(request.url)
+    const {
+      authorUsername,
+      categorySlug,
+      limit,
+      page,
+      status,
+      tagSlug,
+    } = querySchema.parse(Object.fromEntries(searchParams))
+
+    const where: Prisma.PostWhereInput = {
+      ...getVisibilityWhere(session, status),
+      ...(authorUsername && { author: { username: authorUsername } }),
+      ...(categorySlug && { category: { slug: categorySlug } }),
+      ...(tagSlug && { tags: { some: { tag: { slug: tagSlug } } } }),
+    }
+
+    const [posts, total] = await prisma.$transaction([
+      prisma.post.findMany({
+        orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
+        select: postListSelect,
+        skip: (page - 1) * limit,
+        take: limit,
+        where,
+      }),
+      prisma.post.count({ where }),
+    ])
+
+    return Response.json({
+      data: {
+        pagination: {
+          limit,
+          page,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+        posts,
+      },
+    })
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return Response.json({ error: "Invalid request" }, { status: 400 })
+    }
+
+    console.error("[GET /api/posts]", error)
+    return Response.json({ error: "Something went wrong" }, { status: 500 })
+  }
+}
+
+export async function POST(request: Request) {
+  const session = await auth()
+
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  try {
+    const data = createSchema.parse(await request.json())
+    const post = await prisma.$transaction(async (tx) => {
+      const baseSlug = generateSlug(data.title) || "post"
+      const slug = await ensureUniqueSlug(baseSlug, tx)
+
+      return tx.post.create({
+        data: {
+          author: { connect: { id: session.user.id } },
+          content: data.content as Prisma.InputJsonObject,
+          contentText: data.contentText?.trim() || undefined,
+          coverAlt: data.coverAlt?.trim() || undefined,
+          coverUrl: data.coverUrl,
+          excerpt: data.excerpt || undefined,
+          publishedAt: data.status === "PUBLISHED" ? new Date() : null,
+          slug,
+          status: data.status,
+          title: data.title,
+          ...(data.categoryId && {
+            category: { connect: { id: data.categoryId } },
+          }),
+          coAuthors: {
+            create: uniqueIds(data.coAuthorIds).map((userId, order) => ({
+              order,
+              user: { connect: { id: userId } },
+            })),
+          },
+          tags: {
+            create: uniqueIds(data.tagIds).map((tagId) => ({
+              tag: { connect: { id: tagId } },
+            })),
+          },
+        },
+        select: { id: true, slug: true, status: true },
+      })
+    })
+
+    return Response.json({ data: post }, { status: 201 })
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return Response.json({ error: "Invalid request" }, { status: 400 })
+    }
+
+    console.error("[POST /api/posts]", error)
+    return Response.json({ error: "Something went wrong" }, { status: 500 })
+  }
+}

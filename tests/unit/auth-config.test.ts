@@ -46,6 +46,7 @@ beforeEach(() => {
 describe("NextAuth configuration", () => {
   it("uses database sessions and the custom auth pages", () => {
     expect(config.session).toEqual({ strategy: "database" })
+    expect(config.trustHost).toBe(true)
     expect(config.pages).toEqual({
       signIn: "/login",
       error: "/login",
