@@ -281,25 +281,25 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/14_writer_profile.md`
 
-- [ ] **8.1** Create `PATCH /api/profile/route.ts`
+- [x] **8.1** Create `PATCH /api/profile/route.ts`
 
-- [ ] **8.2** Create `app/(writer)/dashboard/layout.tsx` with dashboard nav (My posts, Edit profile, View public profile)
+- [x] **8.2** Create `app/(writer)/dashboard/layout.tsx` with dashboard nav (My posts, Edit profile, View public profile)
 
-- [ ] **8.3** Create `app/(writer)/dashboard/profile/page.tsx`
+- [x] **8.3** Create `app/(writer)/dashboard/profile/page.tsx`
 
-- [ ] **8.4** Create `components/profile/ProfileForm.tsx`
+- [x] **8.4** Create `components/profile/ProfileForm.tsx`
 
-- [ ] **8.5** Create `components/profile/AvatarUpload.tsx`
+- [x] **8.5** Create `components/profile/AvatarUpload.tsx`
 
-- [ ] **8.6** Create `components/layout/WriterMenu.tsx` (dropdown: My posts, Edit profile, Sign out)
+- [x] **8.6** Create `components/layout/WriterMenu.tsx` (dropdown: My posts, Edit profile, Sign out)
 
-- [ ] **8.7** Add `WriterMenu` to `Navbar`
+- [x] **8.7** Add `WriterMenu` to `Navbar`
 
-- [ ] **8.8** Verify: writer can update display name, bio, and avatar
+- [x] **8.8** Verify: writer can update display name, bio, and avatar
 
-- [ ] **8.9** Verify: avatar upload appears in Navbar and public profile page
+- [x] **8.9** Verify: avatar upload appears in Navbar and public profile page
 
-- [ ] **8.10** Verify: username and email are read-only
+- [x] **8.10** Verify: username and email are read-only
 
 ---
 

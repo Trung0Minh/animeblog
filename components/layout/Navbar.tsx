@@ -3,6 +3,7 @@ import Link from "next/link"
 
 import { MobileNav } from "@/components/layout/MobileNav"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
+import { WriterMenu, type WriterMenuUser } from "@/components/layout/WriterMenu"
 import { Button } from "@/components/ui/button"
 
 const NAV_LINKS = [
@@ -10,7 +11,7 @@ const NAV_LINKS = [
   { href: "/about", label: "About" },
 ]
 
-export function Navbar() {
+export function Navbar({ user }: { user?: WriterMenuUser | null }) {
   const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "Anime Blog"
 
   return (
@@ -51,6 +52,7 @@ export function Navbar() {
             </Link>
           </Button>
           <ThemeToggle />
+          <WriterMenu user={user} />
           <MobileNav links={NAV_LINKS} />
         </div>
       </div>
