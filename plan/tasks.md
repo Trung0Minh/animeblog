@@ -411,7 +411,7 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 - [x] **11.9** Verify: `/robots.txt` disallows `/dashboard/` and `/admin/`
 
-- [ ] **11.10** Verify OG tags with https://opengraph.xyz
+- [x] **11.10** Verify OG tags with https://opengraph.xyz
 
 ---
 
