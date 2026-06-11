@@ -568,15 +568,15 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 - [x] **17.4** Test dark/light mode on mobile and desktop
 
-- [ ] **17.5** Test post create → autosave → publish flow
+- [x] **17.5** Test post create → autosave → publish flow
 
 - [ ] **17.6** Test comment + reply + email notification flow
 
-- [ ] **17.7** Test newsletter subscribe → broadcast → unsubscribe flow
+- [x] **17.7** Test newsletter subscribe → broadcast → unsubscribe flow
 
 - [x] **17.8** Test search with Vietnamese query
 
-- [ ] **17.9** Verify `/sitemap.xml`, `/robots.txt`, and OG tags in production
+- [x] **17.9** Verify `/sitemap.xml`, `/robots.txt`, and OG tags in production
 
 - [ ] **17.10** Add all env variables to Vercel project settings
 
