@@ -554,12 +554,12 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 ## Phase 17 — Final QA & Deploy
 
-- [ ] **17.1** Run TypeScript type check — must pass with zero errors
+- [x] **17.1** Run TypeScript type check — must pass with zero errors
   ```bash
   npx tsc --noEmit
   ```
 
-- [ ] **17.2** Run linter — must pass with zero errors
+- [x] **17.2** Run linter — must pass with zero errors
   ```bash
   npm run lint
   ```
