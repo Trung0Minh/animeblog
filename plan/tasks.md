@@ -566,7 +566,7 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 - [ ] **17.3** Test full invite flow end-to-end in production environment
 
-- [ ] **17.4** Test dark/light mode on mobile and desktop
+- [x] **17.4** Test dark/light mode on mobile and desktop
 
 - [ ] **17.5** Test post create → autosave → publish flow
 
@@ -574,12 +574,12 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 - [ ] **17.7** Test newsletter subscribe → broadcast → unsubscribe flow
 
-- [ ] **17.8** Test search with Vietnamese query
+- [x] **17.8** Test search with Vietnamese query
 
 - [ ] **17.9** Verify `/sitemap.xml`, `/robots.txt`, and OG tags in production
 
 - [ ] **17.10** Add all env variables to Vercel project settings
 
-- [ ] **17.11** Push to `main` → confirm Vercel auto-deploys successfully
+- [x] **17.11** Push to `main` → confirm Vercel auto-deploys successfully
 
-- [ ] **17.12** Confirm GitHub Actions CI pipeline is green
+- [x] **17.12** Confirm GitHub Actions CI pipeline is green
