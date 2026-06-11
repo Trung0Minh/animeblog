@@ -53,6 +53,18 @@ describe("LoginPage", () => {
       screen.getByRole("heading", { name: "Check your email" })
     ).toBeInTheDocument()
   })
+
+  it("shows the verification message for the Auth.js verify-request redirect", () => {
+    mocks.useSearchParams.mockReturnValue(
+      new URLSearchParams("provider=resend&type=email")
+    )
+
+    render(<LoginPage />)
+
+    expect(
+      screen.getByRole("heading", { name: "Check your email" })
+    ).toBeInTheDocument()
+  })
 })
 
 describe("InviteForm", () => {

@@ -13,7 +13,10 @@ function LoginContent() {
   const [email, setEmail] = useState("")
   const [formError, setFormError] = useState("")
   const [loading, setLoading] = useState(false)
-  const isVerify = searchParams.get("verify") === "1"
+  const isVerify =
+    searchParams.get("verify") === "1" ||
+    (searchParams.get("provider") === "resend" &&
+      searchParams.get("type") === "email")
   const error = searchParams.get("error")
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
 

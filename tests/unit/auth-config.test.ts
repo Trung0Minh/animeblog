@@ -50,7 +50,7 @@ describe("NextAuth configuration", () => {
     expect(config.pages).toEqual({
       signIn: "/login",
       error: "/login",
-      verifyRequest: "/login?verify=1",
+      verifyRequest: "/login",
     })
   })
 
