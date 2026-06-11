@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import type { AnchorHTMLAttributes } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
@@ -252,6 +252,7 @@ describe("TagInput", () => {
 describe("PostEditor", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useRealTimers()
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
@@ -314,5 +315,185 @@ describe("PostEditor", () => {
       title: "New Post",
     })
     expect(routerMocks.push).toHaveBeenCalledWith("/new-post")
+  })
+
+  it("autosaves existing post content after the debounce delay", async () => {
+    vi.useFakeTimers()
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            data: {
+              id: "post-1",
+              slug: "existing-post",
+              status: "DRAFT",
+              updatedAt: "2024-04-01T00:00:00.000Z",
+            },
+          }),
+          { status: 200 },
+        ),
+      ),
+    )
+
+    render(
+      <PostEditor
+        categories={[]}
+        currentUserId="writer-1"
+        initialData={{
+          categoryId: null,
+          coAuthorIds: [],
+          content: { content: [], type: "doc" },
+          contentText: null,
+          coverAlt: null,
+          coverUrl: null,
+          draftVisibility: "PRIVATE",
+          excerpt: "Initial excerpt",
+          id: "post-1",
+          status: "DRAFT",
+          tags: [],
+          title: "Existing post",
+        }}
+        writers={[]}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole("button", { name: "Mock editor" }))
+    expect(fetch).not.toHaveBeenCalled()
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000)
+    })
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/posts/post-1",
+      expect.objectContaining({ method: "PATCH" }),
+    )
+    const request = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]?.[1] as {
+      body: string
+    }
+    expect(JSON.parse(request.body) as Record<string, unknown>).toMatchObject({
+      content: { content: [], type: "doc" },
+      contentText: "Plain body",
+      excerpt: "Initial excerpt",
+      title: "Existing post",
+    })
+    expect(JSON.parse(request.body) as Record<string, unknown>).not.toHaveProperty(
+      "status",
+    )
+
+    vi.useRealTimers()
+  })
+
+  it("periodically autosaves existing posts during continuous editing", async () => {
+    vi.useFakeTimers()
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            data: {
+              id: "post-1",
+              slug: "existing-post",
+              status: "DRAFT",
+              updatedAt: "2024-04-01T00:00:00.000Z",
+            },
+          }),
+          { status: 200 },
+        ),
+      ),
+    )
+
+    render(
+      <PostEditor
+        categories={[]}
+        currentUserId="writer-1"
+        initialData={{
+          categoryId: null,
+          coAuthorIds: [],
+          content: { content: [], type: "doc" },
+          contentText: null,
+          coverAlt: null,
+          coverUrl: null,
+          draftVisibility: "PRIVATE",
+          excerpt: "Initial excerpt",
+          id: "post-1",
+          status: "DRAFT",
+          tags: [],
+          title: "Existing post",
+        }}
+        writers={[]}
+      />,
+    )
+
+    for (let second = 0; second < 35; second += 1) {
+      fireEvent.click(screen.getByRole("button", { name: "Mock editor" }))
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1000)
+      })
+    }
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/posts/post-1",
+      expect.objectContaining({ method: "PATCH" }),
+    )
+
+    vi.useRealTimers()
+  })
+
+  it("does not autosave new posts before the first manual save", async () => {
+    vi.useFakeTimers()
+
+    render(
+      <PostEditor
+        categories={[]}
+        currentUserId="writer-1"
+        writers={[{ id: "writer-2", name: "Ken", username: "ken" }]}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole("button", { name: "Mock editor" }))
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(35_000)
+    })
+
+    expect(fetch).not.toHaveBeenCalled()
+
+    vi.useRealTimers()
+  })
+
+  it("sends draft visibility when saving a shared draft", async () => {
+    const user = userEvent.setup()
+
+    render(
+      <PostEditor
+        categories={[]}
+        currentUserId="writer-1"
+        writers={[{ id: "writer-2", name: "Ken", username: "ken" }]}
+      />,
+    )
+
+    await user.type(screen.getByLabelText("Title"), "Shared Draft")
+    await user.click(screen.getByRole("checkbox", { name: "Ken" }))
+    await user.click(
+      screen.getByRole("button", { name: "Visible to co-authors" }),
+    )
+    await user.click(screen.getByRole("button", { name: "Save draft" }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith(
+        "/api/posts",
+        expect.objectContaining({ method: "POST" }),
+      )
+    })
+    const request = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]?.[1] as {
+      body: string
+    }
+    expect(JSON.parse(request.body) as Record<string, unknown>).toMatchObject({
+      coAuthorIds: ["writer-2"],
+      draftVisibility: "CO_AUTHORS",
+      status: "DRAFT",
+    })
   })
 })

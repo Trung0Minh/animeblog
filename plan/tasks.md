@@ -244,36 +244,36 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 > Reference: `plan/13_autosave_draft_visibility.md`
 
-- [ ] **7.1** Add `lastSavedAt` and `draftVisibility` fields to `prisma/schema.prisma`
+- [x] **7.1** Add `lastSavedAt` and `draftVisibility` fields to `prisma/schema.prisma`
 
-- [ ] **7.2** Run migration
+- [x] **7.2** Run migration
   ```bash
   npx prisma migrate dev --name add_autosave_draft_visibility
   ```
 
-- [ ] **7.3** Create `hooks/useAutosave.ts`
+- [x] **7.3** Create `hooks/useAutosave.ts`
 
-- [ ] **7.4** Create `hooks/useWarnUnsaved.ts`
+- [x] **7.4** Create `hooks/useWarnUnsaved.ts`
 
-- [ ] **7.5** Create `components/editor/SaveStatusIndicator.tsx`
+- [x] **7.5** Create `components/editor/SaveStatusIndicator.tsx`
 
-- [ ] **7.6** Create `lib/postAccess.ts` with `canViewPost` helper
+- [x] **7.6** Create `lib/postAccess.ts` with `canViewPost` helper
 
-- [ ] **7.7** Update `GET /api/posts/[id]` to use `canViewPost`
+- [x] **7.7** Update `GET /api/posts/[id]` to use `canViewPost`
 
-- [ ] **7.8** Update `GET /api/posts` list filter to respect `draftVisibility` for writers
+- [x] **7.8** Update `GET /api/posts` list filter to respect `draftVisibility` for writers
 
-- [ ] **7.9** Add `draftVisibility` to `updateSchema` in `PATCH /api/posts/[id]`
+- [x] **7.9** Add `draftVisibility` to `updateSchema` in `PATCH /api/posts/[id]`
 
-- [ ] **7.10** Create `components/posts/DraftVisibilityToggle.tsx`
+- [x] **7.10** Create `components/posts/DraftVisibilityToggle.tsx`
 
-- [ ] **7.11** Update `PostEditor` to wire in autosave, warn-unsaved, save indicator, and visibility toggle
+- [x] **7.11** Update `PostEditor` to wire in autosave, warn-unsaved, save indicator, and visibility toggle
 
-- [ ] **7.12** Verify: typing then pausing 3 seconds triggers a PATCH request
+- [x] **7.12** Verify: typing then pausing 3 seconds triggers a PATCH request
 
-- [ ] **7.13** Verify: typing continuously for 35 seconds triggers at least one periodic save
+- [x] **7.13** Verify: typing continuously for 35 seconds triggers at least one periodic save
 
-- [ ] **7.14** Verify: a PRIVATE draft returns 404 for co-authors
+- [x] **7.14** Verify: a PRIVATE draft returns 404 for co-authors
 
 ---
 

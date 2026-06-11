@@ -1,0 +1,48 @@
+import { describe, expect, it } from "vitest"
+
+import { canViewPost } from "@/lib/postAccess"
+
+const privateDraft = {
+  authorId: "writer-1",
+  coAuthors: [{ userId: "writer-2" }],
+  draftVisibility: "PRIVATE" as const,
+  status: "DRAFT" as const,
+}
+
+describe("canViewPost", () => {
+  it("allows everyone to view published posts", () => {
+    expect(
+      canViewPost(
+        { ...privateDraft, status: "PUBLISHED" },
+        undefined,
+        undefined,
+      ),
+    ).toBe(true)
+  })
+
+  it("allows admins and primary authors to view private drafts", () => {
+    expect(canViewPost(privateDraft, "admin-1", "ADMIN")).toBe(true)
+    expect(canViewPost(privateDraft, "writer-1", "WRITER")).toBe(true)
+  })
+
+  it("hides private drafts from co-authors", () => {
+    expect(canViewPost(privateDraft, "writer-2", "WRITER")).toBe(false)
+  })
+
+  it("allows listed co-authors to view shared drafts", () => {
+    expect(
+      canViewPost(
+        { ...privateDraft, draftVisibility: "CO_AUTHORS" },
+        "writer-2",
+        "WRITER",
+      ),
+    ).toBe(true)
+  })
+
+  it("hides shared drafts from unrelated writers and visitors", () => {
+    const sharedDraft = { ...privateDraft, draftVisibility: "CO_AUTHORS" as const }
+
+    expect(canViewPost(sharedDraft, "writer-3", "WRITER")).toBe(false)
+    expect(canViewPost(sharedDraft, undefined, undefined)).toBe(false)
+  })
+})

@@ -100,7 +100,7 @@ describe("posts API", () => {
     expect(select.author.select).not.toHaveProperty("email")
   })
 
-  it("lists published posts and the writer's own drafts for authenticated writers", async () => {
+  it("lists published posts, own drafts, and shared co-author drafts for authenticated writers", async () => {
     mocks.auth.mockResolvedValue({
       user: { id: "writer-1", role: "WRITER" },
     })
@@ -115,6 +115,11 @@ describe("posts API", () => {
           OR: [
             { status: "PUBLISHED" },
             { authorId: "writer-1", status: "DRAFT" },
+            {
+              coAuthors: { some: { userId: "writer-1" } },
+              draftVisibility: "CO_AUTHORS",
+              status: "DRAFT",
+            },
           ],
         },
       }),
@@ -203,6 +208,8 @@ describe("single post API", () => {
   it("hides drafts from visitors", async () => {
     mocks.prisma.post.findUnique.mockResolvedValue({
       authorId: "writer-1",
+      coAuthors: [],
+      draftVisibility: "PRIVATE",
       id: "post-1",
       status: "DRAFT",
     })
@@ -214,6 +221,51 @@ describe("single post API", () => {
 
     expect(response.status).toBe(404)
     await expect(response.json()).resolves.toEqual({ error: "Post not found" })
+  })
+
+  it("hides private drafts from listed co-authors", async () => {
+    mocks.auth.mockResolvedValue({
+      user: { id: "writer-2", role: "WRITER" },
+    })
+    mocks.prisma.post.findUnique.mockResolvedValue({
+      authorId: "writer-1",
+      coAuthors: [{ userId: "writer-2" }],
+      draftVisibility: "PRIVATE",
+      id: "post-1",
+      status: "DRAFT",
+    })
+
+    const response = await GET_POST(
+      new Request("https://example.test/api/posts/post-1"),
+      routeContext("post-1"),
+    )
+
+    expect(response.status).toBe(404)
+    await expect(response.json()).resolves.toEqual({ error: "Post not found" })
+  })
+
+  it("returns shared drafts to listed co-authors", async () => {
+    mocks.auth.mockResolvedValue({
+      user: { id: "writer-2", role: "WRITER" },
+    })
+    mocks.prisma.post.findUnique.mockResolvedValue({
+      authorId: "writer-1",
+      coAuthors: [{ userId: "writer-2" }],
+      draftVisibility: "CO_AUTHORS",
+      id: "post-1",
+      status: "DRAFT",
+      title: "Shared Draft",
+    })
+
+    const response = await GET_POST(
+      new Request("https://example.test/api/posts/post-1"),
+      routeContext("post-1"),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      data: { id: "post-1", status: "DRAFT", title: "Shared Draft" },
+    })
   })
 
   it("publishes an owned draft and replaces tags in one update", async () => {
@@ -253,6 +305,48 @@ describe("single post API", () => {
             create: [{ tag: { connect: { id: "tag-2" } } }],
             deleteMany: {},
           },
+        }),
+        where: { id: "post-1" },
+      }),
+    )
+  })
+
+  it("updates draft visibility and records autosave timestamps", async () => {
+    mocks.auth.mockResolvedValue({
+      user: { id: "writer-1", role: "WRITER" },
+    })
+    mocks.prisma.post.findUnique.mockResolvedValue({
+      authorId: "writer-1",
+      status: "DRAFT",
+    })
+    mocks.prisma.post.update.mockResolvedValue({
+      id: "post-1",
+      slug: "draft-title",
+      status: "DRAFT",
+      updatedAt: new Date("2024-04-01T00:00:00Z"),
+    })
+
+    const response = await PATCH(
+      jsonRequest(
+        "https://example.test/api/posts/post-1",
+        {
+          content: { content: [], type: "doc" },
+          contentText: "Autosaved body",
+          draftVisibility: "CO_AUTHORS",
+          excerpt: "Autosaved excerpt",
+          title: "Autosaved title",
+        },
+        "PATCH",
+      ),
+      routeContext("post-1"),
+    )
+
+    expect(response.status).toBe(200)
+    expect(mocks.prisma.post.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          draftVisibility: "CO_AUTHORS",
+          lastSavedAt: expect.any(Date),
         }),
         where: { id: "post-1" },
       }),

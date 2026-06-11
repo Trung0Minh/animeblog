@@ -1,0 +1,10 @@
+DO $$
+BEGIN
+  CREATE TYPE "DraftVisibility" AS ENUM ('PRIVATE', 'CO_AUTHORS');
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE "posts"
+  ADD COLUMN IF NOT EXISTS "draftVisibility" "DraftVisibility" NOT NULL DEFAULT 'PRIVATE',
+  ADD COLUMN IF NOT EXISTS "lastSavedAt" TIMESTAMP(3);

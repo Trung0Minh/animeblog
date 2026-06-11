@@ -3,6 +3,7 @@ import type { Session } from "next-auth"
 import { ZodError, z } from "zod"
 
 import { auth } from "@/lib/auth"
+import { canViewPost } from "@/lib/postAccess"
 import { prisma } from "@/lib/prisma"
 
 class RouteError extends Error {
@@ -21,6 +22,7 @@ const updateSchema = z.object({
   contentText: z.string().optional(),
   coverAlt: z.string().max(200).optional(),
   coverUrl: z.string().url().nullable().optional(),
+  draftVisibility: z.enum(["PRIVATE", "CO_AUTHORS"]).optional(),
   excerpt: z.string().trim().max(500).optional(),
   status: z.enum(["DRAFT", "PUBLISHED"]).optional(),
   tagIds: z.array(z.string().min(1)).optional(),
@@ -47,6 +49,7 @@ const postDetailSelect = {
     orderBy: { order: "asc" },
     select: {
       order: true,
+      userId: true,
       user: {
         select: {
           avatarUrl: true,
@@ -63,8 +66,10 @@ const postDetailSelect = {
   coverAlt: true,
   coverUrl: true,
   createdAt: true,
+  draftVisibility: true,
   excerpt: true,
   id: true,
+  lastSavedAt: true,
   publishedAt: true,
   slug: true,
   status: true,
@@ -108,10 +113,7 @@ export async function GET(
       return Response.json({ error: "Post not found" }, { status: 404 })
     }
 
-    const isOwner = session?.user.id === post.authorId
-    const isAdmin = session?.user.role === "ADMIN"
-
-    if (post.status === "DRAFT" && !isOwner && !isAdmin) {
+    if (!canViewPost(post, session?.user.id, session?.user.role)) {
       return Response.json({ error: "Post not found" }, { status: 404 })
     }
 
@@ -162,6 +164,11 @@ export async function PATCH(
       ) {
         publishedAt = null
       }
+      const shouldUpdateLastSavedAt =
+        data.content !== undefined ||
+        data.contentText !== undefined ||
+        data.excerpt !== undefined ||
+        data.title !== undefined
 
       return tx.post.update({
         data: {
@@ -189,7 +196,11 @@ export async function PATCH(
             coverAlt: data.coverAlt.trim() || null,
           }),
           ...(data.coverUrl !== undefined && { coverUrl: data.coverUrl }),
+          ...(data.draftVisibility !== undefined && {
+            draftVisibility: data.draftVisibility,
+          }),
           ...(data.excerpt !== undefined && { excerpt: data.excerpt || null }),
+          ...(shouldUpdateLastSavedAt && { lastSavedAt: new Date() }),
           ...(publishedAt !== undefined && { publishedAt }),
           ...(data.status && { status: data.status }),
           ...(data.tagIds && {
@@ -202,7 +213,13 @@ export async function PATCH(
           }),
           ...(data.title && { title: data.title }),
         },
-        select: { id: true, slug: true, status: true, updatedAt: true },
+        select: {
+          id: true,
+          lastSavedAt: true,
+          slug: true,
+          status: true,
+          updatedAt: true,
+        },
         where: { id },
       })
     })

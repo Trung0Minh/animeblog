@@ -22,6 +22,7 @@ const createSchema = z.object({
   contentText: z.string().optional(),
   coverAlt: z.string().max(200).optional(),
   coverUrl: z.string().url().optional(),
+  draftVisibility: z.enum(["PRIVATE", "CO_AUTHORS"]).default("PRIVATE"),
   excerpt: z.string().trim().max(500).optional(),
   status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
   tagIds: z.array(z.string().min(1)).default([]),
@@ -45,8 +46,10 @@ const postListSelect = {
   },
   coverAlt: true,
   coverUrl: true,
+  draftVisibility: true,
   excerpt: true,
   id: true,
+  lastSavedAt: true,
   publishedAt: true,
   slug: true,
   status: true,
@@ -72,7 +75,16 @@ function getVisibilityWhere(
 
   if (session) {
     if (status === "DRAFT") {
-      return { authorId: session.user.id, status: "DRAFT" }
+      return {
+        OR: [
+          { authorId: session.user.id, status: "DRAFT" },
+          {
+            coAuthors: { some: { userId: session.user.id } },
+            draftVisibility: "CO_AUTHORS",
+            status: "DRAFT",
+          },
+        ],
+      }
     }
 
     if (status === "PUBLISHED") {
@@ -83,6 +95,11 @@ function getVisibilityWhere(
       OR: [
         { status: "PUBLISHED" },
         { authorId: session.user.id, status: "DRAFT" },
+        {
+          coAuthors: { some: { userId: session.user.id } },
+          draftVisibility: "CO_AUTHORS",
+          status: "DRAFT",
+        },
       ],
     }
   }
@@ -163,6 +180,7 @@ export async function POST(request: Request) {
           contentText: data.contentText?.trim() || undefined,
           coverAlt: data.coverAlt?.trim() || undefined,
           coverUrl: data.coverUrl,
+          draftVisibility: data.draftVisibility,
           excerpt: data.excerpt || undefined,
           publishedAt: data.status === "PUBLISHED" ? new Date() : null,
           slug,

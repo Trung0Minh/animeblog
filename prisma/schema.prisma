@@ -97,25 +97,27 @@ enum InviteStatus {
 }
 
 model Post {
-  id           String     @id @default(cuid())
-  title        String
-  slug         String     @unique
-  excerpt      String?    @db.Text
-  coverUrl     String?
-  coverAlt     String?
-  content      Json
-  contentText  String?    @db.Text
-  status       PostStatus @default(DRAFT)
-  publishedAt  DateTime?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  authorId     String
-  author       User       @relation("PostPrimaryAuthor", fields: [authorId], references: [id])
-  coAuthors    PostAuthor[]
-  categoryId   String?
-  category     Category?  @relation(fields: [categoryId], references: [id])
-  tags         PostTag[]
-  comments     Comment[]
+  id              String          @id @default(cuid())
+  title           String
+  slug            String          @unique
+  excerpt         String?         @db.Text
+  coverUrl        String?
+  coverAlt        String?
+  content         Json
+  contentText     String?         @db.Text
+  status          PostStatus      @default(DRAFT)
+  draftVisibility DraftVisibility @default(PRIVATE)
+  publishedAt     DateTime?
+  lastSavedAt     DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  authorId        String
+  author          User            @relation("PostPrimaryAuthor", fields: [authorId], references: [id])
+  coAuthors       PostAuthor[]
+  categoryId      String?
+  category        Category?       @relation(fields: [categoryId], references: [id])
+  tags            PostTag[]
+  comments        Comment[]
   searchVector Unsupported("tsvector")? @map("search_vector")
 
   @@index([slug])
@@ -128,6 +130,11 @@ model Post {
 enum PostStatus {
   DRAFT
   PUBLISHED
+}
+
+enum DraftVisibility {
+  PRIVATE
+  CO_AUTHORS
 }
 
 model PostAuthor {

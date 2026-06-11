@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { Lock } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -19,6 +20,7 @@ export default async function DashboardPage() {
     select: {
       _count: { select: { comments: true } },
       id: true,
+      draftVisibility: true,
       publishedAt: true,
       slug: true,
       status: true,
@@ -50,10 +52,23 @@ export default async function DashboardPage() {
           >
             <div className="min-w-0">
               <h2 className="truncate font-medium">{post.title}</h2>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
                 {post.status === "PUBLISHED" && post.publishedAt
                   ? `Published ${formatDate(post.publishedAt)}`
-                  : `Draft · Updated ${formatDate(post.updatedAt)}`}
+                  : (
+                    <>
+                      {post.draftVisibility === "PRIVATE" && (
+                        <Lock aria-hidden="true" className="h-3 w-3" />
+                      )}
+                      <span>
+                        Draft ·{" "}
+                        {post.draftVisibility === "PRIVATE"
+                          ? "Private"
+                          : "Shared with co-authors"}{" "}
+                        · Updated {formatDate(post.updatedAt)}
+                      </span>
+                    </>
+                  )}
                 {" · "}
                 {post._count.comments} comment
                 {post._count.comments === 1 ? "" : "s"}
