@@ -459,7 +459,7 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 - [ ] **13.1** Deploy Umami on Railway and configure website entry
 
-- [ ] **13.2** Add Umami env variables to `.env.local`
+- [x] **13.2** Add Umami env variables to `.env.local`
 
 - [x] **13.3** Add Umami `<Script>` to `app/layout.tsx` (production only)
 
