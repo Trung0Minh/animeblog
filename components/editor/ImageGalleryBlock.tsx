@@ -22,6 +22,8 @@ export function ImageGalleryBlock({ node }: NodeViewProps) {
               <img
                 alt={getGalleryImageAlt(image)}
                 className="image-gallery__image"
+                decoding="async"
+                loading="lazy"
                 src={image.url}
               />
               {image.caption ? (

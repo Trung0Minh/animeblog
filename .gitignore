@@ -38,6 +38,7 @@ yarn-error.log*
 # generated planning output
 /docs/
 .codegraph/
+.codex/
 
 # vercel
 .vercel

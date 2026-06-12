@@ -14,11 +14,29 @@ interface WriterNavControlsProps {
   user?: WriterMenuUser | null
 }
 
+const SESSION_COOKIE_NAMES = [
+  "authjs.session-token",
+  "__Secure-authjs.session-token",
+  "next-auth.session-token",
+  "__Secure-next-auth.session-token",
+]
+
+function hasSessionCookie() {
+  return document.cookie
+    .split(";")
+    .map((cookie) => cookie.trim().split("=")[0])
+    .some((name) => SESSION_COOKIE_NAMES.includes(name))
+}
+
 export function WriterNavControls({ links, user }: WriterNavControlsProps) {
   const [loadedUser, setLoadedUser] = useState<WriterMenuUser | null>(null)
 
   useEffect(() => {
     if (user !== undefined) return
+    if (!hasSessionCookie()) {
+      setLoadedUser(null)
+      return
+    }
 
     let isMounted = true
 

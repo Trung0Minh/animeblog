@@ -45,4 +45,13 @@ describe("canViewPost", () => {
     expect(canViewPost(sharedDraft, "writer-3", "WRITER")).toBe(false)
     expect(canViewPost(sharedDraft, undefined, undefined)).toBe(false)
   })
+
+  it("only allows admins to view archived posts", () => {
+    const archivedPost = { ...privateDraft, status: "ARCHIVED" as never }
+
+    expect(canViewPost(archivedPost, "admin-1", "ADMIN")).toBe(true)
+    expect(canViewPost(archivedPost, "writer-1", "WRITER")).toBe(false)
+    expect(canViewPost(archivedPost, "writer-2", "WRITER")).toBe(false)
+    expect(canViewPost(archivedPost, undefined, undefined)).toBe(false)
+  })
 })

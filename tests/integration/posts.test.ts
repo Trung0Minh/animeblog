@@ -22,11 +22,13 @@ const mocks = vi.hoisted(() => {
   return {
     auth: vi.fn(),
     prisma,
+    revalidateTag: vi.fn(),
   }
 })
 
 vi.mock("@/lib/auth", () => ({ auth: mocks.auth }))
 vi.mock("@/lib/prisma", () => ({ prisma: mocks.prisma }))
+vi.mock("next/cache", () => ({ revalidateTag: mocks.revalidateTag }))
 
 import { DELETE, GET as GET_POST, PATCH } from "@/app/api/posts/[id]/route"
 import { GET as GET_POSTS, POST as CREATE_POST } from "@/app/api/posts/route"
@@ -126,6 +128,25 @@ describe("posts API", () => {
     )
   })
 
+  it("lets admins list archived posts explicitly", async () => {
+    mocks.auth.mockResolvedValue({
+      user: { id: "admin-1", role: "ADMIN" },
+    })
+    mocks.prisma.post.findMany.mockResolvedValue([])
+    mocks.prisma.post.count.mockResolvedValue(0)
+
+    const response = await GET_POSTS(
+      new Request("https://example.test/api/posts?status=ARCHIVED"),
+    )
+
+    expect(response.status).toBe(200)
+    expect(mocks.prisma.post.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { status: "ARCHIVED" },
+      }),
+    )
+  })
+
   it("creates a post with a unique slug for authenticated writers", async () => {
     mocks.auth.mockResolvedValue({
       user: { id: "writer-1", role: "WRITER" },
@@ -173,6 +194,7 @@ describe("posts API", () => {
         select: { id: true, slug: true, status: true },
       }),
     )
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("posts", "max")
   })
 
   it("rejects unauthenticated post creation", async () => {
@@ -268,6 +290,47 @@ describe("single post API", () => {
     })
   })
 
+  it("hides archived posts from visitors and writers while allowing admins", async () => {
+    mocks.prisma.post.findUnique.mockResolvedValue({
+      authorId: "writer-1",
+      coAuthors: [{ userId: "writer-2" }],
+      draftVisibility: "CO_AUTHORS",
+      id: "post-1",
+      status: "ARCHIVED",
+      title: "Archived post",
+    })
+
+    const visitorResponse = await GET_POST(
+      new Request("https://example.test/api/posts/post-1"),
+      routeContext("post-1"),
+    )
+
+    expect(visitorResponse.status).toBe(404)
+
+    mocks.auth.mockResolvedValue({
+      user: { id: "writer-1", role: "WRITER" },
+    })
+    const writerResponse = await GET_POST(
+      new Request("https://example.test/api/posts/post-1"),
+      routeContext("post-1"),
+    )
+
+    expect(writerResponse.status).toBe(404)
+
+    mocks.auth.mockResolvedValue({
+      user: { id: "admin-1", role: "ADMIN" },
+    })
+    const adminResponse = await GET_POST(
+      new Request("https://example.test/api/posts/post-1"),
+      routeContext("post-1"),
+    )
+
+    expect(adminResponse.status).toBe(200)
+    await expect(adminResponse.json()).resolves.toMatchObject({
+      data: { id: "post-1", status: "ARCHIVED", title: "Archived post" },
+    })
+  })
+
   it("publishes an owned draft and replaces tags in one update", async () => {
     mocks.auth.mockResolvedValue({
       user: { id: "writer-1", role: "WRITER" },
@@ -309,6 +372,7 @@ describe("single post API", () => {
         where: { id: "post-1" },
       }),
     )
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("posts", "max")
   })
 
   it("updates draft visibility and records autosave timestamps", async () => {
@@ -351,6 +415,7 @@ describe("single post API", () => {
         where: { id: "post-1" },
       }),
     )
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("posts", "max")
   })
 
   it("forbids deleting another writer's post", async () => {
@@ -389,6 +454,73 @@ describe("single post API", () => {
       select: { id: true },
       where: { id: "post-1" },
     })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("posts", "max")
+  })
+
+  it("archives posts through the admin-only archive route", async () => {
+    const { POST: ARCHIVE_POST } = await import(
+      "@/app/api/posts/[id]/archive/route"
+    )
+    mocks.auth.mockResolvedValue({
+      user: { id: "admin-1", role: "ADMIN" },
+    })
+    mocks.prisma.post.findUnique.mockResolvedValue({
+      id: "post-1",
+      status: "PUBLISHED",
+    })
+    mocks.prisma.post.update.mockResolvedValue({
+      id: "post-1",
+      status: "ARCHIVED",
+    })
+
+    const response = await ARCHIVE_POST(
+      new Request("https://example.test/api/posts/post-1/archive"),
+      routeContext("post-1"),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({
+      data: { message: "Post archived" },
+    })
+    expect(mocks.prisma.post.update).toHaveBeenCalledWith({
+      data: { status: "ARCHIVED" },
+      select: { id: true, status: true },
+      where: { id: "post-1" },
+    })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("posts", "max")
+  })
+
+  it("restores archived posts to draft through the archive route", async () => {
+    const { DELETE: RESTORE_POST } = await import(
+      "@/app/api/posts/[id]/archive/route"
+    )
+    mocks.auth.mockResolvedValue({
+      user: { id: "admin-1", role: "ADMIN" },
+    })
+    mocks.prisma.post.findUnique.mockResolvedValue({
+      id: "post-1",
+      status: "ARCHIVED",
+    })
+    mocks.prisma.post.update.mockResolvedValue({
+      id: "post-1",
+      status: "DRAFT",
+    })
+
+    const response = await RESTORE_POST(
+      new Request("https://example.test/api/posts/post-1/archive"),
+      routeContext("post-1"),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({
+      data: { message: "Post restored to draft" },
+    })
+    expect(mocks.prisma.post.update).toHaveBeenCalledWith({
+      data: { status: "DRAFT" },
+      select: { id: true, status: true },
+      where: { id: "post-1" },
+    })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("posts", "max")
   })
 })
 

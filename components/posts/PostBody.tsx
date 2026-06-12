@@ -85,7 +85,7 @@ export function PostBody({ content }: PostBodyProps) {
   return (
     <>
       <div
-        className="post-content mx-auto w-full max-w-4xl"
+        className="post-content mx-auto w-full max-w-3xl xl:max-w-4xl"
         onClick={(event) => openLightboxFromTarget(event.target)}
         onKeyDown={(event) => {
           if (event.key !== "Enter" && event.key !== " ") {

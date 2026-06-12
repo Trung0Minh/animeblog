@@ -4,10 +4,10 @@ export interface PostJsonLdProps {
   authorName: string
   coverUrl: string | null
   description: string | null
-  publishedAt: Date | null
+  publishedAt: Date | string | null
   slug: string
   title: string
-  updatedAt: Date
+  updatedAt: Date | string
 }
 
 interface ArticleJsonLd {
@@ -49,8 +49,10 @@ export function buildPostJsonLd({
       "@type": "Person",
       name: authorName,
     },
-    dateModified: updatedAt.toISOString(),
-    ...(publishedAt && { datePublished: publishedAt.toISOString() }),
+    dateModified: new Date(updatedAt).toISOString(),
+    ...(publishedAt && {
+      datePublished: new Date(publishedAt).toISOString(),
+    }),
     ...(description && { description }),
     headline: title,
     ...(coverUrl && { image: coverUrl }),

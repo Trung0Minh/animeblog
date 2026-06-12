@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
+  getCachedPublishedPost: vi.fn(),
   prisma: {
     category: {
       findUnique: vi.fn(),
@@ -18,6 +19,9 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock("@/lib/prisma", () => ({ prisma: mocks.prisma }))
+vi.mock("@/lib/queries", () => ({
+  getCachedPublishedPost: mocks.getCachedPublishedPost,
+}))
 
 import { generateMetadata as postMetadata } from "@/app/(public)/[slug]/page"
 import { generateMetadata as authorMetadata } from "@/app/(public)/authors/[username]/page"
@@ -51,7 +55,7 @@ describe("public page metadata", () => {
   })
 
   it("builds article metadata for published posts", async () => {
-    mocks.prisma.post.findUnique.mockResolvedValue({
+    mocks.getCachedPublishedPost.mockResolvedValue({
       author: { name: "Mina Writer" },
       coverUrl: "https://cdn.example.com/frieren.jpg",
       excerpt: "A close read of memory.",
@@ -64,17 +68,7 @@ describe("public page metadata", () => {
       params: Promise.resolve({ slug: "frieren-memory" }),
     })
 
-    expect(mocks.prisma.post.findUnique).toHaveBeenCalledWith({
-      select: {
-        author: { select: { name: true } },
-        coverUrl: true,
-        excerpt: true,
-        publishedAt: true,
-        tags: { select: { tag: { select: { name: true } } } },
-        title: true,
-      },
-      where: { slug: "frieren-memory", status: "PUBLISHED" },
-    })
+    expect(mocks.getCachedPublishedPost).toHaveBeenCalledWith("frieren-memory")
     expect(metadata).toMatchObject({
       alternates: { canonical: "https://eizou.example/frieren-memory" },
       description: "A close read of memory.",
@@ -90,7 +84,7 @@ describe("public page metadata", () => {
   })
 
   it("noindexes missing post metadata", async () => {
-    mocks.prisma.post.findUnique.mockResolvedValue(null)
+    mocks.getCachedPublishedPost.mockResolvedValue(null)
 
     await expect(
       postMetadata({ params: Promise.resolve({ slug: "missing" }) }),

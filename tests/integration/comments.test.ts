@@ -17,12 +17,14 @@ const mocks = vi.hoisted(() => {
   return {
     auth: vi.fn(),
     prisma,
+    revalidateTag: vi.fn(),
     sendCommentReplyEmail: vi.fn(),
   }
 })
 
 vi.mock("@/lib/auth", () => ({ auth: mocks.auth }))
 vi.mock("@/lib/prisma", () => ({ prisma: mocks.prisma }))
+vi.mock("next/cache", () => ({ revalidateTag: mocks.revalidateTag }))
 vi.mock("@/lib/resend", () => ({
   sendCommentReplyEmail: mocks.sendCommentReplyEmail,
 }))
@@ -99,6 +101,7 @@ describe("comments API", () => {
       status: "APPROVED",
     })
     expect(createCall?.select).not.toHaveProperty("authorEmail")
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("comments", "max")
   })
 
   it("sends a reply notification to the parent author when enabled", async () => {
@@ -251,5 +254,6 @@ describe("comment admin API", () => {
       data: { status: "SPAM" },
       where: { id: "comment-1" },
     })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("comments", "max")
   })
 })

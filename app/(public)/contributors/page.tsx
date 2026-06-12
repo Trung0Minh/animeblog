@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { PageContainer } from "@/components/layout/PageContainer"
-import { prisma } from "@/lib/prisma"
+import { getCachedContributors } from "@/lib/queries"
 import { buildMetadata, getAppName } from "@/lib/seo"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -14,19 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ContributorsPage() {
-  const contributors = await prisma.user.findMany({
-    orderBy: { name: "asc" },
-    select: {
-      _count: {
-        select: { posts: { where: { status: "PUBLISHED" } } },
-      },
-      avatarUrl: true,
-      bio: true,
-      name: true,
-      username: true,
-    },
-    where: { role: { in: ["ADMIN", "WRITER"] } },
-  })
+  const contributors = await getCachedContributors()
 
   return (
     <PageContainer>
@@ -53,6 +41,8 @@ export default async function ContributorsPage() {
               <img
                 alt={contributor.name}
                 className="h-12 w-12 shrink-0 rounded-full object-cover"
+                decoding="async"
+                loading="lazy"
                 src={contributor.avatarUrl}
               />
             ) : (

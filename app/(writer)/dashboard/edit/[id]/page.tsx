@@ -44,6 +44,10 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
     notFound()
   }
 
+  if (post.status === "ARCHIVED") {
+    notFound()
+  }
+
   const canEdit =
     session.user.role === "ADMIN" || session.user.id === post.authorId
 

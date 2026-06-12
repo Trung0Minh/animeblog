@@ -37,10 +37,9 @@ export function TiptapEditor({
     editable,
     editorProps: {
       attributes: {
-        class: [
-          "prose prose-lg dark:prose-invert max-w-none focus:outline-none",
-          editable ? "min-h-[500px] px-0 py-4" : "",
-        ].join(" "),
+        class: editable
+          ? "prose-editor min-h-[420px] focus:outline-none"
+          : "prose prose-lg dark:prose-invert max-w-none focus:outline-none",
       },
     },
     extensions: [

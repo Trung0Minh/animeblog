@@ -171,6 +171,8 @@ export function SearchBar() {
                 <img
                   alt=""
                   className="mt-0.5 h-10 w-14 shrink-0 rounded-md object-cover"
+                  decoding="async"
+                  loading="lazy"
                   src={result.coverUrl}
                 />
               )}

@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache"
 import { ZodError, z } from "zod"
 
 import { prisma } from "@/lib/prisma"
@@ -119,6 +120,8 @@ export async function POST(request: Request) {
         }
       }
     }
+
+    revalidateTag("comments", "max")
 
     return Response.json({ data: comment }, { status: 201 })
   } catch (error) {

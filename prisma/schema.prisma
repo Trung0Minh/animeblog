@@ -133,6 +133,7 @@ model Post {
 enum PostStatus {
   DRAFT
   PUBLISHED
+  ARCHIVED
 }
 
 enum DraftVisibility {
@@ -223,6 +224,7 @@ model NewsletterSubscriber {
 
   @@index([email])
   @@index([token])
+  @@index([status])
   @@map("newsletter_subscribers")
 }
 

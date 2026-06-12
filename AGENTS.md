@@ -220,3 +220,159 @@ These must be completed manually before the app will work end-to-end. They canno
 5. **Vercel** — Connect GitHub repo, add all env variables from `.env.example`
 
 Detailed instructions for each service are in the relevant plan files.
+
+## Web UI/UX Agent Workflow
+
+When working on this web project, use the available skills intentionally and in the right order.
+
+### Available Skills
+
+Use these skills when relevant:
+
+* `ui-ux-pro-max`: for UX strategy, design system decisions, layout direction, color palette, font pairing, responsive patterns, and product-level UI decisions.
+* `frontend-design`: for high-quality frontend implementation, visual hierarchy, spacing, typography, layout, component polish, and avoiding generic AI-looking interfaces.
+* `taste-skill` / `gpt-taste`: for aesthetic refinement, premium visual polish, better composition, stronger design taste, and final UI improvements.
+* `agent-browser`: for opening the app in a real browser, inspecting pages visually, clicking through flows, checking responsive behavior, and capturing screenshots when useful.
+* `webapp-testing`: for Playwright/browser-based testing, UI behavior checks, screenshots, logs, console errors, and functional verification.
+
+### Default Workflow for Web UI Tasks
+
+For any meaningful web UI/UX task, follow this workflow:
+
+1. Understand the product context.
+
+   * Identify the target users.
+   * Identify the main page goal.
+   * Preserve the existing brand/style unless asked to redesign it.
+   * Avoid applying a generic SaaS/dashboard look to every project.
+
+2. Use `ui-ux-pro-max` for design direction.
+
+   * Choose an appropriate layout system.
+   * Define visual hierarchy.
+   * Select suitable spacing, typography, color, and component patterns.
+   * Consider desktop, tablet, and mobile from the start.
+
+3. Use `frontend-design` for implementation.
+
+   * Build clean, responsive, production-quality UI.
+   * Improve layout, alignment, spacing, typography, cards, navigation, buttons, forms, and states.
+   * Keep components reusable and consistent.
+   * Avoid random gradients, excessive animations, and decorative clutter unless they fit the product.
+
+4. Use `taste-skill` / `gpt-taste` for polish.
+
+   * Make the UI feel distinctive and intentional.
+   * Improve composition, rhythm, balance, contrast, and visual refinement.
+   * Remove generic AI-generated design patterns.
+   * Make the result feel finished, not just functional.
+
+5. Use `agent-browser` to inspect the actual app.
+
+   * Open the deployed URL or local dev server.
+   * Check desktop layout.
+   * Check mobile layout.
+   * Click main navigation, CTAs, forms, menus, links, and important flows.
+   * Look for broken layout, overflow, unreadable text, bad spacing, broken images, and interaction issues.
+
+6. Use `webapp-testing` when behavior or regression testing is needed.
+
+   * Use browser testing or Playwright-style checks.
+   * Inspect console errors and runtime issues.
+   * Capture screenshots when useful.
+   * Verify main user flows before finalizing.
+
+7. Fix issues before responding.
+
+   * Do not stop after implementation only.
+   * Re-open or re-test the changed UI when possible.
+   * Prioritize user-visible bugs first.
+   * Summarize what changed and what was tested.
+
+### Browser Launch Note
+
+On this Linux machine, if `agent-browser` fails because of a Chrome sandbox issue, run:
+
+```bash
+agent-browser close
+agent-browser open <url> --args "--no-sandbox --disable-dev-shm-usage"
+```
+
+If a daemon is already running and arguments are ignored, close it first:
+
+```bash
+agent-browser close
+```
+
+Then reopen with the required args.
+
+### When to Use Each Skill
+
+For a full redesign:
+
+Use:
+
+* `ui-ux-pro-max`
+* `frontend-design`
+* `taste-skill` / `gpt-taste`
+* `agent-browser`
+* `webapp-testing`
+
+For small visual polish:
+
+Use:
+
+* `frontend-design`
+* `taste-skill` / `gpt-taste`
+
+For design system or UX direction:
+
+Use:
+
+* `ui-ux-pro-max`
+
+For checking the actual web app:
+
+Use:
+
+* `agent-browser`
+* `webapp-testing`
+
+For debugging UI behavior:
+
+Use:
+
+* `webapp-testing`
+* `agent-browser`
+
+### Quality Checklist
+
+Before finishing, check:
+
+* The page has a clear visual hierarchy.
+* Typography is readable and consistent.
+* Spacing is intentional and consistent.
+* Buttons, links, cards, forms, and navigation look polished.
+* The layout works on mobile, tablet, and desktop.
+* There is no unwanted horizontal scrolling.
+* Main interactions work.
+* Hover, focus, active, disabled, loading, empty, and error states are handled when relevant.
+* There are no obvious console/runtime errors.
+* The UI does not look generic or template-like.
+* The final result matches the product’s identity.
+
+### Prompt Template
+
+Use this prompt when asking the agent to improve a web app:
+
+Use ui-ux-pro-max for UX and design-system decisions.
+Use frontend-design and taste-skill/gpt-taste for visual polish and frontend implementation quality.
+Use agent-browser and webapp-testing to verify the result in a real browser.
+
+Improve this web app/page with strong visual hierarchy, polished spacing, better typography, responsive layout, clean interactions, and a distinctive non-generic design.
+
+After implementation, open the app in the browser, test desktop and mobile layouts, click the main navigation/CTA/interactions, check console errors, fix visible issues, and summarize what changed and what was tested.
+
+On this Linux machine, if agent-browser has Chrome sandbox issues, run:
+agent-browser close
+agent-browser open <url> --args "--no-sandbox --disable-dev-shm-usage"

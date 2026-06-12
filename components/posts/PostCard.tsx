@@ -42,6 +42,8 @@ function AuthorAvatar({
       <img
         alt={name}
         className="h-5 w-5 rounded-full object-cover ring-1 ring-background"
+        decoding="async"
+        loading="lazy"
         src={avatarUrl}
       />
     )
@@ -65,6 +67,7 @@ export function PostCard({ post }: PostCardProps) {
             <img
               alt={post.coverAlt ?? post.title}
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              decoding="async"
               loading="lazy"
               src={post.coverUrl}
             />

@@ -10,27 +10,35 @@ import { PostJsonLd } from "@/components/posts/PostJsonLd"
 import { PostReadTracker } from "@/components/posts/PostReadTracker"
 import { TableOfContents } from "@/components/posts/TableOfContents"
 import { prisma } from "@/lib/prisma"
+import { getCachedPublishedPost } from "@/lib/queries"
 import { buildMetadata } from "@/lib/seo"
 
 interface PostPageProps {
   params: Promise<{ slug: string }>
 }
 
+export const revalidate = 300
+
+export async function generateStaticParams() {
+  if (process.env.NODE_ENV !== "production") {
+    return []
+  }
+
+  const posts = await prisma.post.findMany({
+    orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
+    select: { slug: true },
+    take: 20,
+    where: { status: "PUBLISHED" },
+  })
+
+  return posts.map((post) => ({ slug: post.slug }))
+}
+
 export async function generateMetadata({
   params,
 }: PostPageProps): Promise<Metadata> {
   const { slug } = await params
-  const post = await prisma.post.findUnique({
-    select: {
-      author: { select: { name: true } },
-      coverUrl: true,
-      excerpt: true,
-      publishedAt: true,
-      tags: { select: { tag: { select: { name: true } } } },
-      title: true,
-    },
-    where: { slug, status: "PUBLISHED" },
-  })
+  const post = await getCachedPublishedPost(slug)
 
   if (!post) {
     return buildMetadata({ canonicalPath: `/${slug}`, noIndex: true })
@@ -49,7 +57,9 @@ export async function generateMetadata({
     openGraph: {
       ...base.openGraph,
       authors: [post.author.name],
-      publishedTime: post.publishedAt?.toISOString(),
+      publishedTime: post.publishedAt
+        ? new Date(post.publishedAt).toISOString()
+        : undefined,
       tags: post.tags.map(({ tag }) => tag.name),
       type: "article",
     },
@@ -58,74 +68,7 @@ export async function generateMetadata({
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params
-  const post = await prisma.post.findUnique({
-    select: {
-      _count: { select: { comments: true } },
-      author: {
-        select: {
-          avatarUrl: true,
-          bio: true,
-          name: true,
-          username: true,
-        },
-      },
-      category: { select: { name: true, slug: true } },
-      coAuthors: {
-        orderBy: { order: "asc" },
-        select: {
-          user: {
-            select: {
-              avatarUrl: true,
-              bio: true,
-              name: true,
-              username: true,
-            },
-          },
-        },
-      },
-      comments: {
-        orderBy: { createdAt: "asc" },
-        select: {
-          authorName: true,
-          content: true,
-          createdAt: true,
-          id: true,
-          parentId: true,
-          postId: true,
-          replies: {
-            orderBy: { createdAt: "asc" },
-            select: {
-              authorName: true,
-              content: true,
-              createdAt: true,
-              id: true,
-              parentId: true,
-              postId: true,
-              status: true,
-            },
-            where: { status: "APPROVED" },
-          },
-          status: true,
-        },
-        where: { parentId: null, status: "APPROVED" },
-      },
-      content: true,
-      coverAlt: true,
-      coverUrl: true,
-      excerpt: true,
-      id: true,
-      publishedAt: true,
-      slug: true,
-      tags: {
-        select: {
-          tag: { select: { name: true, slug: true } },
-        },
-      },
-      title: true,
-      updatedAt: true,
-    },
-    where: { slug, status: "PUBLISHED" },
-  })
+  const post = await getCachedPublishedPost(slug)
 
   if (!post) {
     notFound()

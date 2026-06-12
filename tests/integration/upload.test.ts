@@ -71,7 +71,19 @@ describe("POST /api/upload", () => {
     })
   })
 
-  it("rejects files larger than 10 MB", async () => {
+  it("rejects non-GIF images larger than 5 MB", async () => {
+    const bytes = new Uint8Array(5 * 1024 * 1024 + 1)
+    const response = await upload(
+      uploadRequest(new File([bytes], "huge.webp", { type: "image/webp" })),
+    )
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({
+      error: "File must be 5 MB or smaller",
+    })
+  })
+
+  it("keeps the 10 MB limit for GIF uploads", async () => {
     const bytes = new Uint8Array(10 * 1024 * 1024 + 1)
     const response = await upload(
       uploadRequest(new File([bytes], "huge.gif", { type: "image/gif" })),

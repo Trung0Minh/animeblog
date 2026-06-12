@@ -1,3 +1,5 @@
+import { revalidateTag } from "next/cache"
+
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
@@ -26,6 +28,8 @@ export async function DELETE(
       data: { status: "SPAM" },
       where: { id },
     })
+
+    revalidateTag("comments", "max")
 
     return Response.json({ data: { message: "Comment hidden" } })
   } catch (error) {

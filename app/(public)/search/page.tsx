@@ -59,6 +59,8 @@ function SearchResultCard({ result }: { result: SearchResult }) {
           <img
             alt=""
             className="hidden h-24 w-32 shrink-0 rounded-xl object-cover sm:block"
+            decoding="async"
+            loading="lazy"
             src={result.coverUrl}
           />
         )}

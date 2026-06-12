@@ -1,10 +1,15 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 
 import { PageContainer } from "@/components/layout/PageContainer"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm"
 import { PostList } from "@/components/posts/PostList"
-import { prisma } from "@/lib/prisma"
+import {
+  PostListSkeleton,
+  SidebarSkeleton,
+} from "@/components/posts/PostListSkeleton"
+import { getCachedPublishedPosts, getCachedSidebarData } from "@/lib/queries"
 import { buildMetadata, getAppUrl } from "@/lib/seo"
 
 interface HomePageProps {
@@ -39,64 +44,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const { page: pageParam } = await searchParams
   const page = parsePage(pageParam)
 
-  const [posts, total, categories, recentPosts] = await Promise.all([
-    prisma.post.findMany({
-      orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
-      select: {
-        _count: { select: { comments: true } },
-        author: {
-          select: { avatarUrl: true, name: true, username: true },
-        },
-        category: { select: { id: true, name: true, slug: true } },
-        coAuthors: {
-          orderBy: { order: "asc" },
-          select: {
-            user: {
-              select: { avatarUrl: true, name: true, username: true },
-            },
-          },
-        },
-        coverAlt: true,
-        coverUrl: true,
-        excerpt: true,
-        publishedAt: true,
-        slug: true,
-        tags: {
-          select: {
-            tag: { select: { id: true, name: true, slug: true } },
-          },
-        },
-        title: true,
-      },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      where: { status: "PUBLISHED" },
-    }),
-    prisma.post.count({ where: { status: "PUBLISHED" } }),
-    prisma.category.findMany({
-      orderBy: { name: "asc" },
-      select: {
-        _count: {
-          select: { posts: { where: { status: "PUBLISHED" } } },
-        },
-        children: {
-          orderBy: { name: "asc" },
-          select: { id: true, name: true, slug: true },
-        },
-        id: true,
-        name: true,
-        slug: true,
-      },
-      where: { parentId: null },
-    }),
-    prisma.post.findMany({
-      orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
-      select: { publishedAt: true, slug: true, title: true },
-      take: 5,
-      where: { status: "PUBLISHED" },
-    }),
-  ])
-
   return (
     <PageContainer size="wide">
       <section className="mb-10 max-w-4xl">
@@ -114,18 +61,38 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
       <div className="flex flex-col gap-8 lg:flex-row xl:gap-10">
         <section className="min-w-0 flex-1" aria-label="Published posts">
-          <PostList
-            emptyMessage="No posts published yet."
-            pagination={{ page, pageSize: PAGE_SIZE, total }}
-            posts={posts}
-          />
+          <Suspense fallback={<PostListSkeleton />}>
+            <HomePostList page={page} />
+          </Suspense>
         </section>
-        <Sidebar
-          categories={categories}
-          newsletter={<NewsletterForm />}
-          recentPosts={recentPosts}
-        />
+        <Suspense fallback={<SidebarSkeleton />}>
+          <HomeSidebar />
+        </Suspense>
       </div>
     </PageContainer>
+  )
+}
+
+async function HomePostList({ page }: { page: number }) {
+  const { posts, total } = await getCachedPublishedPosts(page, PAGE_SIZE)
+
+  return (
+    <PostList
+      emptyMessage="No posts published yet."
+      pagination={{ page, pageSize: PAGE_SIZE, total }}
+      posts={posts}
+    />
+  )
+}
+
+async function HomeSidebar() {
+  const { categories, recentPosts } = await getCachedSidebarData()
+
+  return (
+    <Sidebar
+      categories={categories}
+      newsletter={<NewsletterForm />}
+      recentPosts={recentPosts}
+    />
   )
 }

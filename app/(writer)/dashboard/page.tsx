@@ -27,7 +27,10 @@ export default async function DashboardPage() {
       title: true,
       updatedAt: true,
     },
-    where: { authorId: session.user.id },
+    where: {
+      authorId: session.user.id,
+      status: { not: "ARCHIVED" },
+    },
   })
 
   return (

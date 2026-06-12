@@ -1,6 +1,6 @@
 "use client"
 
-import { ExternalLink, Trash2 } from "lucide-react"
+import { Archive, ArchiveRestore, ExternalLink, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -15,7 +15,7 @@ interface AdminPost {
   id: string
   publishedAt: Date | null
   slug: string
-  status: "DRAFT" | "PUBLISHED"
+  status: "ARCHIVED" | "DRAFT" | "PUBLISHED"
   title: string
   updatedAt: Date
 }
@@ -35,7 +35,58 @@ function getApiError(value: unknown) {
 
 export function AdminPostsTable({ posts }: { posts: AdminPost[] }) {
   const router = useRouter()
+  const [archivingId, setArchivingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  async function handleArchive(post: AdminPost) {
+    if (
+      !confirm(
+        `Archive "${post.title}"? It will be hidden from public view but can be restored later.`,
+      )
+    ) {
+      return
+    }
+
+    setArchivingId(post.id)
+    try {
+      const response = await fetch(`/api/posts/${post.id}/archive`, {
+        method: "POST",
+      })
+      const result: unknown = await response.json()
+
+      if (!response.ok) {
+        throw new Error(getApiError(result))
+      }
+
+      router.refresh()
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to archive post")
+    } finally {
+      setArchivingId(null)
+    }
+  }
+
+  async function handleUnarchive(post: AdminPost) {
+    if (!confirm(`Restore "${post.title}" to draft?`)) return
+
+    setArchivingId(post.id)
+    try {
+      const response = await fetch(`/api/posts/${post.id}/archive`, {
+        method: "DELETE",
+      })
+      const result: unknown = await response.json()
+
+      if (!response.ok) {
+        throw new Error(getApiError(result))
+      }
+
+      router.refresh()
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to restore post")
+    } finally {
+      setArchivingId(null)
+    }
+  }
 
   async function handleDelete(post: AdminPost) {
     if (!confirm(`Delete "${post.title}"? This cannot be undone.`)) return
@@ -104,8 +155,19 @@ export function AdminPostsTable({ posts }: { posts: AdminPost[] }) {
                 </Link>
               </td>
               <td className="px-4 py-3">
-                <Badge variant={post.status === "PUBLISHED" ? "default" : "secondary"}>
-                  {post.status === "PUBLISHED" ? "Published" : "Draft"}
+                <Badge
+                  className={
+                    post.status === "ARCHIVED"
+                      ? "border-transparent bg-orange-100 text-orange-700 hover:bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400"
+                      : undefined
+                  }
+                  variant={post.status === "PUBLISHED" ? "default" : "secondary"}
+                >
+                  {post.status === "PUBLISHED"
+                    ? "Published"
+                    : post.status === "ARCHIVED"
+                      ? "Archived"
+                      : "Draft"}
                 </Badge>
               </td>
               <td className="px-4 py-3 text-muted-foreground">
@@ -122,6 +184,31 @@ export function AdminPostsTable({ posts }: { posts: AdminPost[] }) {
                         <ExternalLink aria-hidden="true" className="h-4 w-4" />
                         View
                       </Link>
+                    </Button>
+                  )}
+                  {post.status === "ARCHIVED" ? (
+                    <Button
+                      aria-label="Restore post to draft"
+                      disabled={archivingId === post.id}
+                      onClick={() => void handleUnarchive(post)}
+                      size="sm"
+                      type="button"
+                      variant="ghost"
+                    >
+                      <ArchiveRestore aria-hidden="true" className="h-4 w-4" />
+                      Restore
+                    </Button>
+                  ) : (
+                    <Button
+                      aria-label="Archive post"
+                      disabled={archivingId === post.id}
+                      onClick={() => void handleArchive(post)}
+                      size="sm"
+                      type="button"
+                      variant="ghost"
+                    >
+                      <Archive aria-hidden="true" className="h-4 w-4" />
+                      Archive
                     </Button>
                   )}
                   <Button

@@ -9,7 +9,8 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/png",
   "image/webp",
 ])
-const MAX_BYTES = 10 * 1024 * 1024
+const MAX_BYTES_IMAGE = 5 * 1024 * 1024
+const MAX_BYTES_GIF = 10 * 1024 * 1024
 const MIME_EXTENSION: Record<string, string> = {
   "image/gif": "gif",
   "image/jpeg": "jpg",
@@ -46,9 +47,13 @@ function validateFile(file: File) {
     )
   }
 
-  if (file.size > MAX_BYTES) {
+  const maxBytes = file.type === "image/gif" ? MAX_BYTES_GIF : MAX_BYTES_IMAGE
+
+  if (file.size > maxBytes) {
+    const limit = file.type === "image/gif" ? 10 : 5
+
     return Response.json(
-      { error: "File must be 10 MB or smaller" },
+      { error: `File must be ${limit} MB or smaller` },
       { status: 400 },
     )
   }

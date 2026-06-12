@@ -34,6 +34,7 @@ vi.mock("next/navigation", () => ({
 import { Footer } from "@/components/layout/Footer"
 import { MobileNav } from "@/components/layout/MobileNav"
 import { Navbar } from "@/components/layout/Navbar"
+import { PageContainer } from "@/components/layout/PageContainer"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { WriterMenu } from "@/components/layout/WriterMenu"
@@ -86,6 +87,11 @@ describe("Navbar", () => {
   })
 
   it("loads the writer session once for navbar controls", async () => {
+    Object.defineProperty(document, "cookie", {
+      configurable: true,
+      value: "authjs.session-token=session",
+      writable: true,
+    })
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValue(
@@ -112,6 +118,70 @@ describe("Navbar", () => {
     } finally {
       fetchMock.mockRestore()
     }
+  })
+
+  it("does not request the writer session for anonymous visitors", async () => {
+    Object.defineProperty(document, "cookie", {
+      configurable: true,
+      value: "",
+      writable: true,
+    })
+    const fetchMock = vi.spyOn(globalThis, "fetch")
+
+    try {
+      render(<Navbar />)
+
+      await waitFor(() => {
+        expect(fetchMock).not.toHaveBeenCalled()
+      })
+      expect(
+        screen.queryByRole("button", { name: "Open writer menu" }),
+      ).not.toBeInTheDocument()
+    } finally {
+      fetchMock.mockRestore()
+    }
+  })
+
+  it("aligns navigation content with page containers", () => {
+    const { container } = render(<Navbar user={null} />)
+
+    expect(container.querySelector("header > div")).toHaveClass("container")
+  })
+})
+
+describe("PageContainer", () => {
+  it("applies the shared public page width and vertical rhythm", () => {
+    const { container } = render(<PageContainer>Content</PageContainer>)
+
+    expect(container.firstElementChild).toHaveClass(
+      "container",
+      "max-w-5xl",
+      "xl:max-w-6xl",
+      "py-8",
+      "sm:py-10",
+    )
+  })
+
+  it("supports narrow article and wide listing layouts", () => {
+    const { container, rerender } = render(
+      <PageContainer as="article" size="narrow">
+        Article
+      </PageContainer>,
+    )
+
+    expect(container.firstElementChild?.tagName).toBe("ARTICLE")
+    expect(container.firstElementChild).toHaveClass(
+      "max-w-3xl",
+      "xl:max-w-4xl",
+    )
+
+    rerender(<PageContainer size="wide">Listing</PageContainer>)
+
+    expect(container.firstElementChild).toHaveClass(
+      "max-w-6xl",
+      "xl:max-w-7xl",
+      "2xl:max-w-[1400px]",
+    )
   })
 })
 
@@ -242,6 +312,18 @@ describe("Sidebar", () => {
     expect(
       screen.getByRole("link", { name: "Frieren and the passage of time" }),
     ).toHaveAttribute("href", "/frieren")
+  })
+
+  it("uses zoom-friendly responsive sidebar widths", () => {
+    const { container } = render(
+      <Sidebar categories={[]} recentPosts={[]} />,
+    )
+
+    expect(container.firstElementChild).toHaveClass(
+      "lg:w-64",
+      "xl:w-80",
+      "2xl:w-96",
+    )
   })
 })
 

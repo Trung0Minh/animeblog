@@ -1,14 +1,14 @@
 "use client"
 
+import { ChevronDown, Settings2 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 
+import { EditorTopBar } from "@/components/editor/EditorTopBar"
 import {
   TiptapEditor,
   type JSONContent,
 } from "@/components/editor/TiptapEditor"
-import { SaveStatusIndicator } from "@/components/editor/SaveStatusIndicator"
-import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { CoverImageUpload } from "@/components/posts/CoverImageUpload"
 import { DraftVisibilityToggle } from "@/components/posts/DraftVisibilityToggle"
@@ -118,6 +118,7 @@ export function PostEditor({
   const [error, setError] = useState("")
   const [excerpt, setExcerpt] = useState(initialData?.excerpt ?? "")
   const [isDirty, setIsDirty] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [postId, setPostId] = useState<string | null>(initialData?.id ?? null)
   const [selectedTags, setSelectedTags] = useState<TagOption[]>(
     initialData?.tags ?? initialTags,
@@ -133,6 +134,10 @@ export function PostEditor({
   const hasCoAuthors = coAuthorIds.length > 0
   const effectiveDraftVisibility = hasCoAuthors ? draftVisibility : "PRIVATE"
   const isEditing = Boolean(postId)
+  const canSave = title.trim().length > 0
+  const autosaveHint = postId
+    ? "Autosave starts after you edit title, excerpt, or body."
+    : "Save once to enable autosave for this draft."
 
   useEffect(() => {
     autosaveDraftRef.current = {
@@ -262,193 +267,229 @@ export function PostEditor({
   const availableWriters = writers.filter((writer) => writer.id !== currentUserId)
 
   return (
-    <div className="container max-w-4xl py-8">
-      {error && (
-        <div
-          className="mb-4 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
-          role="alert"
-        >
-          {error}
-        </div>
-      )}
-
-      <div className="space-y-2">
-        <label className="sr-only" htmlFor="post-title">
-          Title
-        </label>
-        <input
-          className="w-full border-none bg-transparent text-xl font-bold leading-tight tracking-tight outline-none placeholder:text-muted-foreground md:text-3xl"
-          id="post-title"
-          maxLength={200}
-          onChange={(event) => {
-            setTitle(event.target.value)
-            markDirtyAndAutosave()
-          }}
-          placeholder="Post title..."
-          value={title}
-        />
-      </div>
-
-      <div className="mt-4 space-y-2">
-        <label className="sr-only" htmlFor="post-excerpt">
-          Excerpt
-        </label>
-        <Textarea
-          className="min-h-20 resize-none border-none bg-transparent px-0 text-base shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
-          id="post-excerpt"
-          maxLength={500}
-          onChange={(event) => {
-            setExcerpt(event.target.value)
-            markDirtyAndAutosave()
-          }}
-          placeholder="Short excerpt shown on listing pages..."
-          value={excerpt}
-        />
-      </div>
-
-      <div className="mt-6">
-        <CoverImageUpload
-          onChange={(url) => {
-            setCoverUrl(url)
-            markDirty()
-          }}
-          value={coverUrl}
-        />
-        {coverUrl && (
-          <div className="mt-3 space-y-2">
-            <label className="text-sm font-medium" htmlFor="cover-alt">
-              Cover alt text
-            </label>
-            <input
-              className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring"
-              id="cover-alt"
-              maxLength={200}
-              onChange={(event) => {
-                setCoverAlt(event.target.value)
-                markDirty()
-              }}
-              placeholder="Describe the cover image"
-              value={coverAlt}
-            />
-          </div>
-        )}
-      </div>
-
-      <div className="mt-6 grid gap-5 md:grid-cols-2">
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="post-category">
-            Category
-          </label>
-          <select
-            className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring"
-            id="post-category"
-            onChange={(event) => {
-              setCategoryId(event.target.value)
-              markDirty()
-            }}
-            value={categoryId}
-          >
-            <option value="">No category</option>
-            {categories.map((category) => (
-              <optgroup key={category.id} label={category.name}>
-                <option value={category.id}>{category.name}</option>
-                {category.children.map((child) => (
-                  <option key={child.id} value={child.id}>
-                    {child.name}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </div>
-
-        <TagInput
-          onChange={(tags) => {
-            setSelectedTags(tags)
-            markDirty()
-          }}
-          selectedTags={selectedTags}
-        />
-      </div>
-
-      {availableWriters.length > 0 && (
-        <fieldset className="mt-6 rounded-xl border p-4">
-          <legend className="px-1 text-sm font-medium">Co-authors</legend>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            {availableWriters.map((writer) => (
-              <label
-                className="flex items-center gap-2 text-sm"
-                key={writer.id}
-              >
-                <input
-                  checked={coAuthorIds.includes(writer.id)}
-                  className="h-4 w-4 rounded border"
-                  onChange={() => toggleCoAuthor(writer.id)}
-                  type="checkbox"
-                />
-                {writer.name}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      )}
-
-      <DraftVisibilityToggle
-        hasCoAuthors={hasCoAuthors}
-        onChange={(value) => {
-          setDraftVisibility(value)
-          markDirty()
-        }}
-        value={draftVisibility}
+    <div
+      className="fixed inset-0 z-50 flex flex-col bg-background text-foreground"
+      data-testid="post-editor-shell"
+    >
+      <EditorTopBar
+        autosaveHint={autosaveHint}
+        canSave={canSave}
+        exitHref="/dashboard"
+        isPending={isPending}
+        isPublished={initialData?.status === "PUBLISHED"}
+        onPublish={() => startTransition(() => void savePost("PUBLISHED"))}
+        onSaveDraft={() => startTransition(() => void savePost("DRAFT"))}
+        saveStatus={saveStatus}
       />
 
-      <div className="mt-6 border-t pt-6">
-        <TiptapEditor
-          content={content}
-          editable
-          onChange={(json, text) => {
-            setContent(json)
-            setContentText(text)
-            markDirtyAndAutosave()
-          }}
-        />
-      </div>
+      <main className="min-h-0 flex-1 overflow-y-auto bg-muted/20">
+        <div className="mx-auto flex w-full max-w-4xl flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          {error && (
+            <div
+              className="mb-4 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
 
-      <div className="sticky bottom-0 mt-8 flex flex-col gap-3 border-t bg-background/95 py-4 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-xs text-muted-foreground">
-          {isPending ? (
-            "Saving..."
-          ) : (
-            <SaveStatusIndicator status={saveStatus} />
-          )}
-          {!isPending && saveStatus === "idle" && (
-            <span>
-              {postId
-                ? "Autosave starts after you edit title, excerpt, or body."
-                : "Save once to enable autosave for this draft."}
+          <section
+            className="rounded-2xl border bg-background shadow-sm"
+            data-testid="editor-writing-surface"
+          >
+            <div className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10">
+              <div className="space-y-3">
+                <label className="sr-only" htmlFor="post-title">
+                  Title
+                </label>
+                <input
+                  className="w-full border-none bg-transparent text-3xl font-bold leading-[0.98] tracking-tight outline-none placeholder:text-muted-foreground md:text-5xl"
+                  id="post-title"
+                  maxLength={200}
+                  onChange={(event) => {
+                    setTitle(event.target.value)
+                    markDirtyAndAutosave()
+                  }}
+                  placeholder="Post title..."
+                  value={title}
+                />
+              </div>
+
+              <div className="mt-5 space-y-2">
+                <label className="sr-only" htmlFor="post-excerpt">
+                  Excerpt
+                </label>
+                <Textarea
+                  className="min-h-14 resize-none border-none bg-transparent px-0 text-base shadow-none placeholder:text-muted-foreground focus-visible:ring-0 sm:text-lg"
+                  id="post-excerpt"
+                  maxLength={500}
+                  onChange={(event) => {
+                    setExcerpt(event.target.value)
+                    markDirtyAndAutosave()
+                  }}
+                  placeholder="Short excerpt shown on listing pages..."
+                  value={excerpt}
+                />
+              </div>
+
+              <div className="mt-6 border-t pt-5">
+                <TiptapEditor
+                  content={content}
+                  editable
+                  onChange={(json, text) => {
+                    setContent(json)
+                    setContentText(text)
+                    markDirtyAndAutosave()
+                  }}
+                />
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer className="shrink-0 border-t bg-background/95 backdrop-blur">
+        <div className="mx-auto w-full max-w-5xl px-4 py-3 sm:px-6 lg:px-8">
+          <button
+            aria-controls="post-settings-panel"
+            aria-expanded={isSettingsOpen}
+            className="flex w-full items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3 text-left transition-colors hover:bg-accent/60"
+            onClick={() => setIsSettingsOpen((current) => !current)}
+            type="button"
+          >
+            <span className="flex min-w-0 items-center gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                <Settings2 aria-hidden="true" className="h-4 w-4" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-medium">
+                  {isSettingsOpen ? "Hide settings" : "Post settings"}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="block truncate text-xs text-muted-foreground"
+                >
+                  Cover, category, tags, co-authors, and draft visibility
+                </span>
+              </span>
             </span>
+            <ChevronDown
+              aria-hidden="true"
+              className={[
+                "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                isSettingsOpen ? "rotate-180" : "",
+              ].join(" ")}
+            />
+          </button>
+
+          {isSettingsOpen && (
+            <div
+              className="max-h-[60vh] overflow-y-auto border-t pt-4"
+              id="post-settings-panel"
+            >
+              <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+                <div>
+                  <CoverImageUpload
+                    onChange={(url) => {
+                      setCoverUrl(url)
+                      markDirty()
+                    }}
+                    value={coverUrl}
+                  />
+                  {coverUrl && (
+                    <div className="mt-3 space-y-2">
+                      <label className="text-sm font-medium" htmlFor="cover-alt">
+                        Cover alt text
+                      </label>
+                      <input
+                        className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring"
+                        id="cover-alt"
+                        maxLength={200}
+                        onChange={(event) => {
+                          setCoverAlt(event.target.value)
+                          markDirty()
+                        }}
+                        placeholder="Describe the cover image"
+                        value={coverAlt}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid content-start gap-5">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium" htmlFor="post-category">
+                      Category
+                    </label>
+                    <select
+                      className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring"
+                      id="post-category"
+                      onChange={(event) => {
+                        setCategoryId(event.target.value)
+                        markDirty()
+                      }}
+                      value={categoryId}
+                    >
+                      <option value="">No category</option>
+                      {categories.map((category) => (
+                        <optgroup key={category.id} label={category.name}>
+                          <option value={category.id}>{category.name}</option>
+                          {category.children.map((child) => (
+                            <option key={child.id} value={child.id}>
+                              {child.name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                  </div>
+
+                  <TagInput
+                    onChange={(tags) => {
+                      setSelectedTags(tags)
+                      markDirty()
+                    }}
+                    selectedTags={selectedTags}
+                  />
+                </div>
+              </div>
+
+              {availableWriters.length > 0 && (
+                <fieldset className="mt-5 rounded-xl border p-4">
+                  <legend className="px-1 text-sm font-medium">
+                    Co-authors
+                  </legend>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {availableWriters.map((writer) => (
+                      <label
+                        className="flex items-center gap-2 text-sm"
+                        key={writer.id}
+                      >
+                        <input
+                          checked={coAuthorIds.includes(writer.id)}
+                          className="h-4 w-4 rounded border"
+                          onChange={() => toggleCoAuthor(writer.id)}
+                          type="checkbox"
+                        />
+                        {writer.name}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              )}
+
+              <DraftVisibilityToggle
+                hasCoAuthors={hasCoAuthors}
+                onChange={(value) => {
+                  setDraftVisibility(value)
+                  markDirty()
+                }}
+                value={draftVisibility}
+              />
+            </div>
           )}
         </div>
-        <div className="flex w-full gap-3 sm:w-auto">
-          <Button
-            className="flex-1 sm:flex-none"
-            disabled={isPending || !title.trim()}
-            onClick={() => startTransition(() => void savePost("DRAFT"))}
-            type="button"
-            variant="outline"
-          >
-            Save draft
-          </Button>
-          <Button
-            className="flex-1 sm:flex-none"
-            disabled={isPending || !title.trim()}
-            onClick={() => startTransition(() => void savePost("PUBLISHED"))}
-            type="button"
-          >
-            {initialData?.status === "PUBLISHED" ? "Update" : "Publish"}
-          </Button>
-        </div>
-      </div>
+      </footer>
     </div>
   )
 }

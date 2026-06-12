@@ -1,5 +1,6 @@
 import type { Prisma, PostStatus } from "@prisma/client"
 import type { Session } from "next-auth"
+import { revalidateTag } from "next/cache"
 import { ZodError, z } from "zod"
 
 import { auth } from "@/lib/auth"
@@ -11,7 +12,7 @@ const querySchema = z.object({
   categorySlug: z.string().trim().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(50).default(10),
   page: z.coerce.number().int().min(1).default(1),
-  status: z.enum(["DRAFT", "PUBLISHED"]).optional(),
+  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
   tagSlug: z.string().trim().min(1).optional(),
 })
 
@@ -74,6 +75,12 @@ function getVisibilityWhere(
   }
 
   if (session) {
+    if (status === "ARCHIVED") {
+      return {
+        AND: [{ status: "ARCHIVED" }, { id: "__archived_not_visible__" }],
+      }
+    }
+
     if (status === "DRAFT") {
       return {
         OR: [
@@ -204,6 +211,8 @@ export async function POST(request: Request) {
         select: { id: true, slug: true, status: true },
       })
     })
+
+    revalidateTag("posts", "max")
 
     return Response.json({ data: post }, { status: 201 })
   } catch (error) {

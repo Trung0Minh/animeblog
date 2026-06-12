@@ -116,6 +116,8 @@ export default async function AuthorPage({
           <img
             alt={author.name}
             className="h-16 w-16 shrink-0 rounded-full object-cover"
+            decoding="async"
+            loading="lazy"
             src={author.avatarUrl}
           />
         )}

@@ -1,5 +1,6 @@
 import type { Prisma } from "@prisma/client"
 import type { Session } from "next-auth"
+import { revalidateTag } from "next/cache"
 import { ZodError, z } from "zod"
 
 import { auth } from "@/lib/auth"
@@ -24,7 +25,7 @@ const updateSchema = z.object({
   coverUrl: z.string().url().nullable().optional(),
   draftVisibility: z.enum(["PRIVATE", "CO_AUTHORS"]).optional(),
   excerpt: z.string().trim().max(500).optional(),
-  status: z.enum(["DRAFT", "PUBLISHED"]).optional(),
+  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
   tagIds: z.array(z.string().min(1)).optional(),
   title: z.string().trim().min(1).max(200).optional(),
 })
@@ -155,12 +156,19 @@ export async function PATCH(
         throw new RouteError("Forbidden", 403)
       }
 
+      if (
+        (existing.status === "ARCHIVED" || data.status === "ARCHIVED") &&
+        session.user.role !== "ADMIN"
+      ) {
+        throw new RouteError("Forbidden", 403)
+      }
+
       let publishedAt: Date | null | undefined
       if (data.status === "PUBLISHED" && existing.status === "DRAFT") {
         publishedAt = new Date()
       } else if (
         data.status === "DRAFT" &&
-        existing.status === "PUBLISHED"
+        (existing.status === "PUBLISHED" || existing.status === "ARCHIVED")
       ) {
         publishedAt = null
       }
@@ -224,6 +232,8 @@ export async function PATCH(
       })
     })
 
+    revalidateTag("posts", "max")
+
     return Response.json({ data: post })
   } catch (error) {
     if (error instanceof ZodError) {
@@ -271,6 +281,8 @@ export async function DELETE(
         where: { id },
       })
     })
+
+    revalidateTag("posts", "max")
 
     return Response.json({ data: { message: "Post deleted" } })
   } catch (error) {

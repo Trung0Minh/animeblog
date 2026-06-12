@@ -43,6 +43,10 @@ import { PostBody } from "@/components/posts/PostBody"
 import { PostCard } from "@/components/posts/PostCard"
 import { PostEditor } from "@/components/posts/PostEditor"
 import { PostHeader } from "@/components/posts/PostHeader"
+import {
+  PostListSkeleton,
+  SidebarSkeleton,
+} from "@/components/posts/PostListSkeleton"
 import { TableOfContents } from "@/components/posts/TableOfContents"
 import { TagInput, type TagOption } from "@/components/posts/TagInput"
 
@@ -74,6 +78,14 @@ describe("PostCard", () => {
     expect(screen.getByRole("img", { name: "Cover alt" })).toHaveAttribute(
       "src",
       "https://cdn.example.com/cover.jpg",
+    )
+    expect(screen.getByRole("img", { name: "Cover alt" })).toHaveAttribute(
+      "loading",
+      "lazy",
+    )
+    expect(screen.getByRole("img", { name: "Cover alt" })).toHaveAttribute(
+      "decoding",
+      "async",
     )
     expect(screen.getByRole("link", { name: "Production" })).toHaveAttribute(
       "href",
@@ -111,6 +123,10 @@ describe("Post detail responsive components", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Frieren Animation" }),
     ).toHaveClass("text-2xl", "md:text-3xl")
+    const cover = screen.getByRole("img", { name: "Cover alt" })
+    expect(cover).toHaveAttribute("loading", "eager")
+    expect(cover).toHaveAttribute("fetchpriority", "high")
+    expect(cover).toHaveAttribute("decoding", "async")
   })
 
   it("centers the post body in a wider article lane", () => {
@@ -121,7 +137,25 @@ describe("Post detail responsive components", () => {
     expect(container.querySelector(".post-content")).toHaveClass(
       "mx-auto",
       "w-full",
-      "max-w-4xl",
+      "max-w-3xl",
+      "xl:max-w-4xl",
+    )
+  })
+})
+
+describe("post loading skeletons", () => {
+  it("renders post list and sidebar placeholders with matching layout widths", () => {
+    const { container, rerender } = render(<PostListSkeleton />)
+
+    expect(container.querySelectorAll('[data-testid="post-card-skeleton"]'))
+      .toHaveLength(3)
+
+    rerender(<SidebarSkeleton />)
+
+    expect(container.firstElementChild).toHaveClass(
+      "lg:w-64",
+      "xl:w-80",
+      "2xl:w-96",
     )
   })
 })
@@ -341,6 +375,7 @@ describe("PostEditor", () => {
 
     await user.type(screen.getByLabelText("Title"), "New Post")
     await user.click(screen.getByRole("button", { name: "Mock editor" }))
+    await user.click(screen.getByRole("button", { name: "Post settings" }))
     await user.selectOptions(screen.getByLabelText("Category"), "category-1")
     await user.click(screen.getByRole("checkbox", { name: "Ken" }))
     await user.click(screen.getByRole("button", { name: "Publish" }))
@@ -366,27 +401,58 @@ describe("PostEditor", () => {
     expect(routerMocks.push).toHaveBeenCalledWith("/new-post")
   })
 
-  it("uses responsive title and sticky footer controls", () => {
+  it("uses a fullscreen writing shell with top bar actions and collapsible settings", async () => {
+    const user = userEvent.setup()
     render(
-      <PostEditor categories={[]} currentUserId="writer-1" writers={[]} />,
+      <PostEditor
+        categories={[
+          {
+            children: [],
+            id: "category-1",
+            name: "Production",
+            slug: "production",
+          },
+        ]}
+        currentUserId="writer-1"
+        writers={[{ id: "writer-2", name: "Ken", username: "ken" }]}
+      />,
     )
 
+    expect(screen.getByTestId("post-editor-shell")).toHaveClass(
+      "fixed",
+      "inset-0",
+      "z-50",
+    )
     expect(screen.getByLabelText("Title")).toHaveClass(
-      "text-xl",
-      "md:text-3xl",
+      "text-3xl",
+      "md:text-5xl",
     )
 
     const saveDraftButton = screen.getByRole("button", { name: "Save draft" })
-    const footer = saveDraftButton.closest(".sticky")
-    if (!footer) {
-      throw new Error("Editor footer not found")
+    const topBar = saveDraftButton.closest("header")
+    if (!topBar) {
+      throw new Error("Editor top bar not found")
     }
 
-    expect(footer).toHaveClass("flex-col", "sm:flex-row")
-    expect(saveDraftButton).toHaveClass("flex-1", "sm:flex-none")
+    expect(topBar).toHaveClass("sticky", "top-0", "z-20")
+    expect(screen.getByRole("link", { name: "Exit" })).toHaveAttribute(
+      "href",
+      "/dashboard",
+    )
+    expect(screen.getByTestId("editor-writing-surface")).toHaveClass(
+      "rounded-2xl",
+      "border",
+    )
+    expect(screen.queryByLabelText("Category")).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: "Post settings" }))
+
+    expect(screen.getByLabelText("Category")).toBeVisible()
+    expect(screen.getByRole("checkbox", { name: "Ken" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Hide settings" })).toBeVisible()
+    expect(saveDraftButton).toHaveClass("h-9")
     expect(screen.getByRole("button", { name: "Publish" })).toHaveClass(
-      "flex-1",
-      "sm:flex-none",
+      "h-9",
     )
   })
 
@@ -548,6 +614,7 @@ describe("PostEditor", () => {
     )
 
     await user.type(screen.getByLabelText("Title"), "Shared Draft")
+    await user.click(screen.getByRole("button", { name: "Post settings" }))
     await user.click(screen.getByRole("checkbox", { name: "Ken" }))
     await user.click(
       screen.getByRole("button", { name: "Visible to co-authors" }),

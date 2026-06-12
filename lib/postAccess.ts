@@ -13,6 +13,7 @@ export function canViewPost(
   userRole: Role | undefined,
 ) {
   if (post.status === "PUBLISHED") return true
+  if (post.status === "ARCHIVED") return userRole === "ADMIN"
   if (userRole === "ADMIN") return true
   if (!userId) return false
   if (post.authorId === userId) return true

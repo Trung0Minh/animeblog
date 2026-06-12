@@ -32,6 +32,7 @@ function Avatar({ author }: { author: HeaderAuthor }) {
       <img
         alt={author.name}
         className="h-8 w-8 rounded-full object-cover"
+        decoding="async"
         src={author.avatarUrl}
       />
     )
@@ -130,6 +131,9 @@ export function PostHeader({ post }: PostHeaderProps) {
           <img
             alt={post.coverAlt ?? post.title}
             className="h-full w-full object-cover"
+            decoding="async"
+            fetchPriority="high"
+            loading="eager"
             src={post.coverUrl}
           />
         </div>

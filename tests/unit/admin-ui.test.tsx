@@ -114,6 +114,56 @@ describe("admin client components", () => {
     })
   })
 
+  it("archives and restores posts from the admin posts table", async () => {
+    const user = userEvent.setup()
+    const fetchMock = vi.fn().mockResolvedValue(okResponse())
+    vi.stubGlobal("fetch", fetchMock)
+
+    render(
+      <AdminPostsTable
+        posts={[
+          {
+            _count: { comments: 0 },
+            author: { name: "Mina", username: "mina" },
+            id: "post-1",
+            publishedAt: new Date("2026-01-01T00:00:00Z"),
+            slug: "published-post",
+            status: "PUBLISHED",
+            title: "Published post",
+            updatedAt: new Date("2026-01-02T00:00:00Z"),
+          },
+          {
+            _count: { comments: 0 },
+            author: { name: "Ken", username: "ken" },
+            id: "post-2",
+            publishedAt: null,
+            slug: "archived-post",
+            status: "ARCHIVED" as never,
+            title: "Archived post",
+            updatedAt: new Date("2026-01-03T00:00:00Z"),
+          },
+        ]}
+      />,
+    )
+
+    expect(screen.getByText("Archived")).toBeVisible()
+
+    await user.click(screen.getByRole("button", { name: /archive post/i }))
+    expect(fetchMock).toHaveBeenCalledWith("/api/posts/post-1/archive", {
+      method: "POST",
+    })
+
+    await user.click(
+      screen.getByRole("button", { name: /restore post to draft/i }),
+    )
+    expect(fetchMock).toHaveBeenCalledWith("/api/posts/post-2/archive", {
+      method: "DELETE",
+    })
+    await waitFor(() => {
+      expect(routerMocks.refresh).toHaveBeenCalled()
+    })
+  })
+
   it("sends writer invites and resets the email on success", async () => {
     const user = userEvent.setup()
     const fetchMock = vi.fn().mockResolvedValue(

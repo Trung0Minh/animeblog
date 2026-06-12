@@ -15,6 +15,7 @@ const STATUS_FILTERS: Array<{ href: string; label: string; status?: PostStatus }
   { href: "/admin/posts", label: "All" },
   { href: "/admin/posts?status=PUBLISHED", label: "Published", status: "PUBLISHED" },
   { href: "/admin/posts?status=DRAFT", label: "Drafts", status: "DRAFT" },
+  { href: "/admin/posts?status=ARCHIVED", label: "Archived", status: "ARCHIVED" },
 ]
 
 function parsePage(value?: string) {
@@ -24,7 +25,9 @@ function parsePage(value?: string) {
 }
 
 function parseStatus(value?: string): PostStatus | undefined {
-  return value === "PUBLISHED" || value === "DRAFT" ? value : undefined
+  return value === "PUBLISHED" || value === "DRAFT" || value === "ARCHIVED"
+    ? value
+    : undefined
 }
 
 export default async function AdminPostsPage({

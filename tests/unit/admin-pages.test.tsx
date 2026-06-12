@@ -179,6 +179,27 @@ describe("admin server pages", () => {
     expect(author.select).not.toHaveProperty("email")
   })
 
+  it("adds an archived posts filter for admins", async () => {
+    mocks.prisma.post.findMany.mockResolvedValue([])
+    mocks.prisma.post.count.mockResolvedValue(0)
+
+    renderAsync(
+      await AdminPostsPage({
+        searchParams: Promise.resolve({ status: "ARCHIVED" }),
+      }),
+    )
+
+    expect(screen.getByRole("link", { name: "Archived" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    )
+    expect(mocks.prisma.post.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { status: "ARCHIVED" },
+      }),
+    )
+  })
+
   it("loads active writers and pending invites for writer management", async () => {
     mocks.prisma.user.findMany.mockResolvedValue([
       {
