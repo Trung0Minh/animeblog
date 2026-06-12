@@ -54,4 +54,47 @@ test.describe("public layout width and zoom behavior", () => {
       })
     }
   }
+
+  test("post detail centers article body and comments", async ({ page }) => {
+    await page.setViewportSize({ height: 1000, width: 1440 })
+    await page.goto("/", { waitUntil: "domcontentloaded" })
+
+    const firstPostLink = page
+      .locator('section[aria-label="Published posts"] article a[href^="/"]')
+      .first()
+    await expect(firstPostLink).toBeVisible()
+    await firstPostLink.click()
+    await expect(page.locator(".post-content")).toBeVisible()
+    await expect(page.locator("#comments")).toBeVisible()
+
+    const metrics = await page.evaluate(() => {
+      const viewportCenter = document.documentElement.clientWidth / 2
+      const postContent = document.querySelector(".post-content")
+      const comments = document.querySelector("#comments")
+
+      if (!postContent || !comments) {
+        throw new Error("Missing post content or comments")
+      }
+
+      const postRect = postContent.getBoundingClientRect()
+      const commentRect = comments.getBoundingClientRect()
+
+      return {
+        commentCenter: commentRect.left + commentRect.width / 2,
+        commentWidth: commentRect.width,
+        postCenter: postRect.left + postRect.width / 2,
+        postWidth: postRect.width,
+        viewportCenter,
+      }
+    })
+
+    expect(metrics.postWidth).toBeGreaterThan(700)
+    expect(Math.abs(metrics.postCenter - metrics.viewportCenter)).toBeLessThan(
+      8,
+    )
+    expect(metrics.commentWidth).toBe(metrics.postWidth)
+    expect(
+      Math.abs(metrics.commentCenter - metrics.viewportCenter),
+    ).toBeLessThan(8)
+  })
 })

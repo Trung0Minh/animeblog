@@ -147,8 +147,8 @@ export default async function PostPage({ params }: PostPageProps) {
       <PostReadTracker slug={post.slug} title={post.title} />
       <PageContainer as="article" size="wide">
         <PostHeader post={post} />
-        <div className="mx-auto mt-8 flex max-w-6xl gap-8 xl:gap-10">
-          <div className="min-w-0 flex-1">
+        <div className="relative mx-auto mt-8 max-w-6xl xl:max-w-7xl">
+          <div className="mx-auto w-full max-w-4xl">
             <PostBody content={content} />
             <CommentSection
               initialComments={post.comments}
@@ -156,7 +156,7 @@ export default async function PostPage({ params }: PostPageProps) {
               postSlug={post.slug}
             />
           </div>
-          <aside className="hidden w-60 shrink-0 xl:block 2xl:w-64">
+          <aside className="hidden 2xl:absolute 2xl:left-[calc(50%+30rem)] 2xl:top-0 2xl:block 2xl:w-64">
             <TableOfContents content={content} />
           </aside>
         </div>

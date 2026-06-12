@@ -113,14 +113,15 @@ describe("Post detail responsive components", () => {
     ).toHaveClass("text-2xl", "md:text-3xl")
   })
 
-  it("sizes the post body from mobile to desktop", () => {
+  it("centers the post body in a wider article lane", () => {
     const { container } = render(
       <PostBody content={{ content: [], type: "doc" }} />,
     )
 
     expect(container.querySelector(".post-content")).toHaveClass(
-      "text-base",
-      "md:text-lg",
+      "mx-auto",
+      "w-full",
+      "max-w-4xl",
     )
   })
 })
