@@ -570,7 +570,7 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 - [x] **17.5** Test post create → autosave → publish flow
 
-- [ ] **17.6** Test comment + reply + email notification flow
+- [x] **17.6** Test comment + reply + email notification flow
 
 - [x] **17.7** Test newsletter subscribe → broadcast → unsubscribe flow
 
