@@ -48,7 +48,7 @@ export function PostHeader({ post }: PostHeaderProps) {
   const authors = [post.author, ...post.coAuthors.map(({ user }) => user)]
 
   return (
-    <header className="mx-auto max-w-3xl">
+    <header className="mx-auto max-w-3xl xl:max-w-4xl">
       {post.category && (
         <Link
           className="text-xs font-semibold uppercase tracking-[0.12em] text-editorial transition-colors hover:text-editorial/80"

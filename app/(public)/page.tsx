@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 
+import { PageContainer } from "@/components/layout/PageContainer"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm"
 import { PostList } from "@/components/posts/PostList"
@@ -97,8 +98,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   ])
 
   return (
-    <main className="container py-8 sm:py-10">
-      <section className="mb-10 max-w-3xl">
+    <PageContainer size="wide">
+      <section className="mb-10 max-w-4xl">
         <p className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
           Latest analysis
         </p>
@@ -111,7 +112,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </p>
       </section>
 
-      <div className="flex flex-col gap-8 lg:flex-row">
+      <div className="flex flex-col gap-8 lg:flex-row xl:gap-10">
         <section className="min-w-0 flex-1" aria-label="Published posts">
           <PostList
             emptyMessage="No posts published yet."
@@ -125,6 +126,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           recentPosts={recentPosts}
         />
       </div>
-    </main>
+    </PageContainer>
   )
 }

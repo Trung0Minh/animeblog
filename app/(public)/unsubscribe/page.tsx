@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { PageContainer } from "@/components/layout/PageContainer"
 import { prisma } from "@/lib/prisma"
 
 interface UnsubscribePageProps {
@@ -64,7 +65,7 @@ function UnsubscribeResult({ status }: { status: UnsubscribeStatus }) {
   const message = messages[status]
 
   return (
-    <main className="container flex min-h-[70vh] items-center justify-center py-16">
+    <PageContainer className="flex min-h-[70vh] items-center justify-center py-16">
       <section
         className={`w-full max-w-md rounded-xl border p-8 text-center shadow-sm ${message.tone}`}
       >
@@ -84,6 +85,6 @@ function UnsubscribeResult({ status }: { status: UnsubscribeStatus }) {
           Back to blog
         </Link>
       </section>
-    </main>
+    </PageContainer>
   )
 }

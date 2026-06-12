@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { PageContainer } from "@/components/layout/PageContainer"
 import { prisma } from "@/lib/prisma"
 import { buildMetadata, getAppName } from "@/lib/seo"
 
@@ -28,7 +29,7 @@ export default async function ContributorsPage() {
   })
 
   return (
-    <main className="container max-w-4xl py-8 sm:py-10">
+    <PageContainer>
       <section className="mb-10 border-b pb-8">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
           Contributors
@@ -74,6 +75,6 @@ export default async function ContributorsPage() {
           </Link>
         ))}
       </div>
-    </main>
+    </PageContainer>
   )
 }

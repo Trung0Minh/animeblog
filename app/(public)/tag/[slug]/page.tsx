@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
+import { PageContainer } from "@/components/layout/PageContainer"
 import { PostList } from "@/components/posts/PostList"
 import { prisma } from "@/lib/prisma"
 import { buildMetadata } from "@/lib/seo"
@@ -95,7 +96,7 @@ export default async function TagPage({ params, searchParams }: TagPageProps) {
   ])
 
   return (
-    <main className="container max-w-4xl py-8 sm:py-10">
+    <PageContainer>
       <section className="mb-10 border-b pb-8">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
           Tag
@@ -108,6 +109,6 @@ export default async function TagPage({ params, searchParams }: TagPageProps) {
         pagination={{ page, pageSize: PAGE_SIZE, total }}
         posts={posts}
       />
-    </main>
+    </PageContainer>
   )
 }

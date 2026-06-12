@@ -26,7 +26,12 @@ export function Sidebar({
   recentPosts,
 }: SidebarProps) {
   return (
-    <aside className={cn("w-full shrink-0 space-y-8 lg:w-60 xl:w-72", className)}>
+    <aside
+      className={cn(
+        "w-full shrink-0 space-y-8 lg:w-64 xl:w-80 2xl:w-96",
+        className,
+      )}
+    >
       {newsletter && (
         <SidebarSection title="Newsletter">{newsletter}</SidebarSection>
       )}

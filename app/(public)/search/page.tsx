@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { PageContainer } from "@/components/layout/PageContainer"
 import { SearchPageTracker } from "@/components/search/SearchPageTracker"
 import { Pagination } from "@/components/ui/Pagination"
 import { prisma } from "@/lib/prisma"
@@ -92,12 +93,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   if (!query || !tsQuery) {
     return (
-      <main className="container max-w-4xl py-10">
+      <PageContainer className="py-10">
         <h1 className="text-3xl font-bold tracking-tight">Search</h1>
         <div className="mt-8">
           <EmptySearchState query={query} />
         </div>
-      </main>
+      </PageContainer>
     )
   }
 
@@ -141,7 +142,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const total = Number(countResult[0]?.count ?? 0)
 
   return (
-    <main className="container max-w-4xl py-10">
+    <PageContainer className="py-10">
       <SearchPageTracker query={query} />
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
         Search archive
@@ -171,6 +172,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         query={{ q: query }}
         total={total}
       />
-    </main>
+    </PageContainer>
   )
 }

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import type { JSONContent } from "@tiptap/react"
 
 import { CommentSection } from "@/components/comments/CommentSection"
+import { PageContainer } from "@/components/layout/PageContainer"
 import { PostBody } from "@/components/posts/PostBody"
 import { PostHeader } from "@/components/posts/PostHeader"
 import { PostJsonLd } from "@/components/posts/PostJsonLd"
@@ -144,9 +145,9 @@ export default async function PostPage({ params }: PostPageProps) {
         updatedAt={post.updatedAt}
       />
       <PostReadTracker slug={post.slug} title={post.title} />
-      <article className="container py-8 sm:py-10">
+      <PageContainer as="article" size="wide">
         <PostHeader post={post} />
-        <div className="mx-auto mt-8 flex max-w-5xl gap-8">
+        <div className="mx-auto mt-8 flex max-w-6xl gap-8 xl:gap-10">
           <div className="min-w-0 flex-1">
             <PostBody content={content} />
             <CommentSection
@@ -155,11 +156,11 @@ export default async function PostPage({ params }: PostPageProps) {
               postSlug={post.slug}
             />
           </div>
-          <aside className="hidden w-56 shrink-0 xl:block">
+          <aside className="hidden w-60 shrink-0 xl:block 2xl:w-64">
             <TableOfContents content={content} />
           </aside>
         </div>
-      </article>
+      </PageContainer>
     </>
   )
 }

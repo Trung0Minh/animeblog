@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { PageContainer } from "@/components/layout/PageContainer"
 import { buildMetadata, getAppName } from "@/lib/seo"
 
 const PUBLISHING_NOTES = [
@@ -32,7 +33,7 @@ export default function AboutPage() {
   const appName = getAppName()
 
   return (
-    <main className="container max-w-4xl py-8 sm:py-10">
+    <PageContainer>
       <section className="border-b pb-10">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
           About
@@ -95,6 +96,6 @@ export default function AboutPage() {
           </Link>
         </div>
       </section>
-    </main>
+    </PageContainer>
   )
 }
