@@ -19,6 +19,10 @@ function LoginContent() {
       searchParams.get("type") === "email")
   const error = searchParams.get("error")
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
+  const authErrorMessage =
+    error === "Verification"
+      ? "This login link is invalid or expired. Request a new one."
+      : "This email is not registered. Contact an admin to get an invite."
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -73,7 +77,7 @@ function LoginContent() {
 
       {error && error !== "invite-invalid" && !formError && (
         <p className="mt-6 text-sm text-destructive" role="alert">
-          This email is not registered. Contact an admin to get an invite.
+          {authErrorMessage}
         </p>
       )}
 

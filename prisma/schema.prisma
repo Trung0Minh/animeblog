@@ -9,15 +9,17 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  username  String   @unique
-  bio       String?  @db.Text
-  avatarUrl String?
-  role      Role     @default(WRITER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  username      String    @unique
+  bio           String?   @db.Text
+  avatarUrl     String?
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(WRITER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   posts           Post[]       @relation("PostPrimaryAuthor")
   coAuthoredPosts PostAuthor[]
@@ -98,28 +100,28 @@ enum InviteStatus {
 }
 
 model Post {
-  id              String          @id @default(cuid())
+  id              String                   @id @default(cuid())
   title           String
-  slug            String          @unique
-  excerpt         String?         @db.Text
+  slug            String                   @unique
+  excerpt         String?                  @db.Text
   coverUrl        String?
   coverAlt        String?
   content         Json
-  contentText     String?         @db.Text
-  status          PostStatus      @default(DRAFT)
-  draftVisibility DraftVisibility @default(PRIVATE)
+  contentText     String?                  @db.Text
+  status          PostStatus               @default(DRAFT)
+  draftVisibility DraftVisibility          @default(PRIVATE)
   publishedAt     DateTime?
   lastSavedAt     DateTime?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
   authorId        String
-  author          User            @relation("PostPrimaryAuthor", fields: [authorId], references: [id])
+  author          User                     @relation("PostPrimaryAuthor", fields: [authorId], references: [id])
   coAuthors       PostAuthor[]
   categoryId      String?
-  category        Category?       @relation(fields: [categoryId], references: [id])
+  category        Category?                @relation(fields: [categoryId], references: [id])
   tags            PostTag[]
   comments        Comment[]
-  searchVector Unsupported("tsvector")? @map("search_vector")
+  searchVector    Unsupported("tsvector")? @map("search_vector")
 
   @@index([slug])
   @@index([status, publishedAt(sort: Desc)])
@@ -166,10 +168,10 @@ model Category {
 }
 
 model Tag {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  slug      String   @unique
-  createdAt DateTime @default(now())
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  createdAt DateTime  @default(now())
   posts     PostTag[]
 
   @@index([slug])

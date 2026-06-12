@@ -65,6 +65,18 @@ describe("LoginPage", () => {
       screen.getByRole("heading", { name: "Check your email" })
     ).toBeInTheDocument()
   })
+
+  it("shows a link-specific error when Auth.js rejects a magic link", () => {
+    mocks.useSearchParams.mockReturnValue(
+      new URLSearchParams("error=Verification")
+    )
+
+    render(<LoginPage />)
+
+    expect(
+      screen.getByText("This login link is invalid or expired. Request a new one.")
+    ).toBeInTheDocument()
+  })
 })
 
 describe("InviteForm", () => {
