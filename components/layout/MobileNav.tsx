@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { FileText, LogOut, Menu, Search, User } from "lucide-react"
+import { FileText, LogOut, Menu, Search, Shield, User } from "lucide-react"
 import Link from "next/link"
 import { signOut } from "next-auth/react"
 
@@ -92,6 +92,17 @@ export function MobileNav({ links, user }: MobileNavProps) {
                 <FileText aria-hidden="true" className="h-4 w-4" />
                 My posts
               </Link>
+              {menuUser.role === "ADMIN" && (
+                <Link
+                  className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  prefetch={false}
+                >
+                  <Shield aria-hidden="true" className="h-4 w-4" />
+                  Admin panel
+                </Link>
+              )}
               <Link
                 className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 href="/dashboard/profile"

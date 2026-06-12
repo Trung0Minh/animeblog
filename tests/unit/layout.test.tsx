@@ -1,7 +1,7 @@
-import { render, screen, waitFor } from "@testing-library/react"
+import { act, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import type { AnchorHTMLAttributes } from "react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 const themeMocks = vi.hoisted(() => ({
   signOut: vi.fn(),
@@ -30,6 +30,10 @@ vi.mock("next/link", () => ({
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }))
+
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 import { Footer } from "@/components/layout/Footer"
 import { MobileNav } from "@/components/layout/MobileNav"
@@ -86,10 +90,11 @@ describe("Navbar", () => {
     )
   })
 
-  it("loads the writer session once for navbar controls", async () => {
+  it("loads the writer session after a short delay without requiring a readable cookie", async () => {
+    vi.useFakeTimers()
     Object.defineProperty(document, "cookie", {
       configurable: true,
-      value: "authjs.session-token=session",
+      value: "",
       writable: true,
     })
     const fetchMock = vi
@@ -109,31 +114,35 @@ describe("Navbar", () => {
     try {
       render(<Navbar />)
 
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: "Open writer menu" }),
-        ).toBeInTheDocument()
+      expect(fetchMock).not.toHaveBeenCalled()
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(300)
       })
+
+      expect(
+        screen.getByRole("button", { name: "Open writer menu" }),
+      ).toBeInTheDocument()
       expect(fetchMock).toHaveBeenCalledTimes(1)
     } finally {
       fetchMock.mockRestore()
     }
   })
 
-  it("does not request the writer session for anonymous visitors", async () => {
-    Object.defineProperty(document, "cookie", {
-      configurable: true,
-      value: "",
-      writable: true,
-    })
-    const fetchMock = vi.spyOn(globalThis, "fetch")
+  it("does not render a writer menu when the deferred session is anonymous", async () => {
+    vi.useFakeTimers()
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(JSON.stringify({ user: null })))
 
     try {
       render(<Navbar />)
 
-      await waitFor(() => {
-        expect(fetchMock).not.toHaveBeenCalled()
+      expect(fetchMock).not.toHaveBeenCalled()
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(300)
       })
+
+      expect(fetchMock).toHaveBeenCalledTimes(1)
       expect(
         screen.queryByRole("button", { name: "Open writer menu" }),
       ).not.toBeInTheDocument()
@@ -216,6 +225,28 @@ describe("WriterMenu", () => {
 
     expect(themeMocks.signOut).toHaveBeenCalledWith({ callbackUrl: "/" })
   })
+
+  it("shows an admin panel link for admin users", async () => {
+    const user = userEvent.setup()
+
+    render(
+      <WriterMenu
+        user={{
+          avatarUrl: null,
+          name: "Mina Admin",
+          role: "ADMIN",
+          username: "mina",
+        }}
+      />,
+    )
+
+    await user.click(screen.getByRole("button", { name: "Open writer menu" }))
+
+    expect(screen.getByRole("menuitem", { name: "Admin panel" })).toHaveAttribute(
+      "href",
+      "/admin",
+    )
+  })
 })
 
 describe("MobileNav", () => {
@@ -275,6 +306,33 @@ describe("MobileNav", () => {
     await user.click(screen.getByRole("button", { name: "Sign out" }))
 
     expect(themeMocks.signOut).toHaveBeenCalledWith({ callbackUrl: "/" })
+  })
+
+  it("shows admin links in the mobile drawer for signed-in admins", async () => {
+    const user = userEvent.setup()
+    render(
+      <MobileNav
+        links={[
+          { href: "/contributors", label: "Contributors" },
+          { href: "/about", label: "About" },
+        ]}
+        user={{
+          avatarUrl: null,
+          name: "Mina Admin",
+          role: "ADMIN",
+          username: "mina",
+        }}
+      />,
+    )
+
+    await user.click(
+      screen.getByRole("button", { name: "Open navigation menu" }),
+    )
+
+    expect(screen.getByRole("link", { name: "Admin panel" })).toHaveAttribute(
+      "href",
+      "/admin",
+    )
   })
 })
 

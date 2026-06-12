@@ -14,18 +14,12 @@ interface WriterNavControlsProps {
   user?: WriterMenuUser | null
 }
 
-const SESSION_COOKIE_NAMES = [
-  "authjs.session-token",
-  "__Secure-authjs.session-token",
-  "next-auth.session-token",
-  "__Secure-next-auth.session-token",
-]
+const SESSION_LOAD_DELAY_MS = 300
 
-function hasSessionCookie() {
-  return document.cookie
-    .split(";")
-    .map((cookie) => cookie.trim().split("=")[0])
-    .some((name) => SESSION_COOKIE_NAMES.includes(name))
+function scheduleSessionLoad(callback: () => void) {
+  const timeoutId = window.setTimeout(callback, SESSION_LOAD_DELAY_MS)
+
+  return () => window.clearTimeout(timeoutId)
 }
 
 export function WriterNavControls({ links, user }: WriterNavControlsProps) {
@@ -33,16 +27,15 @@ export function WriterNavControls({ links, user }: WriterNavControlsProps) {
 
   useEffect(() => {
     if (user !== undefined) return
-    if (!hasSessionCookie()) {
-      setLoadedUser(null)
-      return
-    }
 
     let isMounted = true
 
     async function loadSession() {
       try {
-        const response = await fetch("/api/auth/session")
+        const response = await fetch("/api/auth/session", {
+          cache: "no-store",
+          credentials: "same-origin",
+        })
         if (!response.ok) return
 
         const result: unknown = await response.json()
@@ -56,10 +49,13 @@ export function WriterNavControls({ links, user }: WriterNavControlsProps) {
       }
     }
 
-    void loadSession()
+    const cancelSessionLoad = scheduleSessionLoad(() => {
+      void loadSession()
+    })
 
     return () => {
       isMounted = false
+      cancelSessionLoad()
     }
   }, [user])
 

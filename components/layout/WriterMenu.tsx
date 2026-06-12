@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ChevronDown, FileText, LogOut, User } from "lucide-react"
+import { ChevronDown, FileText, LogOut, Shield, User } from "lucide-react"
+import type { Role } from "@prisma/client"
 import Link from "next/link"
 import { signOut } from "next-auth/react"
 
@@ -18,7 +19,14 @@ import { cn } from "@/lib/utils"
 export interface WriterMenuUser {
   avatarUrl: string | null
   name: string
+  role?: Role
   username: string
+}
+
+function getSessionRole(value: unknown): Role | undefined {
+  return value === "ADMIN" || value === "WRITER" || value === "REVOKED"
+    ? value
+    : undefined
 }
 
 export function getSessionUser(value: unknown): WriterMenuUser | null {
@@ -39,6 +47,7 @@ export function getSessionUser(value: unknown): WriterMenuUser | null {
           ? value.user.avatarUrl
           : null,
       name: value.user.name,
+      role: "role" in value.user ? getSessionRole(value.user.role) : undefined,
       username: value.user.username,
     }
   }
@@ -148,6 +157,14 @@ export function WriterMenu({ user }: { user?: WriterMenuUser | null }) {
             My posts
           </Link>
         </DropdownMenuItem>
+        {menuUser.role === "ADMIN" && (
+          <DropdownMenuItem asChild>
+            <Link href="/admin">
+              <Shield aria-hidden="true" />
+              Admin panel
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild>
           <Link href="/dashboard/profile">
             <User aria-hidden="true" />
