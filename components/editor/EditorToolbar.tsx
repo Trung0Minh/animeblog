@@ -22,6 +22,7 @@ import { useState } from "react"
 
 import { MediaUpload } from "@/components/editor/MediaUpload"
 import { VideoEmbedModal } from "@/components/editor/VideoEmbedModal"
+import { serializeGalleryImages } from "@/components/editor/gallery"
 
 interface ToolbarButtonProps {
   active?: boolean
@@ -180,7 +181,17 @@ export function EditorToolbar({ editor }: { editor: Editor }) {
           <Link2 aria-hidden="true" className="h-[15px] w-[15px]" />
         </ToolbarButton>
         <MediaUpload
-          onInsert={(url, alt) =>
+          onInsertGallery={(images) =>
+            editor
+              .chain()
+              .focus()
+              .insertContent({
+                attrs: { images: serializeGalleryImages(images) },
+                type: "imageGallery",
+              })
+              .run()
+          }
+          onInsertSingle={(url, alt) =>
             editor.chain().focus().setImage({ alt, src: url }).run()
           }
         />

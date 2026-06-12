@@ -151,9 +151,15 @@
 
   .post-content img {
     border-radius: 4px;
+    cursor: zoom-in;
     display: block;
     margin: 2em auto;
     max-width: 100%;
+    transition: opacity 150ms ease;
+  }
+
+  .post-content img:hover {
+    opacity: 0.92;
   }
 
   .post-content figcaption,
@@ -171,6 +177,55 @@
     border-top: 1px solid hsl(var(--border));
     margin-bottom: 3em;
     margin-top: 3em;
+  }
+
+  .image-gallery {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    margin: 2rem auto;
+    max-width: min(56rem, 100%);
+  }
+
+  .image-gallery__grid {
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .image-gallery__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .image-gallery__item {
+    margin: 0;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .image-gallery__item:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .post-content .image-gallery__image,
+  .image-gallery__image {
+    aspect-ratio: 16 / 9;
+    border-radius: 4px;
+    display: block;
+    height: 100%;
+    margin: 0;
+    max-width: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  .image-gallery__caption {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.75rem;
+    font-style: italic;
+    margin-top: 0.5rem;
+    text-align: center;
   }
 
   .post-content pre,

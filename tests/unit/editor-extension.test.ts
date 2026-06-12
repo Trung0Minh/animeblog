@@ -3,6 +3,7 @@ import StarterKit from "@tiptap/starter-kit"
 import { describe, expect, it } from "vitest"
 
 import {
+  GalleryExtension,
   HeadingWithIdExtension,
   SpoilerExtension,
   VideoEmbedExtension,
@@ -60,6 +61,47 @@ describe("HeadingWithIdExtension", () => {
     })
 
     expect(editor.getHTML()).toContain('<h2 id="dao-dien-tap">')
+    editor.destroy()
+  })
+})
+
+describe("GalleryExtension", () => {
+  it("renders image galleries with captions and accessible alt text", () => {
+    const editor = new Editor({
+      content: {
+        content: [
+          {
+            attrs: {
+              images: JSON.stringify([
+                {
+                  alt: "Episode frame A",
+                  caption: "Before the cut",
+                  url: "https://cdn.example.com/frame-a.webp",
+                },
+                {
+                  alt: "",
+                  caption: "After the cut",
+                  url: "https://cdn.example.com/frame-b.gif",
+                },
+              ]),
+            },
+            type: "imageGallery",
+          },
+        ],
+        type: "doc",
+      },
+      extensions: [StarterKit, GalleryExtension],
+    })
+
+    const html = editor.getHTML()
+
+    expect(html).toContain('data-type="image-gallery"')
+    expect(html).toContain("image-gallery__grid")
+    expect(html).toContain('src="https://cdn.example.com/frame-a.webp"')
+    expect(html).toContain('alt="Episode frame A"')
+    expect(html).toContain('alt="After the cut"')
+    expect(html).toContain("Before the cut")
+    expect(html).toContain("After the cut")
     editor.destroy()
   })
 })

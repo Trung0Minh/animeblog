@@ -1,6 +1,7 @@
 import { expect, type APIRequestContext } from "@playwright/test"
 
 type PostStatus = "DRAFT" | "PUBLISHED"
+type PostContent = Record<string, unknown>
 
 interface PostResponse {
   data?: {
@@ -26,6 +27,7 @@ function docFromText(text: string) {
 export async function createPost(
   request: APIRequestContext,
   input: {
+    content?: PostContent
     contentText: string
     excerpt?: string
     status?: PostStatus
@@ -34,7 +36,7 @@ export async function createPost(
 ) {
   const response = await request.post("/api/posts", {
     data: {
-      content: docFromText(input.contentText),
+      content: input.content ?? docFromText(input.contentText),
       contentText: input.contentText,
       excerpt: input.excerpt ?? input.contentText,
       status: input.status ?? "PUBLISHED",

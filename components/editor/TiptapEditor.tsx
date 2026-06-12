@@ -13,6 +13,7 @@ import { common, createLowlight } from "lowlight"
 import { BubbleMenuComponent } from "@/components/editor/BubbleMenu"
 import { EditorToolbar } from "@/components/editor/EditorToolbar"
 import {
+  GalleryExtension,
   HeadingWithIdExtension,
   SpoilerExtension,
   VideoEmbedExtension,
@@ -54,6 +55,7 @@ export function TiptapEditor({
           class: "h-auto max-w-full rounded-md",
         },
       }),
+      GalleryExtension,
       Link.configure({
         HTMLAttributes: {
           class: "text-editorial underline underline-offset-2 hover:opacity-80",

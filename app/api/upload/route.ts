@@ -38,6 +38,32 @@ function getFolder(value: FormDataEntryValue | null) {
   return folder
 }
 
+function validateFile(file: File) {
+  if (!ALLOWED_MIME_TYPES.has(file.type)) {
+    return Response.json(
+      { error: "Only JPEG, PNG, GIF, and WebP images are allowed" },
+      { status: 400 },
+    )
+  }
+
+  if (file.size > MAX_BYTES) {
+    return Response.json(
+      { error: "File must be 10 MB or smaller" },
+      { status: 400 },
+    )
+  }
+
+  return null
+}
+
+async function uploadFile(file: File, folder: string) {
+  const key = `${folder}/${nanoid()}.${getFileExtension(file)}`
+  const body = Buffer.from(await file.arrayBuffer())
+  const url = await uploadToR2({ body, contentType: file.type, key })
+
+  return { url }
+}
+
 export async function POST(request: Request) {
   const session = await auth()
 
@@ -47,32 +73,38 @@ export async function POST(request: Request) {
 
   try {
     const form = await request.formData()
-    const file = form.get("file")
+    const entries = form.getAll("file")
     const folder = getFolder(form.get("folder"))
+    const files: File[] = []
 
-    if (!(file instanceof File)) {
+    if (entries.length === 0) {
       return Response.json({ error: "No file provided" }, { status: 400 })
     }
 
-    if (!ALLOWED_MIME_TYPES.has(file.type)) {
-      return Response.json(
-        { error: "Only JPEG, PNG, GIF, and WebP images are allowed" },
-        { status: 400 },
-      )
+    for (const entry of entries) {
+      if (!(entry instanceof File)) {
+        return Response.json({ error: "No file provided" }, { status: 400 })
+      }
+
+      files.push(entry)
     }
 
-    if (file.size > MAX_BYTES) {
-      return Response.json(
-        { error: "File must be 10 MB or smaller" },
-        { status: 400 },
-      )
+    for (const file of files) {
+      const error = validateFile(file)
+      if (error) {
+        return error
+      }
     }
 
-    const key = `${folder}/${nanoid()}.${getFileExtension(file)}`
-    const body = Buffer.from(await file.arrayBuffer())
-    const url = await uploadToR2({ body, contentType: file.type, key })
+    const uploaded = await Promise.all(
+      files.map((file) => uploadFile(file, folder)),
+    )
 
-    return Response.json({ data: { url } }, { status: 201 })
+    if (uploaded.length === 1) {
+      return Response.json({ data: { url: uploaded[0].url } }, { status: 201 })
+    }
+
+    return Response.json({ data: { files: uploaded } }, { status: 201 })
   } catch (error) {
     console.error("[POST /api/upload]", error)
     return Response.json({ error: "Upload failed" }, { status: 500 })

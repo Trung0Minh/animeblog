@@ -12,10 +12,12 @@ vi.mock("nanoid", () => ({ nanoid: mocks.nanoid }))
 
 import { POST as upload } from "@/app/api/upload/route"
 
-function uploadRequest(file?: File, folder = "content-images") {
+function uploadRequest(file?: File | File[], folder = "content-images") {
   const form = new FormData()
 
-  if (file) {
+  if (Array.isArray(file)) {
+    file.forEach((item) => form.append("file", item))
+  } else if (file) {
     form.append("file", file)
   }
   form.append("folder", folder)
@@ -31,6 +33,8 @@ describe("POST /api/upload", () => {
     mocks.auth.mockResolvedValue({
       user: { id: "writer-1", role: "WRITER" },
     })
+    mocks.nanoid.mockReset()
+    mocks.nanoid.mockReturnValue("file-id")
     mocks.uploadToR2.mockResolvedValue(
       "https://cdn.example.com/content-images/file-id.gif",
     )
@@ -92,6 +96,42 @@ describe("POST /api/upload", () => {
       body: expect.any(Buffer),
       contentType: "image/gif",
       key: "content-images/file-id.gif",
+    })
+  })
+
+  it("uploads multiple allowed images to R2", async () => {
+    mocks.nanoid
+      .mockReturnValueOnce("frame-a")
+      .mockReturnValueOnce("frame-b")
+    mocks.uploadToR2
+      .mockResolvedValueOnce("https://cdn.example.com/content-images/frame-a.webp")
+      .mockResolvedValueOnce("https://cdn.example.com/content-images/frame-b.gif")
+
+    const response = await upload(
+      uploadRequest([
+        new File(["webp"], "frame-a.webp", { type: "image/webp" }),
+        new File(["gif"], "frame-b.gif", { type: "image/gif" }),
+      ]),
+    )
+
+    expect(response.status).toBe(201)
+    await expect(response.json()).resolves.toEqual({
+      data: {
+        files: [
+          { url: "https://cdn.example.com/content-images/frame-a.webp" },
+          { url: "https://cdn.example.com/content-images/frame-b.gif" },
+        ],
+      },
+    })
+    expect(mocks.uploadToR2).toHaveBeenNthCalledWith(1, {
+      body: expect.any(Buffer),
+      contentType: "image/webp",
+      key: "content-images/frame-a.webp",
+    })
+    expect(mocks.uploadToR2).toHaveBeenNthCalledWith(2, {
+      body: expect.any(Buffer),
+      contentType: "image/gif",
+      key: "content-images/frame-b.gif",
     })
   })
 

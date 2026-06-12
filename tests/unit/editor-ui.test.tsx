@@ -1,6 +1,80 @@
-import { render, screen, waitFor } from "@testing-library/react"
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+
+interface MockPostImage {
+  alt: string
+  caption?: string
+  src: string
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
+}
+
+function readGalleryImages(value: unknown): MockPostImage[] {
+  let parsed = value
+
+  if (typeof value === "string") {
+    try {
+      parsed = JSON.parse(value)
+    } catch {
+      return []
+    }
+  }
+
+  if (!Array.isArray(parsed)) {
+    return []
+  }
+
+  return parsed.flatMap((item) => {
+    if (!isRecord(item) || typeof item.url !== "string") {
+      return []
+    }
+
+    const caption = typeof item.caption === "string" ? item.caption : undefined
+    const alt =
+      typeof item.alt === "string" && item.alt.trim() !== ""
+        ? item.alt
+        : caption ?? ""
+
+    return [{ alt, caption, src: item.url }]
+  })
+}
+
+function collectImages(node: unknown): MockPostImage[] {
+  if (!isRecord(node)) {
+    return []
+  }
+
+  const images: MockPostImage[] = []
+  const attrs = isRecord(node.attrs) ? node.attrs : null
+
+  if (node.type === "image" && attrs && typeof attrs.src === "string") {
+    images.push({
+      alt: typeof attrs.alt === "string" ? attrs.alt : "",
+      src: attrs.src,
+    })
+  }
+
+  if (node.type === "imageGallery" && attrs) {
+    images.push(...readGalleryImages(attrs.images))
+  }
+
+  if (Array.isArray(node.content)) {
+    for (const child of node.content) {
+      images.push(...collectImages(child))
+    }
+  }
+
+  return images
+}
 
 vi.mock("@tiptap/react", () => ({
   NodeViewContent: () => <p>Spoiler text</p>,
@@ -20,7 +94,18 @@ vi.mock("@/components/editor/TiptapEditor", () => ({
       data-content={JSON.stringify(content)}
       data-editable={String(editable)}
       data-testid="tiptap-editor"
-    />
+    >
+      {collectImages(content).map((image) =>
+        image.caption ? (
+          <figure key={image.src}>
+            <img alt={image.alt} src={image.src} />
+            <figcaption>{image.caption}</figcaption>
+          </figure>
+        ) : (
+          <img alt={image.alt} key={image.src} src={image.src} />
+        ),
+      )}
+    </div>
   ),
 }))
 
@@ -68,8 +153,13 @@ describe("MediaUpload", () => {
 
   it("uploads a selected image and inserts the returned URL", async () => {
     const user = userEvent.setup()
-    const onInsert = vi.fn()
-    render(<MediaUpload onInsert={onInsert} />)
+    const onInsertSingle = vi.fn()
+    render(
+      <MediaUpload
+        onInsertGallery={vi.fn()}
+        onInsertSingle={onInsertSingle}
+      />,
+    )
 
     const input = document.querySelector<HTMLInputElement>('input[type="file"]')
     expect(input).not.toBeNull()
@@ -79,7 +169,7 @@ describe("MediaUpload", () => {
     )
 
     await waitFor(() => {
-      expect(onInsert).toHaveBeenCalledWith(
+      expect(onInsertSingle).toHaveBeenCalledWith(
         "https://cdn.example.com/content-images/file.gif",
         "Episode key visual",
       )
@@ -88,6 +178,153 @@ describe("MediaUpload", () => {
       body: expect.any(FormData),
       method: "POST",
     })
+  })
+
+  it("opens a preview modal for multiple selected images", async () => {
+    const user = userEvent.setup()
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          data: {
+            files: [
+              { url: "https://cdn.example.com/content-images/scene-a.webp" },
+              { url: "https://cdn.example.com/content-images/scene-b.gif" },
+            ],
+          },
+        }),
+        { status: 201 },
+      ),
+    )
+    render(
+      <MediaUpload
+        onInsertGallery={vi.fn()}
+        onInsertSingle={vi.fn()}
+      />,
+    )
+
+    const input = document.querySelector<HTMLInputElement>('input[type="file"]')
+    expect(input).toHaveAttribute("multiple")
+
+    await user.upload(input!, [
+      new File(["webp"], "scene-a.webp", { type: "image/webp" }),
+      new File(["gif"], "scene-b.gif", { type: "image/gif" }),
+    ])
+
+    expect(
+      await screen.findByRole("dialog", { name: "2 images selected" }),
+    ).toBeVisible()
+    expect(screen.getByText("scene-a.webp")).toBeVisible()
+    expect(screen.getByText("scene-b.gif")).toBeVisible()
+    expect(window.prompt).not.toHaveBeenCalled()
+  })
+
+  it("can reorder multiple images and insert them as individual blocks", async () => {
+    const user = userEvent.setup()
+    const onInsertSingle = vi.fn()
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          data: {
+            files: [
+              { url: "https://cdn.example.com/content-images/scene-a.webp" },
+              { url: "https://cdn.example.com/content-images/scene-b.gif" },
+            ],
+          },
+        }),
+        { status: 201 },
+      ),
+    )
+    render(
+      <MediaUpload
+        onInsertGallery={vi.fn()}
+        onInsertSingle={onInsertSingle}
+      />,
+    )
+
+    const input = document.querySelector<HTMLInputElement>('input[type="file"]')
+    await user.upload(input!, [
+      new File(["webp"], "scene-a.webp", { type: "image/webp" }),
+      new File(["gif"], "scene-b.gif", { type: "image/gif" }),
+    ])
+
+    const first = await screen.findByLabelText("Selected image scene-a.webp")
+    const second = screen.getByLabelText("Selected image scene-b.gif")
+    fireEvent.dragStart(first)
+    fireEvent.dragOver(second)
+    fireEvent.dragEnd(second)
+
+    await user.click(screen.getByRole("button", { name: "Insert 2 images" }))
+
+    expect(onInsertSingle).toHaveBeenNthCalledWith(
+      1,
+      "https://cdn.example.com/content-images/scene-b.gif",
+      "",
+    )
+    expect(onInsertSingle).toHaveBeenNthCalledWith(
+      2,
+      "https://cdn.example.com/content-images/scene-a.webp",
+      "",
+    )
+  })
+
+  it("inserts multiple images as a captioned gallery", async () => {
+    const user = userEvent.setup()
+    const onInsertGallery = vi.fn()
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          data: {
+            files: [
+              { url: "https://cdn.example.com/content-images/scene-a.webp" },
+              { url: "https://cdn.example.com/content-images/scene-b.gif" },
+            ],
+          },
+        }),
+        { status: 201 },
+      ),
+    )
+    render(
+      <MediaUpload
+        onInsertGallery={onInsertGallery}
+        onInsertSingle={vi.fn()}
+      />,
+    )
+
+    const input = document.querySelector<HTMLInputElement>('input[type="file"]')
+    await user.upload(input!, [
+      new File(["webp"], "scene-a.webp", { type: "image/webp" }),
+      new File(["gif"], "scene-b.gif", { type: "image/gif" }),
+    ])
+
+    await user.click(
+      await screen.findByRole("button", { name: "Insert as gallery grid" }),
+    )
+    await user.type(
+      screen.getByLabelText("Caption for scene-a.webp"),
+      "First frame",
+    )
+    await user.type(
+      screen.getByLabelText("Alt text for scene-a.webp"),
+      "Character close-up",
+    )
+    await user.type(
+      screen.getByLabelText("Caption for scene-b.gif"),
+      "Motion comparison",
+    )
+    await user.click(screen.getByRole("button", { name: "Insert 2 images" }))
+
+    expect(onInsertGallery).toHaveBeenCalledWith([
+      {
+        alt: "Character close-up",
+        caption: "First frame",
+        url: "https://cdn.example.com/content-images/scene-a.webp",
+      },
+      {
+        alt: "",
+        caption: "Motion comparison",
+        url: "https://cdn.example.com/content-images/scene-b.gif",
+      },
+    ])
   })
 })
 
@@ -136,6 +373,64 @@ describe("EditorToolbar", () => {
       })
     })
     expect(chain.run).toHaveBeenCalled()
+  })
+
+  it("inserts an uploaded gallery into the editor", async () => {
+    const user = userEvent.setup()
+    const chain = {
+      focus: vi.fn(() => chain),
+      insertContent: vi.fn(() => chain),
+      run: vi.fn(() => true),
+      setImage: vi.fn(() => chain),
+    }
+    const editor = {
+      chain: vi.fn(() => chain),
+      getAttributes: vi.fn(() => ({})),
+      isActive: vi.fn(() => false),
+    }
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          data: {
+            files: [
+              { url: "https://cdn.example.com/content-images/scene-a.webp" },
+              { url: "https://cdn.example.com/content-images/scene-b.gif" },
+            ],
+          },
+        }),
+        { status: 201 },
+      ),
+    )
+
+    render(<EditorToolbar editor={editor as never} />)
+    const input = document.querySelector<HTMLInputElement>('input[type="file"]')
+
+    await user.upload(input!, [
+      new File(["webp"], "scene-a.webp", { type: "image/webp" }),
+      new File(["gif"], "scene-b.gif", { type: "image/gif" }),
+    ])
+    await user.click(
+      await screen.findByRole("button", { name: "Insert as gallery grid" }),
+    )
+    await user.click(screen.getByRole("button", { name: "Insert 2 images" }))
+
+    expect(chain.insertContent).toHaveBeenCalledWith({
+      attrs: {
+        images: JSON.stringify([
+          {
+            alt: "",
+            caption: "",
+            url: "https://cdn.example.com/content-images/scene-a.webp",
+          },
+          {
+            alt: "",
+            caption: "",
+            url: "https://cdn.example.com/content-images/scene-b.gif",
+          },
+        ]),
+      },
+      type: "imageGallery",
+    })
   })
 })
 
@@ -189,5 +484,58 @@ describe("PostBody", () => {
     const editor = screen.getByTestId("tiptap-editor")
     expect(editor).toHaveAttribute("data-editable", "false")
     expect(editor).toHaveAttribute("data-content", JSON.stringify(content))
+  })
+
+  it("opens a keyboard-navigable lightbox for post images", async () => {
+    const user = userEvent.setup()
+    const content = {
+      content: [
+        {
+          attrs: {
+            alt: "First frame",
+            src: "https://cdn.example.com/content-images/scene-a.webp",
+          },
+          type: "image",
+        },
+        {
+          attrs: {
+            images: JSON.stringify([
+              {
+                alt: "Second frame",
+                caption: "Motion comparison",
+                url: "https://cdn.example.com/content-images/scene-b.gif",
+              },
+            ]),
+          },
+          type: "imageGallery",
+        },
+      ],
+      type: "doc",
+    }
+
+    render(<PostBody content={content} />)
+
+    await user.click(screen.getByRole("img", { name: "First frame" }))
+
+    expect(
+      screen.getByRole("dialog", { name: "Image viewer" }),
+    ).toBeVisible()
+    expect(screen.getByText("1 / 2")).toBeVisible()
+
+    await user.keyboard("{ArrowRight}")
+
+    const lightbox = within(
+      screen.getByRole("dialog", { name: "Image viewer" }),
+    )
+    expect(lightbox.getByRole("img", { name: "Second frame" })).toBeVisible()
+    expect(lightbox.getByText("Motion comparison")).toBeVisible()
+
+    await user.keyboard("{Escape}")
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("dialog", { name: "Image viewer" }),
+      ).not.toBeInTheDocument()
+    })
   })
 })

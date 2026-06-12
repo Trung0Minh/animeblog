@@ -47,4 +47,57 @@ test.describe("Writer post flow", () => {
 
     expect(response?.status()).toBe(404)
   })
+
+  test("reader can open and navigate the post image lightbox", async ({
+    page,
+  }, testInfo) => {
+    await loginAsWriter(page)
+
+    const post = await createPost(page.request, {
+      content: {
+        content: [
+          {
+            attrs: {
+              alt: "Opening frame",
+              src: "https://cdn.example.com/e2e-frame-a.webp",
+            },
+            type: "image",
+          },
+          {
+            attrs: {
+              images: JSON.stringify([
+                {
+                  alt: "Motion frame",
+                  caption: "Timing comparison",
+                  url: "https://cdn.example.com/e2e-frame-b.gif",
+                },
+              ]),
+            },
+            type: "imageGallery",
+          },
+        ],
+        type: "doc",
+      },
+      contentText: "A lightbox verification post.",
+      title: `E2E Lightbox Post ${testInfo.project.name} ${Date.now()}`,
+    })
+
+    await page.context().clearCookies()
+    await page.goto(`/${post.slug}`)
+    await page.getByRole("img", { name: "Opening frame" }).click()
+
+    const lightbox = page.getByRole("dialog", { name: "Image viewer" })
+    await expect(lightbox).toBeVisible()
+    await expect(lightbox.getByText("1 / 2")).toBeVisible()
+
+    await page.keyboard.press("ArrowRight")
+
+    await expect(lightbox.getByRole("img", { name: "Motion frame" })).toBeVisible()
+    await expect(lightbox.getByText("Timing comparison")).toBeVisible()
+
+    await lightbox.getByRole("button", { name: "Zoom in" }).click()
+    await page.keyboard.press("Escape")
+
+    await expect(lightbox).toBeHidden()
+  })
 })
