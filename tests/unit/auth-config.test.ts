@@ -1,5 +1,13 @@
 import type { NextAuthConfig } from "next-auth"
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest"
 
 const mocks = vi.hoisted(() => ({
   nextAuth: vi.fn((config: unknown) => ({
@@ -35,8 +43,14 @@ vi.mock("@/lib/prisma", () => ({
 let config: NextAuthConfig
 
 beforeAll(async () => {
+  vi.stubEnv("AUTH_SECRET", "auth-secret")
+  vi.stubEnv("NEXTAUTH_SECRET", "nextauth-secret")
   await import("@/lib/auth")
   config = mocks.nextAuth.mock.calls[0][0] as NextAuthConfig
+})
+
+afterAll(() => {
+  vi.unstubAllEnvs()
 })
 
 beforeEach(() => {
@@ -44,8 +58,13 @@ beforeEach(() => {
 })
 
 describe("NextAuth configuration", () => {
-  it("uses database sessions and the custom auth pages", () => {
-    expect(config.session).toEqual({ strategy: "database" })
+  it("uses long-lived database sessions and the custom auth pages", () => {
+    expect(config.session).toEqual({
+      maxAge: 60 * 60 * 24 * 180,
+      strategy: "database",
+      updateAge: 60 * 60 * 24,
+    })
+    expect(config.secret).toBe("auth-secret")
     expect(config.trustHost).toBe(true)
     expect(config.pages).toEqual({
       signIn: "/login",

@@ -4,6 +4,11 @@ import Resend from "next-auth/providers/resend"
 
 import { prisma } from "@/lib/prisma"
 
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 180
+const SESSION_UPDATE_AGE_SECONDS = 60 * 60 * 24
+const authSecret =
+  process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || undefined
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -13,8 +18,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   session: {
+    maxAge: SESSION_MAX_AGE_SECONDS,
     strategy: "database",
+    updateAge: SESSION_UPDATE_AGE_SECONDS,
   },
+  secret: authSecret,
   trustHost: true,
   pages: {
     signIn: "/login",
