@@ -1,6 +1,6 @@
 import { ZodError, z } from "zod"
 
-import { auth } from "@/lib/auth"
+import { getActiveSession, unauthorizedResponse } from "@/lib/authz"
 import { prisma } from "@/lib/prisma"
 import { generateSlug } from "@/lib/utils"
 
@@ -36,10 +36,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth()
+  const activeSession = await getActiveSession(["ADMIN", "WRITER"])
 
-  if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
+  if (!activeSession) {
+    return unauthorizedResponse()
   }
 
   try {

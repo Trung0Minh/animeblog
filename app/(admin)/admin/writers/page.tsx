@@ -1,34 +1,10 @@
 import { InviteWriterForm } from "@/components/admin/InviteWriterForm"
 import { PendingInvitesTable } from "@/components/admin/PendingInvitesTable"
 import { WritersTable } from "@/components/admin/WritersTable"
-import { prisma } from "@/lib/prisma"
+import { getCachedAdminWritersData } from "@/lib/queries"
 
 export default async function AdminWritersPage() {
-  const [writers, pendingInvites] = await Promise.all([
-    prisma.user.findMany({
-      orderBy: { createdAt: "desc" },
-      select: {
-        _count: { select: { posts: true } },
-        createdAt: true,
-        email: true,
-        id: true,
-        name: true,
-        username: true,
-      },
-      where: { role: "WRITER" },
-    }),
-    prisma.invite.findMany({
-      orderBy: { createdAt: "desc" },
-      select: {
-        createdAt: true,
-        createdBy: { select: { name: true } },
-        email: true,
-        expiresAt: true,
-        id: true,
-      },
-      where: { expiresAt: { gt: new Date() }, status: "PENDING" },
-    }),
-  ])
+  const { pendingInvites, writers } = await getCachedAdminWritersData()
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">

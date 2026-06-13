@@ -63,6 +63,7 @@ export function AdminNav() {
               )}
               href={href}
               key={href}
+              prefetch={false}
             >
               <Icon aria-hidden="true" className="h-4 w-4" />
               {label}

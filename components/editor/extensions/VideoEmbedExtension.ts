@@ -1,17 +1,9 @@
 import { mergeAttributes, Node } from "@tiptap/core"
 import type { DOMOutputSpec } from "@tiptap/pm/model"
 
-export function toVideoEmbedUrl(raw: string): string {
-  const youtubeId = raw.match(
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/,
-  )?.[1]
+import { toVideoEmbedUrl } from "@/components/editor/video"
 
-  if (youtubeId) {
-    return `https://www.youtube.com/embed/${youtubeId}?rel=0`
-  }
-
-  return raw
-}
+export { toVideoEmbedUrl } from "@/components/editor/video"
 
 export const VideoEmbedExtension = Node.create({
   addAttributes() {

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
 
 import { MobileNav } from "@/components/layout/MobileNav"
 import {
@@ -23,6 +24,7 @@ function scheduleSessionLoad(callback: () => void) {
 }
 
 export function WriterNavControls({ links, user }: WriterNavControlsProps) {
+  const pathname = usePathname()
   const [loadedUser, setLoadedUser] = useState<WriterMenuUser | null>(null)
 
   useEffect(() => {
@@ -57,7 +59,7 @@ export function WriterNavControls({ links, user }: WriterNavControlsProps) {
       isMounted = false
       cancelSessionLoad()
     }
-  }, [user])
+  }, [pathname, user])
 
   const menuUser = user !== undefined ? user : loadedUser
 

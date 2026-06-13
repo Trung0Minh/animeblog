@@ -165,7 +165,6 @@ export function SearchBar() {
               href={`/${result.slug}`}
               key={result.id}
               onClick={clearSearch}
-              prefetch={false}
             >
               {result.coverUrl && (
                 <img
@@ -192,7 +191,6 @@ export function SearchBar() {
               className="block border-t px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-primary transition-colors hover:bg-muted"
               href={`/search?q=${encodeURIComponent(query.trim())}`}
               onClick={() => setIsOpen(false)}
-              prefetch={false}
             >
               See all results for &quot;{query.trim()}&quot;
             </Link>

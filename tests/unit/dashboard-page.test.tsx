@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   redirect: vi.fn((path: string) => {
     throw new Error(`redirect:${path}`)
   }),
+  unstableCache: vi.fn((callback: unknown) => callback),
 }))
 
 vi.mock("next/link", () => ({
@@ -25,6 +26,7 @@ vi.mock("next/link", () => ({
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }))
 vi.mock("@/lib/auth", () => ({ auth: mocks.auth }))
 vi.mock("@/lib/prisma", () => ({ prisma: mocks.prisma }))
+vi.mock("next/cache", () => ({ unstable_cache: mocks.unstableCache }))
 
 import DashboardPage from "@/app/(writer)/dashboard/page"
 

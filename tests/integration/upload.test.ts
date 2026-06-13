@@ -3,10 +3,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const mocks = vi.hoisted(() => ({
   auth: vi.fn(),
   nanoid: vi.fn(() => "file-id"),
+  userFindUnique: vi.fn(),
   uploadToR2: vi.fn(),
 }))
 
 vi.mock("@/lib/auth", () => ({ auth: mocks.auth }))
+vi.mock("@/lib/prisma", () => ({
+  prisma: {
+    user: {
+      findUnique: mocks.userFindUnique,
+    },
+  },
+}))
 vi.mock("@/lib/r2", () => ({ uploadToR2: mocks.uploadToR2 }))
 vi.mock("nanoid", () => ({ nanoid: mocks.nanoid }))
 
@@ -32,6 +40,14 @@ describe("POST /api/upload", () => {
     vi.clearAllMocks()
     mocks.auth.mockResolvedValue({
       user: { id: "writer-1", role: "WRITER" },
+    })
+    mocks.userFindUnique.mockResolvedValue({
+      avatarUrl: null,
+      email: "writer@example.com",
+      id: "writer-1",
+      name: "Writer",
+      role: "WRITER",
+      username: "writer",
     })
     mocks.nanoid.mockReset()
     mocks.nanoid.mockReturnValue("file-id")

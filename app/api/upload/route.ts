@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid"
 
-import { auth } from "@/lib/auth"
+import { getActiveSession, unauthorizedResponse } from "@/lib/authz"
 import { uploadToR2 } from "@/lib/r2"
 
 const ALLOWED_MIME_TYPES = new Set([
@@ -70,10 +70,10 @@ async function uploadFile(file: File, folder: string) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth()
+  const activeSession = await getActiveSession(["ADMIN", "WRITER"])
 
-  if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
+  if (!activeSession) {
+    return unauthorizedResponse()
   }
 
   try {

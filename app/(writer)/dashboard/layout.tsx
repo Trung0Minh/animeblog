@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import { auth } from "@/lib/auth"
+import { getCurrentSession } from "@/lib/session"
 
 export const metadata: Metadata = {
   robots: { follow: false, index: false },
@@ -14,7 +14,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
+  const session = await getCurrentSession()
 
   if (!session) {
     redirect("/login")
@@ -30,19 +30,20 @@ export default async function DashboardLayout({
           <Link
             className="whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             href="/dashboard"
+            prefetch={false}
           >
             My posts
           </Link>
           <Link
             className="whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             href="/dashboard/profile"
+            prefetch={false}
           >
             Edit profile
           </Link>
           <Link
             className="ml-auto whitespace-nowrap rounded-md px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             href={`/authors/${session.user.username}`}
-            prefetch={false}
             target="_blank"
           >
             View public profile

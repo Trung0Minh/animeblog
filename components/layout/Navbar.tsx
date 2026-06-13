@@ -32,7 +32,6 @@ export function Navbar({ user }: { user?: WriterMenuUser | null }) {
               className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               href={link.href}
               key={link.href}
-              prefetch={false}
             >
               {link.label}
             </Link>

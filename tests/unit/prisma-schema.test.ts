@@ -6,8 +6,18 @@ describe("Prisma Auth.js adapter schema", () => {
   const schema = readFileSync("prisma/schema.prisma", "utf8")
   const userModel = schema.match(/model User \{[\s\S]*?\n\}/)?.[0] ?? ""
   const postStatusEnum = schema.match(/enum PostStatus \{[\s\S]*?\n\}/)?.[0] ?? ""
+  const postModel = schema.match(/model Post \{[\s\S]*?\n\}/)?.[0] ?? ""
+  const commentModel = schema.match(/model Comment \{[\s\S]*?\n\}/)?.[0] ?? ""
+  const inviteModel = schema.match(/model Invite \{[\s\S]*?\n\}/)?.[0] ?? ""
+  const categoryModel = schema.match(/model Category \{[\s\S]*?\n\}/)?.[0] ?? ""
   const newsletterSubscriberModel =
     schema.match(/model NewsletterSubscriber \{[\s\S]*?\n\}/)?.[0] ?? ""
+  const analyticsEventModel =
+    schema.match(/model AnalyticsEvent \{[\s\S]*?\n\}/)?.[0] ?? ""
+  const analyticsDailySummaryModel =
+    schema.match(/model AnalyticsDailySummary \{[\s\S]*?\n\}/)?.[0] ?? ""
+  const analyticsDailyPageModel =
+    schema.match(/model AnalyticsDailyPage \{[\s\S]*?\n\}/)?.[0] ?? ""
 
   it("includes the standard nullable fields Auth.js writes during email sign-in", () => {
     expect(userModel).toContain("emailVerified DateTime?")
@@ -20,5 +30,34 @@ describe("Prisma Auth.js adapter schema", () => {
 
   it("indexes newsletter subscriber status for broadcast queries", () => {
     expect(newsletterSubscriberModel).toContain("@@index([status])")
+  })
+
+  it("indexes protected route navigation query patterns", () => {
+    expect(postModel).toContain(
+      "@@index([authorId, status, updatedAt(sort: Desc)])",
+    )
+    expect(commentModel).toContain("@@index([status, createdAt(sort: Desc)])")
+    expect(userModel).toContain("@@index([role, createdAt(sort: Desc)])")
+    expect(userModel).toContain("@@index([role, name])")
+    expect(inviteModel).toContain(
+      "@@index([status, expiresAt, createdAt(sort: Desc)])",
+    )
+    expect(categoryModel).toContain("@@index([parentId, name])")
+  })
+
+  it("defines internal analytics tables for event tracking and daily aggregates", () => {
+    expect(schema).toContain("enum AnalyticsEventType")
+    expect(analyticsEventModel).toContain("@@map(\"analytics_events\")")
+    expect(analyticsEventModel).toContain(
+      "@@index([postSlug, type, createdAt(sort: Desc)])",
+    )
+    expect(analyticsDailySummaryModel).toContain(
+      "@@map(\"analytics_daily_summaries\")",
+    )
+    expect(analyticsDailySummaryModel).toContain("@@unique([day])")
+    expect(analyticsDailyPageModel).toContain(
+      "@@map(\"analytics_daily_pages\")",
+    )
+    expect(analyticsDailyPageModel).toContain("@@unique([day, path])")
   })
 })

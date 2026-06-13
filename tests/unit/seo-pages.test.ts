@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
+  getCachedAuthorByUsername: vi.fn(),
+  getCachedCategoryBySlug: vi.fn(),
   getCachedPublishedPost: vi.fn(),
+  getCachedTagBySlug: vi.fn(),
   prisma: {
     category: {
       findUnique: vi.fn(),
@@ -20,7 +23,10 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/lib/prisma", () => ({ prisma: mocks.prisma }))
 vi.mock("@/lib/queries", () => ({
+  getCachedAuthorByUsername: mocks.getCachedAuthorByUsername,
+  getCachedCategoryBySlug: mocks.getCachedCategoryBySlug,
   getCachedPublishedPost: mocks.getCachedPublishedPost,
+  getCachedTagBySlug: mocks.getCachedTagBySlug,
 }))
 
 import { generateMetadata as postMetadata } from "@/app/(public)/[slug]/page"
@@ -94,15 +100,24 @@ describe("public page metadata", () => {
   })
 
   it("builds category, tag, author, contributors, and search metadata", async () => {
-    mocks.prisma.category.findUnique.mockResolvedValue({
+    mocks.getCachedCategoryBySlug.mockResolvedValue({
       description: "Production-focused essays.",
+      id: "category-1",
       name: "Analysis",
+      slug: "analysis",
     })
-    mocks.prisma.tag.findUnique.mockResolvedValue({ name: "Sakuga" })
-    mocks.prisma.user.findUnique.mockResolvedValue({
+    mocks.getCachedTagBySlug.mockResolvedValue({
+      id: "tag-1",
+      name: "Sakuga",
+      slug: "sakuga",
+    })
+    mocks.getCachedAuthorByUsername.mockResolvedValue({
       avatarUrl: "https://cdn.example.com/mina.jpg",
       bio: "Production notes and layout analysis.",
+      createdAt: new Date("2024-01-01T00:00:00Z"),
+      id: "user-1",
       name: "Mina Writer",
+      username: "mina",
     })
 
     await expect(

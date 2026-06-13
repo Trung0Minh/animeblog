@@ -1,16 +1,8 @@
 import { Suspense } from "react"
-import { ExternalLink } from "lucide-react"
 
 import { AnalyticsWidget } from "@/components/admin/AnalyticsWidget"
-import { Button } from "@/components/ui/button"
-
-function getDashboardUrl() {
-  return process.env.UMAMI_API_URL?.replace(/\/+$/, "") ?? ""
-}
 
 export default async function AdminAnalyticsPage() {
-  const dashboardUrl = getDashboardUrl()
-
   return (
     <div className="space-y-8">
       <section className="rounded-2xl border bg-card p-5 sm:p-6">
@@ -21,19 +13,12 @@ export default async function AdminAnalyticsPage() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Review traffic, readers, and top pages from the Umami deployment.
-              The embedded summary stays lightweight so the admin panel remains
-              usable if analytics is unavailable.
+              Review traffic, readers, and top pages from analytics stored
+              directly in this site. Tracking runs in the background and the
+              admin panel reads daily aggregates instead of blocking on visitor
+              events.
             </p>
           </div>
-          {dashboardUrl && (
-            <Button asChild>
-              <a href={dashboardUrl} rel="noreferrer" target="_blank">
-                Open Umami dashboard
-                <ExternalLink aria-hidden="true" className="h-4 w-4" />
-              </a>
-            </Button>
-          )}
         </div>
       </section>
 

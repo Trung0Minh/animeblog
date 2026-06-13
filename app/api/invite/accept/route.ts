@@ -1,10 +1,13 @@
 import { ZodError, z } from "zod"
+import { revalidateTag } from "next/cache"
 
+import { hashPassword } from "@/lib/password"
 import { prisma } from "@/lib/prisma"
 
 const acceptInviteSchema = z.object({
   token: z.string().min(1),
   name: z.string().trim().min(2).max(50),
+  password: z.string().min(10).max(128),
   username: z
     .string()
     .min(3)
@@ -17,7 +20,7 @@ const acceptInviteSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const { token, name, username } = acceptInviteSchema.parse(
+    const { token, name, password, username } = acceptInviteSchema.parse(
       await request.json()
     )
     const invite = await prisma.invite.findUnique({
@@ -78,11 +81,14 @@ export async function POST(request: Request) {
       )
     }
 
+    const passwordHash = await hashPassword(password)
+
     await prisma.$transaction([
       prisma.user.create({
         data: {
           email: invite.email,
           name,
+          passwordHash,
           username,
           role: "WRITER",
         },
@@ -94,6 +100,9 @@ export async function POST(request: Request) {
         select: { id: true },
       }),
     ])
+
+    revalidateTag("users", "max")
+    revalidateTag("invites", "max")
 
     return Response.json(
       { data: { message: "Account created successfully" } },

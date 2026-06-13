@@ -4,34 +4,18 @@ import { Lock } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { getCachedWriterDashboardPosts } from "@/lib/queries"
+import { getCurrentSession } from "@/lib/session"
 import { formatDate } from "@/lib/utils"
 
 export default async function DashboardPage() {
-  const session = await auth()
+  const session = await getCurrentSession()
 
   if (!session) {
     redirect("/login")
   }
 
-  const posts = await prisma.post.findMany({
-    orderBy: { updatedAt: "desc" },
-    select: {
-      _count: { select: { comments: true } },
-      id: true,
-      draftVisibility: true,
-      publishedAt: true,
-      slug: true,
-      status: true,
-      title: true,
-      updatedAt: true,
-    },
-    where: {
-      authorId: session.user.id,
-      status: { not: "ARCHIVED" },
-    },
-  })
+  const posts = await getCachedWriterDashboardPosts(session.user.id)
 
   return (
     <main className="container max-w-4xl py-8 sm:py-10">
@@ -43,7 +27,9 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold tracking-tight">My Posts</h1>
         </div>
         <Button asChild>
-          <Link href="/dashboard/new">New post</Link>
+          <Link href="/dashboard/new" prefetch={false}>
+            New post
+          </Link>
         </Button>
       </div>
 
@@ -83,13 +69,15 @@ export default async function DashboardPage() {
               </Badge>
               {post.status === "PUBLISHED" && (
                 <Button asChild size="sm" variant="ghost">
-                  <Link href={`/${post.slug}`} prefetch={false}>
+                  <Link href={`/${post.slug}`}>
                     View
                   </Link>
                 </Button>
               )}
               <Button asChild size="sm" variant="outline">
-                <Link href={`/dashboard/edit/${post.id}`}>Edit</Link>
+                <Link href={`/dashboard/edit/${post.id}`} prefetch={false}>
+                  Edit
+                </Link>
               </Button>
             </div>
           </article>
@@ -101,6 +89,7 @@ export default async function DashboardPage() {
             <Link
               className="font-medium text-editorial hover:underline"
               href="/dashboard/new"
+              prefetch={false}
             >
               Write your first post.
             </Link>

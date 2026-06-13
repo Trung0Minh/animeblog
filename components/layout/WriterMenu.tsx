@@ -152,27 +152,27 @@ export function WriterMenu({ user }: { user?: WriterMenuUser | null }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/dashboard">
+          <Link href="/dashboard" prefetch={false}>
             <FileText aria-hidden="true" />
             My posts
           </Link>
         </DropdownMenuItem>
         {menuUser.role === "ADMIN" && (
           <DropdownMenuItem asChild>
-            <Link href="/admin">
+            <Link href="/admin" prefetch={false}>
               <Shield aria-hidden="true" />
               Admin panel
             </Link>
           </DropdownMenuItem>
         )}
         <DropdownMenuItem asChild>
-          <Link href="/dashboard/profile">
+          <Link href="/dashboard/profile" prefetch={false}>
             <User aria-hidden="true" />
             Edit profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={`/authors/${menuUser.username}`} prefetch={false}>
+          <Link href={`/authors/${menuUser.username}`}>
             <User aria-hidden="true" />
             View public profile
           </Link>

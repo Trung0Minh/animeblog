@@ -19,12 +19,62 @@ const mocks = vi.hoisted(() => ({
       update: vi.fn(),
     },
   },
+  revalidateTag: vi.fn(),
 }))
 
 vi.mock("@/lib/auth", () => ({ auth: mocks.auth }))
 vi.mock("@/lib/prisma", () => ({ prisma: mocks.prisma }))
+vi.mock("next/cache", () => ({ revalidateTag: mocks.revalidateTag }))
 
 import { DELETE } from "@/app/api/admin/writers/[id]/route"
+
+const activeAdminUser = {
+  avatarUrl: null,
+  email: "admin@example.com",
+  id: "admin-1",
+  name: "Admin",
+  role: "ADMIN",
+  username: "admin",
+}
+
+const activeWriterUser = {
+  avatarUrl: null,
+  email: "writer2@example.com",
+  id: "writer-2",
+  name: "Writer",
+  role: "WRITER",
+  username: "writer-2",
+}
+
+function mockWriterUserLookup(targetUser: unknown = { id: "writer-1", role: "WRITER" }) {
+  mocks.prisma.user.findUnique.mockImplementation(async (query: unknown) => {
+    const where =
+      typeof query === "object" && query !== null && "where" in query
+        ? query.where
+        : null
+    const id =
+      typeof where === "object" &&
+      where !== null &&
+      "id" in where &&
+      typeof where.id === "string"
+        ? where.id
+        : null
+
+    if (id === "admin-1") {
+      return activeAdminUser
+    }
+
+    if (id === "writer-2") {
+      return activeWriterUser
+    }
+
+    if (id === "writer-1" || id === "admin-2") {
+      return targetUser
+    }
+
+    return null
+  })
+}
 
 function routeContext(id: string) {
   return { params: Promise.resolve({ id }) }
@@ -40,10 +90,7 @@ describe("DELETE /api/admin/writers/[id]", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.auth.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN" } })
-    mocks.prisma.user.findUnique.mockResolvedValue({
-      id: "writer-1",
-      role: "WRITER",
-    })
+    mockWriterUserLookup()
     mocks.prisma.post.count.mockResolvedValue(0)
     mocks.prisma.user.delete.mockResolvedValue({ id: "writer-1" })
     mocks.prisma.user.update.mockResolvedValue({ id: "writer-1" })
@@ -64,11 +111,22 @@ describe("DELETE /api/admin/writers/[id]", () => {
     const response = await DELETE(deleteRequest("writer-1"), routeContext("writer-1"))
 
     expect(response.status).toBe(401)
-    expect(mocks.prisma.user.findUnique).not.toHaveBeenCalled()
+    expect(mocks.prisma.user.findUnique).toHaveBeenCalledWith({
+      select: {
+        avatarUrl: true,
+        email: true,
+        id: true,
+        name: true,
+        role: true,
+        username: true,
+      },
+      where: { id: "writer-2" },
+    })
+    expect(mocks.prisma.post.count).not.toHaveBeenCalled()
   })
 
   it("returns 404 when the writer does not exist", async () => {
-    mocks.prisma.user.findUnique.mockResolvedValue(null)
+    mockWriterUserLookup(null)
 
     const response = await DELETE(deleteRequest("missing"), routeContext("missing"))
 
@@ -77,7 +135,7 @@ describe("DELETE /api/admin/writers/[id]", () => {
   })
 
   it("does not remove admin accounts", async () => {
-    mocks.prisma.user.findUnique.mockResolvedValue({
+    mockWriterUserLookup({
       id: "admin-2",
       role: "ADMIN",
     })
@@ -110,6 +168,7 @@ describe("DELETE /api/admin/writers/[id]", () => {
       select: { id: true },
       where: { id: "writer-1" },
     })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("users", "max")
   })
 
   it("revokes writers with posts while preserving their user record for attribution", async () => {
@@ -133,5 +192,6 @@ describe("DELETE /api/admin/writers/[id]", () => {
       where: { userId: "writer-1" },
     })
     expect(mocks.prisma.user.delete).not.toHaveBeenCalled()
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("users", "max")
   })
 })

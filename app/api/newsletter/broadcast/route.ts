@@ -1,6 +1,6 @@
 import { ZodError, z } from "zod"
 
-import { auth } from "@/lib/auth"
+import { getActiveSession, unauthorizedResponse } from "@/lib/authz"
 import { prisma } from "@/lib/prisma"
 import { sendNewsletterBroadcast } from "@/lib/resend"
 
@@ -25,10 +25,10 @@ interface FeaturedPost {
 }
 
 export async function POST(request: Request) {
-  const session = await auth()
+  const activeSession = await getActiveSession(["ADMIN"])
 
-  if (!session || session.user.role !== "ADMIN") {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
+  if (!activeSession) {
+    return unauthorizedResponse()
   }
 
   try {

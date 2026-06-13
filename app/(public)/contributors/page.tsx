@@ -35,7 +35,6 @@ export default async function ContributorsPage() {
             className="flex gap-4 rounded-xl border p-4 transition-colors hover:bg-muted/50"
             href={`/authors/${contributor.username}`}
             key={contributor.username}
-            prefetch={false}
           >
             {contributor.avatarUrl ? (
               <img

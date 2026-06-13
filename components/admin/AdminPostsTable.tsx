@@ -149,7 +149,6 @@ export function AdminPostsTable({ posts }: { posts: AdminPost[] }) {
                 <Link
                   className="text-muted-foreground transition-colors hover:text-foreground hover:underline"
                   href={`/authors/${post.author.username}`}
-                  prefetch={false}
                 >
                   {post.author.name}
                 </Link>
@@ -180,7 +179,7 @@ export function AdminPostsTable({ posts }: { posts: AdminPost[] }) {
                 <div className="flex justify-end gap-2">
                   {post.status === "PUBLISHED" && (
                     <Button asChild size="sm" variant="ghost">
-                      <Link href={`/${post.slug}`} prefetch={false}>
+                      <Link href={`/${post.slug}`}>
                         <ExternalLink aria-hidden="true" className="h-4 w-4" />
                         View
                       </Link>

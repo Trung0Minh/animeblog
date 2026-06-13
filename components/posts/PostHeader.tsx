@@ -54,7 +54,6 @@ export function PostHeader({ post }: PostHeaderProps) {
         <Link
           className="text-xs font-semibold uppercase tracking-[0.12em] text-editorial transition-colors hover:text-editorial/80"
           href={`/category/${post.category.slug}`}
-          prefetch={false}
         >
           {post.category.name}
         </Link>
@@ -84,7 +83,6 @@ export function PostHeader({ post }: PostHeaderProps) {
                 <Link
                   className="font-medium text-foreground transition-colors hover:text-editorial"
                   href={`/authors/${author.username}`}
-                  prefetch={false}
                 >
                   {author.name}
                 </Link>
@@ -118,7 +116,6 @@ export function PostHeader({ post }: PostHeaderProps) {
               className="rounded-full bg-muted px-2.5 py-1 text-xs transition-colors hover:bg-muted/80"
               href={`/tag/${tag.slug}`}
               key={tag.slug}
-              prefetch={false}
             >
               {tag.name}
             </Link>

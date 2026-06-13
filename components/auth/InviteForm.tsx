@@ -27,6 +27,8 @@ function getApiError(value: unknown) {
 export function InviteForm({ token, email }: InviteFormProps) {
   const [name, setName] = useState("")
   const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -35,11 +37,17 @@ export function InviteForm({ token, email }: InviteFormProps) {
     setError("")
     setLoading(true)
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.")
+      setLoading(false)
+      return
+    }
+
     try {
       const response = await fetch("/api/invite/accept", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, name, username }),
+        body: JSON.stringify({ token, name, username, password }),
       })
       const result: unknown = await response.json()
 
@@ -48,8 +56,9 @@ export function InviteForm({ token, email }: InviteFormProps) {
         return
       }
 
-      await signIn("resend", {
+      await signIn("credentials", {
         email,
+        password,
         callbackUrl: "/dashboard",
         redirect: true,
       })
@@ -115,6 +124,44 @@ export function InviteForm({ token, email }: InviteFormProps) {
           placeholder="e.g. sakuga_fan"
           required
           value={username}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium" htmlFor="invite-password">
+          Site password
+        </label>
+        <p className="text-xs text-muted-foreground">
+          Create a separate Anime Blog password. Do not use your Gmail password.
+        </p>
+        <Input
+          autoComplete="new-password"
+          id="invite-password"
+          maxLength={128}
+          minLength={10}
+          onChange={(event) => setPassword(event.target.value)}
+          required
+          type="password"
+          value={password}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label
+          className="text-sm font-medium"
+          htmlFor="invite-confirm-password"
+        >
+          Confirm site password
+        </label>
+        <Input
+          autoComplete="new-password"
+          id="invite-confirm-password"
+          maxLength={128}
+          minLength={10}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+          required
+          type="password"
+          value={confirmPassword}
         />
       </div>
 

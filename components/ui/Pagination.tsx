@@ -6,6 +6,7 @@ interface PaginationProps {
   className?: string
   page: number
   pageSize: number
+  prefetch?: boolean
   query?: Record<string, number | string | undefined>
   total: number
 }
@@ -44,6 +45,7 @@ export function Pagination({
   className,
   page,
   pageSize,
+  prefetch,
   query,
   total,
 }: PaginationProps) {
@@ -64,6 +66,7 @@ export function Pagination({
         <Link
           className={paginationLinkClass}
           href={buildPageHref(page - 1, query)}
+          prefetch={prefetch}
         >
           Previous
         </Link>
@@ -80,6 +83,7 @@ export function Pagination({
           )}
           href={buildPageHref(pageNumber, query)}
           key={pageNumber}
+          prefetch={prefetch}
         >
           {pageNumber}
         </Link>
@@ -89,6 +93,7 @@ export function Pagination({
         <Link
           className={paginationLinkClass}
           href={buildPageHref(page + 1, query)}
+          prefetch={prefetch}
         >
           Next
         </Link>

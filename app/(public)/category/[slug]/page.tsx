@@ -3,7 +3,10 @@ import { notFound } from "next/navigation"
 
 import { PageContainer } from "@/components/layout/PageContainer"
 import { PostList } from "@/components/posts/PostList"
-import { prisma } from "@/lib/prisma"
+import {
+  getCachedCategoryBySlug,
+  getCachedCategoryPosts,
+} from "@/lib/queries"
 import { buildMetadata } from "@/lib/seo"
 
 interface CategoryPageProps {
@@ -23,10 +26,7 @@ export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params
-  const category = await prisma.category.findUnique({
-    select: { description: true, name: true },
-    where: { slug },
-  })
+  const category = await getCachedCategoryBySlug(slug)
 
   if (!category) {
     return buildMetadata({ canonicalPath: `/category/${slug}`, noIndex: true })
@@ -49,55 +49,17 @@ export default async function CategoryPage({
     searchParams,
   ])
   const page = parsePage(pageParam)
-  const category = await prisma.category.findUnique({
-    select: { description: true, id: true, name: true, slug: true },
-    where: { slug },
-  })
+  const category = await getCachedCategoryBySlug(slug)
 
   if (!category) {
     notFound()
   }
 
-  const where = {
-    category: { slug: category.slug },
-    status: "PUBLISHED" as const,
-  }
-
-  const [posts, total] = await prisma.$transaction([
-    prisma.post.findMany({
-      orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
-      select: {
-        _count: { select: { comments: true } },
-        author: {
-          select: { avatarUrl: true, name: true, username: true },
-        },
-        category: { select: { id: true, name: true, slug: true } },
-        coAuthors: {
-          orderBy: { order: "asc" },
-          select: {
-            user: {
-              select: { avatarUrl: true, name: true, username: true },
-            },
-          },
-        },
-        coverAlt: true,
-        coverUrl: true,
-        excerpt: true,
-        publishedAt: true,
-        slug: true,
-        tags: {
-          select: {
-            tag: { select: { id: true, name: true, slug: true } },
-          },
-        },
-        title: true,
-      },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      where,
-    }),
-    prisma.post.count({ where }),
-  ])
+  const { posts, total } = await getCachedCategoryPosts(
+    category.id,
+    page,
+    PAGE_SIZE,
+  )
 
   return (
     <PageContainer>

@@ -83,7 +83,6 @@ export function AdminCommentsTable({
                 <Link
                   className="max-w-[16rem] truncate text-editorial transition-colors hover:text-foreground hover:underline"
                   href={`/${comment.post.slug}`}
-                  prefetch={false}
                 >
                   {comment.post.title}
                 </Link>

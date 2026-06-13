@@ -50,6 +50,10 @@ export function InviteEmail({ invitedByName, inviteUrl }: InviteEmailProps) {
             <strong>{invitedByName}</strong> has invited you to become a writer
             on Anime Blog. Use the button below to create your account.
           </Text>
+          <Text style={{ color: "#52525b", lineHeight: "1.6" }}>
+            During setup you will create a separate Anime Blog password. Do not
+            use your Gmail password.
+          </Text>
           <Button
             href={inviteUrl}
             style={{

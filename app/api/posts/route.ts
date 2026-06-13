@@ -4,6 +4,7 @@ import { revalidateTag } from "next/cache"
 import { ZodError, z } from "zod"
 
 import { auth } from "@/lib/auth"
+import { getActiveSession, unauthorizedResponse } from "@/lib/authz"
 import { prisma } from "@/lib/prisma"
 import { ensureUniqueSlug, generateSlug } from "@/lib/utils"
 
@@ -168,10 +169,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth()
+  const activeSession = await getActiveSession(["ADMIN", "WRITER"])
 
-  if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
+  if (!activeSession) {
+    return unauthorizedResponse()
   }
 
   try {
@@ -182,7 +183,7 @@ export async function POST(request: Request) {
 
       return tx.post.create({
         data: {
-          author: { connect: { id: session.user.id } },
+          author: { connect: { id: activeSession.user.id } },
           content: data.content as Prisma.InputJsonObject,
           contentText: data.contentText?.trim() || undefined,
           coverAlt: data.coverAlt?.trim() || undefined,

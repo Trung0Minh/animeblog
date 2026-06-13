@@ -1,9 +1,10 @@
-import { act, render, screen, waitFor } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import type { AnchorHTMLAttributes } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 const themeMocks = vi.hoisted(() => ({
+  pathname: "/",
   signOut: vi.fn(),
   setTheme: vi.fn(),
   theme: "light",
@@ -28,6 +29,7 @@ vi.mock("next/link", () => ({
   ),
 }))
 vi.mock("next/navigation", () => ({
+  usePathname: () => themeMocks.pathname,
   useRouter: () => ({ push: vi.fn() }),
 }))
 
@@ -67,7 +69,7 @@ describe("Navbar", () => {
 
     const contributors = screen.getByRole("link", { name: "Contributors" })
     expect(contributors).toHaveAttribute("href", "/contributors")
-    expect(contributors).toHaveAttribute("data-prefetch", "false")
+    expect(contributors).toHaveAttribute("data-prefetch", "undefined")
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute(
       "href",
       "/about",
@@ -151,6 +153,49 @@ describe("Navbar", () => {
     }
   })
 
+  it("refetches the writer session after navigation", async () => {
+    vi.useFakeTimers()
+    themeMocks.pathname = "/"
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ user: null })))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            user: {
+              avatarUrl: null,
+              name: "Mina Writer",
+              username: "mina",
+            },
+          }),
+        ),
+      )
+
+    try {
+      const { rerender } = render(<Navbar />)
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(300)
+      })
+      expect(
+        screen.queryByRole("button", { name: "Open writer menu" }),
+      ).not.toBeInTheDocument()
+
+      themeMocks.pathname = "/dashboard"
+      rerender(<Navbar />)
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(300)
+      })
+
+      expect(
+        screen.getByRole("button", { name: "Open writer menu" }),
+      ).toBeInTheDocument()
+      expect(fetchMock).toHaveBeenCalledTimes(2)
+    } finally {
+      fetchMock.mockRestore()
+    }
+  })
+
   it("aligns navigation content with page containers", () => {
     const { container } = render(<Navbar user={null} />)
 
@@ -214,12 +259,22 @@ describe("WriterMenu", () => {
       "href",
       "/dashboard",
     )
+    expect(screen.getByRole("menuitem", { name: "My posts" })).toHaveAttribute(
+      "data-prefetch",
+      "false",
+    )
     expect(
       screen.getByRole("menuitem", { name: "Edit profile" }),
     ).toHaveAttribute("href", "/dashboard/profile")
     expect(
+      screen.getByRole("menuitem", { name: "Edit profile" }),
+    ).toHaveAttribute("data-prefetch", "false")
+    expect(
       screen.getByRole("menuitem", { name: "View public profile" }),
     ).toHaveAttribute("href", "/authors/mina")
+    expect(
+      screen.getByRole("menuitem", { name: "View public profile" }),
+    ).toHaveAttribute("data-prefetch", "undefined")
 
     await user.click(screen.getByRole("menuitem", { name: "Sign out" }))
 
@@ -246,6 +301,10 @@ describe("WriterMenu", () => {
       "href",
       "/admin",
     )
+    expect(screen.getByRole("menuitem", { name: "Admin panel" })).toHaveAttribute(
+      "data-prefetch",
+      "false",
+    )
   })
 })
 
@@ -271,7 +330,7 @@ describe("MobileNav", () => {
     ).toBeInTheDocument()
     const search = screen.getByRole("link", { name: "Search posts" })
     expect(search).toHaveAttribute("href", "/search")
-    expect(search).toHaveAttribute("data-prefetch", "false")
+    expect(search).toHaveAttribute("data-prefetch", "undefined")
     expect(screen.getByRole("button", { name: "Close" })).toHaveClass(
       "h-11",
       "w-11",
@@ -298,9 +357,17 @@ describe("MobileNav", () => {
       "href",
       "/dashboard",
     )
+    expect(screen.getByRole("link", { name: "My posts" })).toHaveAttribute(
+      "data-prefetch",
+      "false",
+    )
     expect(screen.getByRole("link", { name: "Edit profile" })).toHaveAttribute(
       "href",
       "/dashboard/profile",
+    )
+    expect(screen.getByRole("link", { name: "Edit profile" })).toHaveAttribute(
+      "data-prefetch",
+      "false",
     )
 
     await user.click(screen.getByRole("button", { name: "Sign out" }))
@@ -332,6 +399,10 @@ describe("MobileNav", () => {
     expect(screen.getByRole("link", { name: "Admin panel" })).toHaveAttribute(
       "href",
       "/admin",
+    )
+    expect(screen.getByRole("link", { name: "Admin panel" })).toHaveAttribute(
+      "data-prefetch",
+      "false",
     )
   })
 })

@@ -1,10 +1,10 @@
-import type { PostStatus, Prisma } from "@prisma/client"
+import type { PostStatus } from "@prisma/client"
 import Link from "next/link"
 
 import { AdminPostsTable } from "@/components/admin/AdminPostsTable"
 import { Pagination } from "@/components/ui/Pagination"
+import { getCachedAdminPosts } from "@/lib/queries"
 import { cn } from "@/lib/utils"
-import { prisma } from "@/lib/prisma"
 
 interface AdminPostsPageProps {
   searchParams: Promise<{ page?: string; status?: string }>
@@ -36,27 +36,8 @@ export default async function AdminPostsPage({
   const { page: pageParam, status: statusParam } = await searchParams
   const page = parsePage(pageParam)
   const status = parseStatus(statusParam)
-  const where: Prisma.PostWhereInput = status ? { status } : {}
 
-  const [posts, total] = await prisma.$transaction([
-    prisma.post.findMany({
-      orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
-      select: {
-        _count: { select: { comments: true } },
-        author: { select: { name: true, username: true } },
-        id: true,
-        publishedAt: true,
-        slug: true,
-        status: true,
-        title: true,
-        updatedAt: true,
-      },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      where,
-    }),
-    prisma.post.count({ where }),
-  ])
+  const { posts, total } = await getCachedAdminPosts(page, status, PAGE_SIZE)
 
   return (
     <div className="space-y-6">
@@ -80,6 +61,7 @@ export default async function AdminPostsPage({
                 )}
                 href={filter.href}
                 key={filter.href}
+                prefetch={false}
               >
                 {filter.label}
               </Link>
@@ -93,6 +75,7 @@ export default async function AdminPostsPage({
       <Pagination
         page={page}
         pageSize={PAGE_SIZE}
+        prefetch={false}
         query={{ status }}
         total={total}
       />

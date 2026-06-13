@@ -12,6 +12,9 @@ const mocks = vi.hoisted(() => {
     post: {
       findUnique: vi.fn(),
     },
+    user: {
+      findUnique: vi.fn(),
+    },
   }
 
   return {
@@ -220,6 +223,14 @@ describe("comment admin API", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.auth.mockResolvedValue(null)
+    mocks.prisma.user.findUnique.mockResolvedValue({
+      avatarUrl: null,
+      email: "admin@example.com",
+      id: "admin-1",
+      name: "Admin",
+      role: "ADMIN",
+      username: "admin",
+    })
   })
 
   it("requires an admin to hide a comment", async () => {

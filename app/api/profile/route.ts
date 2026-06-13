@@ -1,6 +1,7 @@
 import { ZodError, z } from "zod"
+import { revalidateTag } from "next/cache"
 
-import { auth } from "@/lib/auth"
+import { getActiveSession, unauthorizedResponse } from "@/lib/authz"
 import { prisma } from "@/lib/prisma"
 
 const profileSchema = z.object({
@@ -10,10 +11,10 @@ const profileSchema = z.object({
 })
 
 export async function PATCH(request: Request) {
-  const session = await auth()
+  const activeSession = await getActiveSession(["ADMIN", "WRITER"])
 
-  if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
+  if (!activeSession) {
+    return unauthorizedResponse()
   }
 
   try {
@@ -32,8 +33,9 @@ export async function PATCH(request: Request) {
         name: true,
         username: true,
       },
-      where: { id: session.user.id },
+      where: { id: activeSession.user.id },
     })
+    revalidateTag("users", "max")
 
     return Response.json({ data: user })
   } catch (error) {

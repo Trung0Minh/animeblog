@@ -1,9 +1,9 @@
-import type { Prisma } from "@prisma/client"
-import type { Session } from "next-auth"
+import type { Prisma, Role } from "@prisma/client"
 import { revalidateTag } from "next/cache"
 import { ZodError, z } from "zod"
 
 import { auth } from "@/lib/auth"
+import { getActiveSession, unauthorizedResponse } from "@/lib/authz"
 import { canViewPost } from "@/lib/postAccess"
 import { prisma } from "@/lib/prisma"
 
@@ -85,12 +85,12 @@ const postDetailSelect = {
 
 function canManagePost({
   authorId,
-  session,
+  user,
 }: {
   authorId: string
-  session: Session
+  user: { id: string; role: Role }
 }) {
-  return session.user.role === "ADMIN" || session.user.id === authorId
+  return user.role === "ADMIN" || user.id === authorId
 }
 
 function uniqueIds(ids: string[]) {
@@ -132,10 +132,10 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth()
+  const activeSession = await getActiveSession(["ADMIN", "WRITER"])
 
-  if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
+  if (!activeSession) {
+    return unauthorizedResponse()
   }
 
   try {
@@ -152,13 +152,13 @@ export async function PATCH(
         throw new RouteError("Post not found", 404)
       }
 
-      if (!canManagePost({ authorId: existing.authorId, session })) {
+      if (!canManagePost({ authorId: existing.authorId, user: activeSession.user })) {
         throw new RouteError("Forbidden", 403)
       }
 
       if (
         (existing.status === "ARCHIVED" || data.status === "ARCHIVED") &&
-        session.user.role !== "ADMIN"
+        activeSession.user.role !== "ADMIN"
       ) {
         throw new RouteError("Forbidden", 403)
       }
@@ -253,10 +253,10 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth()
+  const activeSession = await getActiveSession(["ADMIN", "WRITER"])
 
-  if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
+  if (!activeSession) {
+    return unauthorizedResponse()
   }
 
   try {
@@ -272,7 +272,7 @@ export async function DELETE(
         throw new RouteError("Post not found", 404)
       }
 
-      if (!canManagePost({ authorId: existing.authorId, session })) {
+      if (!canManagePost({ authorId: existing.authorId, user: activeSession.user })) {
         throw new RouteError("Forbidden", 403)
       }
 

@@ -1,19 +1,22 @@
 import Link from "next/link"
 import {
   BarChart3,
-  ExternalLink,
+  BookOpenCheck,
   Eye,
+  Mail,
+  MessageSquare,
   MousePointerClick,
+  Search,
   Timer,
   Users,
 } from "lucide-react"
 
 import {
-  getUmamiStats,
-  getUmamiTopPages,
-  type UmamiStats,
-  type UmamiTopPage,
-} from "@/lib/umami"
+  getInternalAnalyticsStats,
+  getInternalTopPages,
+  type InternalAnalyticsStats,
+  type InternalTopPage,
+} from "@/lib/internalAnalytics"
 import { cn } from "@/lib/utils"
 
 function last30Days() {
@@ -21,10 +24,6 @@ function last30Days() {
   const startAt = endAt - 30 * 24 * 60 * 60 * 1000
 
   return { endAt, startAt }
-}
-
-function getDashboardUrl() {
-  return process.env.UMAMI_API_URL?.replace(/\/+$/, "") ?? ""
 }
 
 function percentChange(current: number, previous: number) {
@@ -36,12 +35,12 @@ function percentChange(current: number, previous: number) {
   return `${change >= 0 ? "+" : ""}${change.toFixed(0)}%`
 }
 
-function formatDuration(totalSeconds: number, visits: number) {
-  if (visits <= 0) {
+function formatDuration(totalSeconds: number, reads: number) {
+  if (reads <= 0) {
     return "0s"
   }
 
-  const seconds = Math.round(totalSeconds / visits)
+  const seconds = Math.round(totalSeconds / reads)
 
   if (seconds < 60) {
     return `${seconds}s`
@@ -55,13 +54,13 @@ function formatDuration(totalSeconds: number, visits: number) {
 
 export async function AnalyticsWidget() {
   const { endAt, startAt } = last30Days()
-  let stats: UmamiStats
-  let topPages: UmamiTopPage[]
+  let stats: InternalAnalyticsStats
+  let topPages: InternalTopPage[]
 
   try {
     ;[stats, topPages] = await Promise.all([
-      getUmamiStats(startAt, endAt),
-      getUmamiTopPages(startAt, endAt, 5),
+      getInternalAnalyticsStats(startAt, endAt),
+      getInternalTopPages(startAt, endAt, 5),
     ])
   } catch {
     return (
@@ -71,7 +70,6 @@ export async function AnalyticsWidget() {
     )
   }
 
-  const dashboardUrl = getDashboardUrl()
   const metrics = [
     {
       change: percentChange(stats.pageviews.value, stats.pageviews.prev),
@@ -92,10 +90,40 @@ export async function AnalyticsWidget() {
       value: stats.visits.value.toLocaleString(),
     },
     {
-      change: percentChange(stats.totalTime.value, stats.totalTime.prev),
+      change: percentChange(stats.reads.value, stats.reads.prev),
+      icon: BookOpenCheck,
+      label: "Reads",
+      value: stats.reads.value.toLocaleString(),
+    },
+    {
+      change: percentChange(
+        stats.totalReadSeconds.value,
+        stats.totalReadSeconds.prev,
+      ),
       icon: Timer,
-      label: "Avg. time",
-      value: formatDuration(stats.totalTime.value, stats.visits.value),
+      label: "Avg. read time",
+      value: formatDuration(stats.totalReadSeconds.value, stats.reads.value),
+    },
+    {
+      change: percentChange(stats.comments.value, stats.comments.prev),
+      icon: MessageSquare,
+      label: "Comments",
+      value: stats.comments.value.toLocaleString(),
+    },
+    {
+      change: percentChange(
+        stats.newsletterSignups.value,
+        stats.newsletterSignups.prev,
+      ),
+      icon: Mail,
+      label: "Newsletter",
+      value: stats.newsletterSignups.value.toLocaleString(),
+    },
+    {
+      change: percentChange(stats.searches.value, stats.searches.prev),
+      icon: Search,
+      label: "Searches",
+      value: stats.searches.value.toLocaleString(),
     },
   ]
 
@@ -110,21 +138,13 @@ export async function AnalyticsWidget() {
             <BarChart3 aria-hidden="true" className="h-5 w-5 text-editorial" />
             Analytics
           </h2>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+            Stored directly in this site from lightweight first-party events.
+          </p>
         </div>
-        {dashboardUrl && (
-          <a
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-editorial transition-colors hover:text-editorial/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            href={dashboardUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            View full analytics dashboard
-            <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
-          </a>
-        )}
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map(({ change, icon: Icon, label, value }) => {
           const isPositive = change.startsWith("+")
           const isFlat = change === "0%"
@@ -166,16 +186,21 @@ export async function AnalyticsWidget() {
             {topPages.map((page) => (
               <div
                 className="flex items-center justify-between gap-4 text-sm"
-                key={page.x}
+                key={page.path}
               >
                 <Link
                   className="min-w-0 truncate text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  href={page.x}
+                  href={page.path}
                 >
-                  {page.x}
+                  {page.path}
                 </Link>
                 <span className="shrink-0 font-semibold">
-                  {page.y.toLocaleString()} views
+                  {page.views.toLocaleString()} views
+                  {page.reads > 0 && (
+                    <span className="ml-2 text-xs font-normal text-muted-foreground">
+                      {page.readRate}% read
+                    </span>
+                  )}
                 </span>
               </div>
             ))}

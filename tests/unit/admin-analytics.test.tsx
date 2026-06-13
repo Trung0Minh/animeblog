@@ -2,14 +2,14 @@ import { render, screen } from "@testing-library/react"
 import type { AnchorHTMLAttributes } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-const umamiMocks = vi.hoisted(() => ({
-  getUmamiStats: vi.fn(),
-  getUmamiTopPages: vi.fn(),
+const analyticsMocks = vi.hoisted(() => ({
+  getInternalAnalyticsStats: vi.fn(),
+  getInternalTopPages: vi.fn(),
 }))
 
-vi.mock("@/lib/umami", () => ({
-  getUmamiStats: umamiMocks.getUmamiStats,
-  getUmamiTopPages: umamiMocks.getUmamiTopPages,
+vi.mock("@/lib/internalAnalytics", () => ({
+  getInternalAnalyticsStats: analyticsMocks.getInternalAnalyticsStats,
+  getInternalTopPages: analyticsMocks.getInternalTopPages,
 }))
 vi.mock("next/link", () => ({
   default: ({
@@ -30,17 +30,19 @@ function renderAsync(node: React.ReactNode) {
 describe("AnalyticsWidget", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.stubEnv("UMAMI_API_URL", "https://umami.example")
-    umamiMocks.getUmamiStats.mockResolvedValue({
-      bounces: { prev: 8, value: 10 },
+    analyticsMocks.getInternalAnalyticsStats.mockResolvedValue({
+      comments: { prev: 2, value: 5 },
+      newsletterSignups: { prev: 1, value: 3 },
       pageviews: { prev: 100, value: 150 },
-      totalTime: { prev: 240, value: 300 },
+      reads: { prev: 25, value: 60 },
+      searches: { prev: 4, value: 8 },
+      totalReadSeconds: { prev: 750, value: 1800 },
       visitors: { prev: 30, value: 45 },
       visits: { prev: 40, value: 60 },
     })
-    umamiMocks.getUmamiTopPages.mockResolvedValue([
-      { x: "/frieren-memory", y: 25 },
-      { x: "/", y: 10 },
+    analyticsMocks.getInternalTopPages.mockResolvedValue([
+      { path: "/frieren-memory", readRate: 60, reads: 15, views: 25 },
+      { path: "/", readRate: 0, reads: 0, views: 10 },
     ])
   })
 
@@ -50,18 +52,20 @@ describe("AnalyticsWidget", () => {
     expect(screen.getByRole("heading", { name: "Analytics" })).toBeVisible()
     expect(screen.getByText("150")).toBeVisible()
     expect(screen.getByText("45")).toBeVisible()
+    expect(screen.getAllByText("60").length).toBeGreaterThan(0)
     expect(screen.getByRole("link", { name: "/frieren-memory" })).toHaveAttribute(
       "href",
       "/frieren-memory",
     )
-    expect(screen.getByRole("link", { name: /full analytics dashboard/i })).toHaveAttribute(
-      "href",
-      "https://umami.example",
-    )
+    expect(
+      screen.queryByRole("link", { name: /full analytics dashboard/i }),
+    ).not.toBeInTheDocument()
   })
 
-  it("falls back gracefully when Umami is unavailable", async () => {
-    umamiMocks.getUmamiStats.mockRejectedValue(new Error("offline"))
+  it("falls back gracefully when analytics data is unavailable", async () => {
+    analyticsMocks.getInternalAnalyticsStats.mockRejectedValue(
+      new Error("offline"),
+    )
 
     renderAsync(await AnalyticsWidget())
 
@@ -72,23 +76,28 @@ describe("AnalyticsWidget", () => {
 describe("AdminAnalyticsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.stubEnv("UMAMI_API_URL", "https://umami.example")
-    umamiMocks.getUmamiStats.mockResolvedValue({
-      bounces: { prev: 0, value: 0 },
+    analyticsMocks.getInternalAnalyticsStats.mockResolvedValue({
+      comments: { prev: 0, value: 0 },
+      newsletterSignups: { prev: 0, value: 0 },
       pageviews: { prev: 0, value: 0 },
-      totalTime: { prev: 0, value: 0 },
+      reads: { prev: 0, value: 0 },
+      searches: { prev: 0, value: 0 },
+      totalReadSeconds: { prev: 0, value: 0 },
       visitors: { prev: 0, value: 0 },
       visits: { prev: 0, value: 0 },
     })
-    umamiMocks.getUmamiTopPages.mockResolvedValue([])
+    analyticsMocks.getInternalTopPages.mockResolvedValue([])
   })
 
-  it("renders the full analytics page with a link to Umami", async () => {
+  it("renders the full analytics page without an external Umami link", async () => {
     renderAsync(await AdminAnalyticsPage())
 
     expect(screen.getByRole("heading", { name: "Analytics" })).toBeVisible()
     expect(
-      screen.getByRole("link", { name: /open umami dashboard/i }),
-    ).toHaveAttribute("href", "https://umami.example")
+      screen.queryByRole("link", { name: /open umami dashboard/i }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByText(/stored directly in this site/i),
+    ).toBeVisible()
   })
 })

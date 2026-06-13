@@ -14,14 +14,12 @@ export function Footer() {
           <Link
             className="transition-colors hover:text-foreground"
             href="/about"
-            prefetch={false}
           >
             About
           </Link>
           <Link
             className="transition-colors hover:text-foreground"
             href="/contributors"
-            prefetch={false}
           >
             Contributors
           </Link>

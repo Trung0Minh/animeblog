@@ -12,7 +12,7 @@ interface PostReadTrackerProps {
 export function PostReadTracker({ slug, title }: PostReadTrackerProps) {
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      trackEvent("post_read", { slug, title })
+      trackEvent("post_read", { durationSeconds: 30, slug, title })
     }, 30_000)
 
     return () => window.clearTimeout(timer)

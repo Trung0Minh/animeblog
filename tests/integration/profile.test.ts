@@ -2,13 +2,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
   auth: vi.fn(),
+  revalidateTag: vi.fn(),
+  userFindUnique: vi.fn(),
   userUpdate: vi.fn(),
 }))
 
 vi.mock("@/lib/auth", () => ({ auth: mocks.auth }))
+vi.mock("next/cache", () => ({ revalidateTag: mocks.revalidateTag }))
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     user: {
+      findUnique: mocks.userFindUnique,
       update: mocks.userUpdate,
     },
   },
@@ -39,6 +43,14 @@ describe("PATCH /api/profile", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.auth.mockResolvedValue(writerSession)
+    mocks.userFindUnique.mockResolvedValue({
+      avatarUrl: null,
+      email: "writer@example.com",
+      id: "writer-1",
+      name: "Mina",
+      role: "WRITER",
+      username: "mina",
+    })
     mocks.userUpdate.mockResolvedValue({
       avatarUrl: "https://cdn.example.com/avatars/mina.png",
       bio: "Animation writer.",
@@ -99,6 +111,7 @@ describe("PATCH /api/profile", () => {
       },
       where: { id: "writer-1" },
     })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("users", "max")
   })
 
   it("stores blank optional fields as null", async () => {

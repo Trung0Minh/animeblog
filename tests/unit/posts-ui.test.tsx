@@ -75,6 +75,9 @@ describe("PostCard", () => {
     expect(
       screen.getByRole("link", { name: "Frieren Animation" }),
     ).toHaveAttribute("href", "/frieren-animation")
+    expect(
+      screen.getByRole("link", { name: "Frieren Animation" }),
+    ).toHaveAttribute("data-prefetch", "undefined")
     expect(screen.getByRole("img", { name: "Cover alt" })).toHaveAttribute(
       "src",
       "https://cdn.example.com/cover.jpg",
@@ -91,13 +94,25 @@ describe("PostCard", () => {
       "href",
       "/category/production",
     )
+    expect(screen.getByRole("link", { name: "Production" })).toHaveAttribute(
+      "data-prefetch",
+      "undefined",
+    )
     expect(screen.getByRole("link", { name: "Mina" })).toHaveAttribute(
       "href",
       "/authors/mina",
     )
+    expect(screen.getByRole("link", { name: "Mina" })).toHaveAttribute(
+      "data-prefetch",
+      "undefined",
+    )
     expect(screen.getByRole("link", { name: "Sakuga" })).toHaveAttribute(
       "href",
       "/tag/sakuga",
+    )
+    expect(screen.getByRole("link", { name: "Sakuga" })).toHaveAttribute(
+      "data-prefetch",
+      "undefined",
     )
     expect(screen.getByText("2 comments")).toBeVisible()
   })

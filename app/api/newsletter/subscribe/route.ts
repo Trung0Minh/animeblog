@@ -1,4 +1,5 @@
 import { ZodError, z } from "zod"
+import { revalidateTag } from "next/cache"
 
 import { prisma } from "@/lib/prisma"
 import { sendSubscribeConfirmationEmail } from "@/lib/resend"
@@ -38,6 +39,8 @@ export async function POST(request: Request) {
             data: { email },
             select: { email: true, token: true },
           })
+
+    revalidateTag("newsletter", "max")
 
     try {
       await sendSubscribeConfirmationEmail({ to: subscriber.email })

@@ -15,7 +15,7 @@ vi.mock("next/navigation", () => ({
   useSearchParams: mocks.useSearchParams,
 }))
 
-import LoginPage from "@/app/(auth)/login/page"
+import { LoginForm } from "@/components/auth/LoginForm"
 import { InviteForm } from "@/components/auth/InviteForm"
 
 describe("LoginPage", () => {
@@ -25,56 +25,54 @@ describe("LoginPage", () => {
     mocks.signIn.mockResolvedValue(undefined)
   })
 
-  it("submits the Resend magic-link sign-in", async () => {
+  it("submits the credentials sign-in with the site password", async () => {
     const user = userEvent.setup()
-    render(<LoginPage />)
+    render(<LoginForm />)
 
     await user.type(
       screen.getByRole("textbox", { name: "Email" }),
       "writer@example.com"
     )
-    await user.click(screen.getByRole("button", { name: "Send login link" }))
+    await user.type(screen.getByLabelText("Site password"), "secret-password")
+    await user.click(screen.getByRole("button", { name: "Log in" }))
 
     await waitFor(() => {
-      expect(mocks.signIn).toHaveBeenCalledWith("resend", {
+      expect(mocks.signIn).toHaveBeenCalledWith("credentials", {
         email: "writer@example.com",
+        password: "secret-password",
         callbackUrl: "/dashboard",
         redirect: false,
       })
     })
   })
 
-  it("shows the verification message after a magic link is sent", () => {
-    mocks.useSearchParams.mockReturnValue(new URLSearchParams("verify=1"))
-
-    render(<LoginPage />)
+  it("links to forgot password and warns against Gmail passwords", () => {
+    render(<LoginForm />)
 
     expect(
-      screen.getByRole("heading", { name: "Check your email" })
+      screen.getByText(/not your Gmail password/i)
     ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Forgot password?" })).toHaveAttribute(
+      "href",
+      "/forgot-password"
+    )
   })
 
-  it("shows the verification message for the Auth.js verify-request redirect", () => {
-    mocks.useSearchParams.mockReturnValue(
-      new URLSearchParams("provider=resend&type=email")
-    )
+  it("shows a generic invalid credentials error", async () => {
+    const user = userEvent.setup()
+    mocks.signIn.mockResolvedValue({ error: "CredentialsSignin" })
 
-    render(<LoginPage />)
+    render(<LoginForm />)
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Email" }),
+      "writer@example.com"
+    )
+    await user.type(screen.getByLabelText("Site password"), "wrong-password")
+    await user.click(screen.getByRole("button", { name: "Log in" }))
 
     expect(
-      screen.getByRole("heading", { name: "Check your email" })
-    ).toBeInTheDocument()
-  })
-
-  it("shows a link-specific error when Auth.js rejects a magic link", () => {
-    mocks.useSearchParams.mockReturnValue(
-      new URLSearchParams("error=Verification")
-    )
-
-    render(<LoginPage />)
-
-    expect(
-      screen.getByText("This login link is invalid or expired. Request a new one.")
+      await screen.findByText("Invalid email or site password.")
     ).toBeInTheDocument()
   })
 })
@@ -86,7 +84,7 @@ describe("InviteForm", () => {
     mocks.signIn.mockResolvedValue(undefined)
   })
 
-  it("creates the account then starts magic-link sign-in", async () => {
+  it("creates the account with a site password then signs in with credentials", async () => {
     const user = userEvent.setup()
     mocks.fetch.mockResolvedValue(
       new Response(
@@ -98,6 +96,8 @@ describe("InviteForm", () => {
 
     await user.type(screen.getByRole("textbox", { name: "Display Name" }), "Writer")
     await user.type(screen.getByRole("textbox", { name: "Username" }), "New_Writer")
+    await user.type(screen.getByLabelText("Site password"), "secret-password")
+    await user.type(screen.getByLabelText("Confirm site password"), "secret-password")
     await user.click(screen.getByRole("button", { name: "Create account" }))
 
     await waitFor(() => {
@@ -108,14 +108,25 @@ describe("InviteForm", () => {
           token: "invite-token",
           name: "Writer",
           username: "new_writer",
+          password: "secret-password",
         }),
       })
     })
-    expect(mocks.signIn).toHaveBeenCalledWith("resend", {
+    expect(mocks.signIn).toHaveBeenCalledWith("credentials", {
       email: "writer@example.com",
+      password: "secret-password",
       callbackUrl: "/dashboard",
       redirect: true,
     })
+  })
+
+  it("explains that invite passwords are separate from Gmail", () => {
+    render(<InviteForm token="invite-token" email="writer@example.com" />)
+
+    expect(
+      screen.getByText(/Create a separate Anime Blog password/i)
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Do not use your Gmail password/i)).toBeInTheDocument()
   })
 
   it("shows an API error and does not sign in", async () => {
@@ -132,9 +143,30 @@ describe("InviteForm", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "Username" }), {
       target: { value: "existing" },
     })
+    fireEvent.change(screen.getByLabelText("Site password"), {
+      target: { value: "secret-password" },
+    })
+    fireEvent.change(screen.getByLabelText("Confirm site password"), {
+      target: { value: "secret-password" },
+    })
     fireEvent.submit(screen.getByRole("button", { name: "Create account" }))
 
     expect(await screen.findByText("Username is already taken")).toBeInTheDocument()
+    expect(mocks.signIn).not.toHaveBeenCalled()
+  })
+
+  it("blocks submission when the password confirmation does not match", async () => {
+    const user = userEvent.setup()
+    render(<InviteForm token="invite-token" email="writer@example.com" />)
+
+    await user.type(screen.getByRole("textbox", { name: "Display Name" }), "Writer")
+    await user.type(screen.getByRole("textbox", { name: "Username" }), "writer")
+    await user.type(screen.getByLabelText("Site password"), "secret-password")
+    await user.type(screen.getByLabelText("Confirm site password"), "different-password")
+    await user.click(screen.getByRole("button", { name: "Create account" }))
+
+    expect(await screen.findByText("Passwords do not match.")).toBeInTheDocument()
+    expect(mocks.fetch).not.toHaveBeenCalled()
     expect(mocks.signIn).not.toHaveBeenCalled()
   })
 })

@@ -3,6 +3,7 @@ import { Resend } from "resend"
 import { CommentReplyEmail } from "@/emails/CommentReplyEmail"
 import { InviteEmail } from "@/emails/InviteEmail"
 import { NewsletterEmail } from "@/emails/NewsletterEmail"
+import { PasswordResetEmail } from "@/emails/PasswordResetEmail"
 import { SubscribeConfirmationEmail } from "@/emails/SubscribeConfirmationEmail"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -98,6 +99,33 @@ export async function sendSubscribeConfirmationEmail({
     from,
     react: SubscribeConfirmationEmail({ appName, appUrl }),
     subject: `You are subscribed to ${appName}`,
+    to,
+  })
+
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`)
+  }
+}
+
+interface SendPasswordResetEmailOptions {
+  resetUrl: string
+  to: string
+}
+
+export async function sendPasswordResetEmail({
+  resetUrl,
+  to,
+}: SendPasswordResetEmailOptions) {
+  const from = process.env.RESEND_FROM_EMAIL
+
+  if (!from) {
+    throw new Error("Resend email environment variables are not configured")
+  }
+
+  const { error } = await resend.emails.send({
+    from,
+    react: PasswordResetEmail({ resetUrl }),
+    subject: "Reset your Anime Blog password",
     to,
   })
 

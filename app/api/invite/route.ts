@@ -1,6 +1,7 @@
 import { ZodError, z } from "zod"
+import { revalidateTag } from "next/cache"
 
-import { auth } from "@/lib/auth"
+import { getActiveSession, unauthorizedResponse } from "@/lib/authz"
 import { prisma } from "@/lib/prisma"
 import { sendInviteEmail } from "@/lib/resend"
 
@@ -13,10 +14,10 @@ const inviteSchema = z.object({
 })
 
 export async function POST(request: Request) {
-  const session = await auth()
+  const activeSession = await getActiveSession(["ADMIN"])
 
-  if (!session || session.user.role !== "ADMIN") {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
+  if (!activeSession) {
+    return unauthorizedResponse()
   }
 
   try {
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
       data: {
         email,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        createdById: session.user.id,
+        createdById: activeSession.user.id,
       },
       select: { token: true },
     })
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
       await sendInviteEmail({
         to: email,
         inviteToken: invite.token,
-        invitedByName: session.user.name,
+        invitedByName: activeSession.user.name,
       })
     } catch (error) {
       await prisma.invite.delete({
@@ -71,6 +72,8 @@ export async function POST(request: Request) {
       })
       throw error
     }
+
+    revalidateTag("invites", "max")
 
     return Response.json(
       { data: { message: "Invite sent successfully" } },
@@ -82,6 +85,20 @@ export async function POST(request: Request) {
     }
 
     console.error("[POST /api/invite]", error)
+    if (
+      error instanceof Error &&
+      (error.message.includes("Resend") ||
+        error.message.includes("email environment"))
+    ) {
+      return Response.json(
+        {
+          error:
+            "Invite email could not be sent. Check the Resend configuration and sender domain.",
+        },
+        { status: 502 }
+      )
+    }
+
     return Response.json({ error: "Something went wrong" }, { status: 500 })
   }
 }

@@ -1,6 +1,6 @@
 import { revalidateTag } from "next/cache"
 
-import { auth } from "@/lib/auth"
+import { getActiveSession } from "@/lib/authz"
 import { prisma } from "@/lib/prisma"
 
 class RouteError extends Error {
@@ -13,9 +13,9 @@ class RouteError extends Error {
 }
 
 async function requireAdmin() {
-  const session = await auth()
+  const activeSession = await getActiveSession(["ADMIN"])
 
-  if (!session || session.user.role !== "ADMIN") {
+  if (!activeSession) {
     throw new RouteError("Unauthorized", 401)
   }
 }

@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import { Inter, Lora } from "next/font/google"
-import Script from "next/script"
+import { Suspense } from "react"
 
+import { InternalAnalyticsTracker } from "@/components/analytics/InternalAnalyticsTracker"
 import { Footer } from "@/components/layout/Footer"
 import { Navbar } from "@/components/layout/Navbar"
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
@@ -40,11 +41,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const shouldLoadAnalytics =
-    process.env.NODE_ENV === "production" &&
-    process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL &&
-    process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
-
   return (
     <html
       lang="vi"
@@ -64,14 +60,9 @@ export default function RootLayout({
             <Footer />
           </div>
         </ThemeProvider>
-        {shouldLoadAnalytics && (
-          <Script
-            data-do-not-track="true"
-            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-            src={process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL}
-            strategy="afterInteractive"
-          />
-        )}
+        <Suspense fallback={null}>
+          <InternalAnalyticsTracker />
+        </Suspense>
       </body>
     </html>
   )

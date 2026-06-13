@@ -4,6 +4,11 @@ import { PrismaClient, type Prisma, type Role } from "@prisma/client"
 export const testPrisma = new PrismaClient()
 
 const TABLES = [
+  "analytics_daily_sessions",
+  "analytics_daily_visitors",
+  "analytics_daily_pages",
+  "analytics_daily_summaries",
+  "analytics_events",
   "comments",
   "post_tags",
   "post_authors",
@@ -14,6 +19,7 @@ const TABLES = [
   "sessions",
   "accounts",
   "verification_tokens",
+  "password_reset_tokens",
   "newsletter_subscribers",
   "users",
 ]

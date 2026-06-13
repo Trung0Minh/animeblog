@@ -62,7 +62,7 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <article className="group overflow-hidden rounded-xl border bg-card transition-shadow hover:shadow-md">
       {post.coverUrl && (
-        <Link href={`/${post.slug}`} prefetch={false}>
+        <Link href={`/${post.slug}`}>
           <div className="aspect-video w-full overflow-hidden bg-muted">
             <img
               alt={post.coverAlt ?? post.title}
@@ -80,13 +80,12 @@ export function PostCard({ post }: PostCardProps) {
           <Link
             className="text-xs font-semibold uppercase tracking-[0.08em] text-editorial transition-colors hover:text-editorial/80"
             href={`/category/${post.category.slug}`}
-            prefetch={false}
           >
             {post.category.name}
           </Link>
         )}
 
-        <Link href={`/${post.slug}`} prefetch={false}>
+        <Link href={`/${post.slug}`}>
           <h2 className="mt-1 line-clamp-2 text-lg font-bold leading-snug tracking-tight transition-colors group-hover:text-editorial sm:text-xl">
             {post.title}
           </h2>
@@ -116,7 +115,6 @@ export function PostCard({ post }: PostCardProps) {
                   <Link
                     className="transition-colors hover:text-foreground"
                     href={`/authors/${author.username}`}
-                    prefetch={false}
                   >
                     {author.name}
                   </Link>
@@ -141,7 +139,6 @@ export function PostCard({ post }: PostCardProps) {
                 className="rounded-full bg-muted px-2 py-0.5 text-xs transition-colors hover:bg-muted/80"
                 href={`/tag/${tag.slug}`}
                 key={tag.slug}
-                prefetch={false}
               >
                 {tag.name}
               </Link>

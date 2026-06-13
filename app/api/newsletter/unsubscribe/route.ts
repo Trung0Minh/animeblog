@@ -1,4 +1,5 @@
 import { ZodError, z } from "zod"
+import { revalidateTag } from "next/cache"
 
 import { prisma } from "@/lib/prisma"
 
@@ -34,6 +35,8 @@ export async function POST(request: Request) {
       select: { token: true },
       where: { token },
     })
+
+    revalidateTag("newsletter", "max")
 
     return Response.json({
       data: { message: "Unsubscribed successfully." },

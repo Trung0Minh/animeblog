@@ -1,16 +1,8 @@
 import { NewsletterBroadcastForm } from "@/components/admin/NewsletterBroadcastForm"
-import { prisma } from "@/lib/prisma"
+import { getCachedAdminNewsletterData } from "@/lib/queries"
 
 export default async function AdminNewsletterPage() {
-  const [activeCount, recentPosts] = await Promise.all([
-    prisma.newsletterSubscriber.count({ where: { status: "ACTIVE" } }),
-    prisma.post.findMany({
-      orderBy: { publishedAt: "desc" },
-      select: { id: true, title: true },
-      take: 10,
-      where: { status: "PUBLISHED" },
-    }),
-  ])
+  const { activeCount, recentPosts } = await getCachedAdminNewsletterData()
 
   return (
     <div className="max-w-2xl space-y-6">

@@ -2,19 +2,21 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 
 import { AdminNav } from "@/components/admin/AdminNav"
-import { auth } from "@/lib/auth"
+import { getCurrentSession } from "@/lib/session"
 
 export const metadata: Metadata = {
   robots: { follow: false, index: false },
   title: "Admin",
 }
 
+export const dynamic = "force-dynamic"
+
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
+  const session = await getCurrentSession()
 
   if (!session || session.user.role !== "ADMIN") {
     redirect("/login")

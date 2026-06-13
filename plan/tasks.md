@@ -124,7 +124,7 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 - [x] **3.11** Create `lib/resend.ts` with `sendInviteEmail` helper
 
-- [ ] **3.12** Verify end-to-end: send invite from admin → receive email → create account → login → reach `/dashboard`
+- [x] **3.12** Verify end-to-end: send invite from admin → receive email → create account → login → reach `/dashboard`
 
 ---
 
@@ -423,7 +423,7 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 - [x] **12.2** Create `components/admin/AdminNav.tsx`
 
-- [x] **12.3** Create `app/(admin)/admin/page.tsx` — stats grid (Umami widget added in Phase 13)
+- [x] **12.3** Create `app/(admin)/admin/page.tsx` — stats grid (analytics widget added in Phase 13)
 
 - [x] **12.4** Create `app/(admin)/admin/posts/page.tsx`
 
@@ -453,33 +453,33 @@ Reference the linked `plan/` file for detailed implementation instructions for e
 
 ---
 
-## Phase 13 — Analytics
+## Phase 13 — Internal Analytics
 
 > Reference: `plan/12_analytics.md`
 
-- [ ] **13.1** Deploy Umami on Railway and configure website entry
+- [x] **13.1** Add internal analytics Prisma models and migration
 
-- [ ] **13.2** Add Umami env variables to `.env.local`
+- [x] **13.2** Create `POST /api/analytics/events` for first-party analytics events
 
-- [x] **13.3** Add Umami `<Script>` to `app/layout.tsx` (production only)
+- [x] **13.3** Add `InternalAnalyticsTracker` to `app/layout.tsx`
 
-- [x] **13.4** Create `lib/analytics.ts` with `trackEvent` helper
+- [x] **13.4** Update `lib/analytics.ts` with fire-and-forget internal event delivery
 
-- [x] **13.5** Create `lib/umami.ts` with `getUmamiStats`, `getUmamiTopPages`, `getPostViewCount`
+- [x] **13.5** Create `lib/internalAnalytics.ts` with recording, aggregate, top page, and post analytics helpers
 
 - [x] **13.6** Create `components/posts/PostReadTracker.tsx` and add to post detail page
 
-- [x] **13.7** Add `trackEvent` calls to `CommentForm` and `NewsletterForm`
+- [x] **13.7** Add `trackEvent` calls to read, comment, newsletter, and search flows
 
-- [x] **13.8** Create `components/admin/AnalyticsWidget.tsx`
+- [x] **13.8** Update `components/admin/AnalyticsWidget.tsx` to read internal analytics
 
 - [x] **13.9** Add `AnalyticsWidget` to `/admin` page wrapped in `<Suspense>`
 
-- [x] **13.10** Create `app/(admin)/admin/analytics/page.tsx` (full-page view with link to Umami)
+- [x] **13.10** Create `app/(admin)/admin/analytics/page.tsx` for internal analytics
 
-- [ ] **13.11** Verify: page views appear in Umami realtime dashboard
+- [x] **13.11** Verify: internal analytics focused tests pass
 
-- [x] **13.12** Verify: `AnalyticsWidget` falls back gracefully if Umami is down
+- [x] **13.12** Verify: `AnalyticsWidget` falls back gracefully if analytics data is unavailable
 
 ---
 
@@ -564,7 +564,7 @@ Reference the linked `plan/` file for detailed implementation instructions for e
   npm run lint
   ```
 
-- [ ] **17.3** Test full invite flow end-to-end in production environment
+- [x] **17.3** Test full invite flow end-to-end in production environment
 
 - [x] **17.4** Test dark/light mode on mobile and desktop
 

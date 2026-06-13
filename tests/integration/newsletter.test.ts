@@ -12,13 +12,18 @@ const mocks = vi.hoisted(() => ({
     post: {
       findUnique: vi.fn(),
     },
+    user: {
+      findUnique: vi.fn(),
+    },
   },
+  revalidateTag: vi.fn(),
   sendNewsletterBroadcast: vi.fn(),
   sendSubscribeConfirmationEmail: vi.fn(),
 }))
 
 vi.mock("@/lib/auth", () => ({ auth: mocks.auth }))
 vi.mock("@/lib/prisma", () => ({ prisma: mocks.prisma }))
+vi.mock("next/cache", () => ({ revalidateTag: mocks.revalidateTag }))
 vi.mock("@/lib/resend", () => ({
   sendNewsletterBroadcast: mocks.sendNewsletterBroadcast,
   sendSubscribeConfirmationEmail: mocks.sendSubscribeConfirmationEmail,
@@ -70,6 +75,7 @@ describe("POST /api/newsletter/subscribe", () => {
       data: { email: "reader@example.com" },
       select: { email: true, token: true },
     })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("newsletter", "max")
     expect(mocks.sendSubscribeConfirmationEmail).toHaveBeenCalledWith({
       to: "reader@example.com",
     })
@@ -94,6 +100,7 @@ describe("POST /api/newsletter/subscribe", () => {
     })
     expect(mocks.prisma.newsletterSubscriber.create).not.toHaveBeenCalled()
     expect(mocks.prisma.newsletterSubscriber.update).not.toHaveBeenCalled()
+    expect(mocks.revalidateTag).not.toHaveBeenCalled()
     expect(mocks.sendSubscribeConfirmationEmail).not.toHaveBeenCalled()
   })
 
@@ -116,6 +123,7 @@ describe("POST /api/newsletter/subscribe", () => {
       select: { email: true, token: true },
       where: { email: "reader@example.com" },
     })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("newsletter", "max")
     expect(mocks.sendSubscribeConfirmationEmail).toHaveBeenCalledWith({
       to: "reader@example.com",
     })
@@ -157,6 +165,7 @@ describe("POST /api/newsletter/unsubscribe", () => {
       select: { token: true },
       where: { token: "subscriber-token" },
     })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("newsletter", "max")
   })
 
   it("returns 404 for an invalid token", async () => {
@@ -189,6 +198,7 @@ describe("POST /api/newsletter/unsubscribe", () => {
       data: { message: "You are already unsubscribed." },
     })
     expect(mocks.prisma.newsletterSubscriber.update).not.toHaveBeenCalled()
+    expect(mocks.revalidateTag).not.toHaveBeenCalled()
   })
 })
 
@@ -197,6 +207,43 @@ describe("POST /api/newsletter/broadcast", () => {
     vi.clearAllMocks()
     process.env.NEXT_PUBLIC_APP_URL = "https://animeblog.example"
     mocks.auth.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN" } })
+    mocks.prisma.user.findUnique.mockImplementation(async (query: unknown) => {
+      const where =
+        typeof query === "object" && query !== null && "where" in query
+          ? query.where
+          : null
+      const id =
+        typeof where === "object" &&
+        where !== null &&
+        "id" in where &&
+        typeof where.id === "string"
+          ? where.id
+          : null
+
+      if (id === "admin-1") {
+        return {
+          avatarUrl: null,
+          email: "admin@example.com",
+          id,
+          name: "Admin",
+          role: "ADMIN",
+          username: "admin",
+        }
+      }
+
+      if (id === "writer-1") {
+        return {
+          avatarUrl: null,
+          email: "writer@example.com",
+          id,
+          name: "Writer",
+          role: "WRITER",
+          username: "writer",
+        }
+      }
+
+      return null
+    })
     mocks.prisma.post.findUnique.mockResolvedValue({
       coverUrl: null,
       excerpt: "A study of silence.",

@@ -4,7 +4,7 @@
 
 The admin panel lives under `/admin/*` and is accessible only to users with `role = ADMIN`. It provides five management areas:
 
-- **Dashboard** — overview stats + analytics widget (Umami, see `12_analytics.md`)
+- **Dashboard** — overview stats + internal analytics widget (see `12_analytics.md`)
 - **Posts** — view and delete all posts (including other writers' drafts)
 - **Writers** — view all writers, send new invite links, revoke access
 - **Comments** — moderate comments, mark as spam
@@ -179,7 +179,7 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Analytics from Umami — wrapped in Suspense so slow API doesn't block page */}
+      {/* Analytics — wrapped in Suspense so slow reads don't block page */}
       {/* Full implementation in 12_analytics.md */}
       <Suspense fallback={
         <div className="p-4 border rounded-lg text-sm text-muted-foreground animate-pulse">
@@ -960,11 +960,11 @@ export function NewsletterBroadcastForm({ recentPosts }: { recentPosts: Post[] }
 - [ ] Create `app/api/admin/writers/[id]/route.ts` (DELETE)
 - [ ] Create `app/(admin)/admin/comments/page.tsx` + `components/admin/AdminCommentsTable.tsx`
 - [ ] Create `app/(admin)/admin/newsletter/page.tsx` + `components/admin/NewsletterBroadcastForm.tsx`
-- [ ] Create `app/(admin)/admin/analytics/page.tsx` — full-page analytics view linking to Umami dashboard (see `12_analytics.md`)
+- [ ] Create `app/(admin)/admin/analytics/page.tsx` — full-page internal analytics view (see `12_analytics.md`)
 - [ ] Verify: admin can delete any post regardless of author
 - [ ] Verify: admin cannot remove other admin accounts
 - [ ] Verify: removing a writer with posts only revokes login access (sessions + accounts deleted), posts remain
 - [ ] Verify: removing a writer with no posts deletes the user record entirely
 - [ ] Verify: marking a comment as spam hides it from the public post page immediately after refresh
 - [ ] Verify: newsletter broadcast shows correct sent count and handles partial failures gracefully
-- [ ] Verify: `AnalyticsWidget` renders on the dashboard and falls back gracefully if Umami is unavailable
+- [ ] Verify: `AnalyticsWidget` renders on the dashboard and falls back gracefully if analytics is unavailable

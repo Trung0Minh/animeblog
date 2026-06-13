@@ -7,6 +7,14 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock("@/lib/prisma", () => ({ prisma: mocks.prisma }))
+vi.mock("next/cache", () => ({
+  unstable_cache:
+    <Args extends unknown[], Result>(
+      callback: (...args: Args) => Promise<Result>,
+    ) =>
+    (...args: Args) =>
+      callback(...args),
+}))
 
 import { GET } from "@/app/api/search/route"
 
@@ -46,7 +54,7 @@ describe("search API", () => {
           title: "Frieren and memory",
         },
       ])
-      .mockResolvedValueOnce([{ count: BigInt(1) }])
+      .mockResolvedValueOnce([{ count: 1 }])
 
     const response = await GET(
       new Request("https://example.test/api/search?q=frieren&page=2&limit=5"),

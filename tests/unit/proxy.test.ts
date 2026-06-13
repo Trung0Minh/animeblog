@@ -10,15 +10,23 @@ import proxy from "@/proxy"
 
 interface ProxyRequest {
   auth: null | { user: { role: "ADMIN" | "WRITER" } }
+  headers: { get: (name: string) => string | null }
   nextUrl: { pathname: string }
   url: string
 }
 
 const runProxy = proxy as unknown as (request: ProxyRequest) => Response
 
-function request(pathname: string, role?: "ADMIN" | "WRITER"): ProxyRequest {
+function request(
+  pathname: string,
+  role?: "ADMIN" | "WRITER",
+  headers: Record<string, string> = {},
+): ProxyRequest {
   return {
     auth: role ? { user: { role } } : null,
+    headers: {
+      get: (name) => headers[name] ?? null,
+    },
     nextUrl: { pathname },
     url: `http://localhost${pathname}`,
   }
@@ -43,6 +51,12 @@ describe("proxy route protection", () => {
 
   it("allows admins through admin routes", () => {
     const response = runProxy(request("/admin/writers", "ADMIN"))
+
+    expect(response.status).toBe(200)
+  })
+
+  it("lets RSC navigations rely on protected server layouts", () => {
+    const response = runProxy(request("/admin/posts", undefined, { RSC: "1" }))
 
     expect(response.status).toBe(200)
   })

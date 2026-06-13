@@ -1,14 +1,16 @@
-import { auth } from "@/lib/auth"
+import { revalidateTag } from "next/cache"
+
+import { getActiveSession, unauthorizedResponse } from "@/lib/authz"
 import { prisma } from "@/lib/prisma"
 
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth()
+  const activeSession = await getActiveSession(["ADMIN"])
 
-  if (!session || session.user.role !== "ADMIN") {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
+  if (!activeSession) {
+    return unauthorizedResponse()
   }
 
   try {
@@ -47,6 +49,8 @@ export async function DELETE(
         where: { id },
       })
     }
+
+    revalidateTag("users", "max")
 
     return Response.json({ data: { message: "Writer access removed" } })
   } catch (error) {

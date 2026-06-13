@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 
 import { ProfileForm } from "@/components/profile/ProfileForm"
-import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { getCachedProfileUser } from "@/lib/queries"
+import { getCurrentSession } from "@/lib/session"
 
 export const metadata: Metadata = {
   title: "Edit Profile",
@@ -11,22 +11,13 @@ export const metadata: Metadata = {
 }
 
 export default async function ProfilePage() {
-  const session = await auth()
+  const session = await getCurrentSession()
 
   if (!session) {
     redirect("/login")
   }
 
-  const user = await prisma.user.findUnique({
-    select: {
-      avatarUrl: true,
-      bio: true,
-      email: true,
-      name: true,
-      username: true,
-    },
-    where: { id: session.user.id },
-  })
+  const user = await getCachedProfileUser(session.user.id)
 
   if (!user) {
     redirect("/login")

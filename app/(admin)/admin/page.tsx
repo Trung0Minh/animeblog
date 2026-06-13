@@ -10,7 +10,7 @@ import {
 
 import { AnalyticsWidget } from "@/components/admin/AnalyticsWidget"
 import { Button } from "@/components/ui/button"
-import { prisma } from "@/lib/prisma"
+import { getCachedAdminDashboardStats } from "@/lib/queries"
 
 const statCards = [
   {
@@ -46,27 +46,7 @@ const statCards = [
 ] as const
 
 export default async function AdminDashboardPage() {
-  const [
-    publishedPosts,
-    draftPosts,
-    writers,
-    approvedComments,
-    activeSubscribers,
-  ] = await Promise.all([
-    prisma.post.count({ where: { status: "PUBLISHED" } }),
-    prisma.post.count({ where: { status: "DRAFT" } }),
-    prisma.user.count({ where: { role: "WRITER" } }),
-    prisma.comment.count({ where: { status: "APPROVED" } }),
-    prisma.newsletterSubscriber.count({ where: { status: "ACTIVE" } }),
-  ])
-
-  const stats = {
-    activeSubscribers,
-    approvedComments,
-    draftPosts,
-    publishedPosts,
-    writers,
-  }
+  const stats = await getCachedAdminDashboardStats()
 
   return (
     <div className="space-y-8">
@@ -85,7 +65,9 @@ export default async function AdminDashboardPage() {
             </p>
           </div>
           <Button asChild>
-            <Link href="/admin/writers">Invite writer</Link>
+            <Link href="/admin/writers" prefetch={false}>
+              Invite writer
+            </Link>
           </Button>
         </div>
       </section>
@@ -96,6 +78,7 @@ export default async function AdminDashboardPage() {
             className="rounded-2xl border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             href={href}
             key={key}
+            prefetch={false}
           >
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-muted-foreground">

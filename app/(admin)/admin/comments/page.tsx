@@ -1,6 +1,6 @@
 import { AdminCommentsTable } from "@/components/admin/AdminCommentsTable"
 import { Pagination } from "@/components/ui/Pagination"
-import { prisma } from "@/lib/prisma"
+import { getCachedAdminComments } from "@/lib/queries"
 
 interface AdminCommentsPageProps {
   searchParams: Promise<{ page?: string }>
@@ -19,25 +19,8 @@ export default async function AdminCommentsPage({
 }: AdminCommentsPageProps) {
   const { page: pageParam } = await searchParams
   const page = parsePage(pageParam)
-  const where = { status: "APPROVED" as const }
 
-  const [comments, total] = await prisma.$transaction([
-    prisma.comment.findMany({
-      orderBy: { createdAt: "desc" },
-      select: {
-        authorName: true,
-        content: true,
-        createdAt: true,
-        id: true,
-        post: { select: { slug: true, title: true } },
-        status: true,
-      },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      where,
-    }),
-    prisma.comment.count({ where }),
-  ])
+  const { comments, total } = await getCachedAdminComments(page, PAGE_SIZE)
 
   return (
     <div className="space-y-6">
@@ -50,7 +33,12 @@ export default async function AdminCommentsPage({
 
       <AdminCommentsTable comments={comments} />
 
-      <Pagination page={page} pageSize={PAGE_SIZE} total={total} />
+      <Pagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        prefetch={false}
+        total={total}
+      />
     </div>
   )
 }

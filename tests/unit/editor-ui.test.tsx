@@ -473,17 +473,108 @@ describe("SpoilerView", () => {
 })
 
 describe("PostBody", () => {
-  it("renders Tiptap content in read-only mode", () => {
+  it("renders static Tiptap JSON without mounting the editor", () => {
     const content = {
-      content: [{ type: "paragraph" }],
+      content: [
+        {
+          attrs: { level: 2 },
+          content: [{ text: "Opening analysis", type: "text" }],
+          type: "heading",
+        },
+        {
+          content: [
+            { text: "A careful read with ", type: "text" },
+            {
+              marks: [{ type: "bold" }],
+              text: "strong emphasis",
+              type: "text",
+            },
+            { text: " and a ", type: "text" },
+            {
+              marks: [
+                {
+                  attrs: { href: "https://example.com/source" },
+                  type: "link",
+                },
+              ],
+              text: "source link",
+              type: "text",
+            },
+            { text: ".", type: "text" },
+          ],
+          type: "paragraph",
+        },
+        {
+          attrs: { language: "ts" },
+          content: [{ text: "const shot = 'layout'", type: "text" }],
+          type: "codeBlock",
+        },
+      ],
       type: "doc",
     }
 
     render(<PostBody content={content} />)
 
-    const editor = screen.getByTestId("tiptap-editor")
-    expect(editor).toHaveAttribute("data-editable", "false")
-    expect(editor).toHaveAttribute("data-content", JSON.stringify(content))
+    expect(screen.queryByTestId("tiptap-editor")).not.toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Opening analysis" }),
+    ).toHaveAttribute("id", "opening-analysis")
+    expect(screen.getByText("strong emphasis").closest("strong")).not.toBeNull()
+    expect(screen.getByRole("link", { name: "source link" })).toHaveAttribute(
+      "href",
+      "https://example.com/source",
+    )
+    expect(screen.getByText("const shot = 'layout'")).toBeVisible()
+  })
+
+  it("renders galleries, video embeds, and spoiler blocks statically", () => {
+    const content = {
+      content: [
+        {
+          attrs: {
+            images: JSON.stringify([
+              {
+                alt: "Second frame",
+                caption: "Motion comparison",
+                url: "https://cdn.example.com/content-images/scene-b.gif",
+              },
+            ]),
+          },
+          type: "imageGallery",
+        },
+        {
+          attrs: {
+            caption: "Opening sequence",
+            url: "https://youtu.be/dQw4w9WgXcQ",
+          },
+          type: "videoEmbed",
+        },
+        {
+          content: [
+            {
+              content: [{ text: "Spoiler text", type: "text" }],
+              type: "paragraph",
+            },
+          ],
+          type: "spoiler",
+        },
+      ],
+      type: "doc",
+    }
+
+    render(<PostBody content={content} />)
+
+    expect(screen.getByRole("img", { name: "Second frame" })).toHaveAttribute(
+      "src",
+      "https://cdn.example.com/content-images/scene-b.gif",
+    )
+    expect(screen.getByText("Motion comparison")).toBeVisible()
+    expect(screen.getByTitle("Opening sequence")).toHaveAttribute(
+      "src",
+      "https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0",
+    )
+    expect(screen.getByRole("button", { name: "Show spoiler" })).toBeVisible()
+    expect(screen.getByText("Spoiler text")).toBeVisible()
   })
 
   it("opens a keyboard-navigable lightbox for post images", async () => {

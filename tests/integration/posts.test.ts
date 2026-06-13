@@ -17,6 +17,9 @@ const mocks = vi.hoisted(() => {
       findMany: vi.fn(),
       upsert: vi.fn(),
     },
+    user: {
+      findUnique: vi.fn(),
+    },
   }
 
   return {
@@ -50,6 +53,43 @@ describe("posts API", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.auth.mockResolvedValue(null)
+    mocks.prisma.user.findUnique.mockImplementation(async (query: unknown) => {
+      const where =
+        typeof query === "object" && query !== null && "where" in query
+          ? query.where
+          : null
+      const id =
+        typeof where === "object" &&
+        where !== null &&
+        "id" in where &&
+        typeof where.id === "string"
+          ? where.id
+          : null
+
+      if (id === "admin-1") {
+        return {
+          avatarUrl: null,
+          email: "admin@example.com",
+          id,
+          name: "Admin",
+          role: "ADMIN",
+          username: "admin",
+        }
+      }
+
+      if (id === "writer-1" || id === "writer-2") {
+        return {
+          avatarUrl: null,
+          email: `${id}@example.com`,
+          id,
+          name: "Writer",
+          role: "WRITER",
+          username: id,
+        }
+      }
+
+      return null
+    })
     mocks.prisma.$transaction.mockImplementation(async (input) => {
       if (Array.isArray(input)) {
         return Promise.all(input)
@@ -214,6 +254,43 @@ describe("single post API", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.auth.mockResolvedValue(null)
+    mocks.prisma.user.findUnique.mockImplementation(async (query: unknown) => {
+      const where =
+        typeof query === "object" && query !== null && "where" in query
+          ? query.where
+          : null
+      const id =
+        typeof where === "object" &&
+        where !== null &&
+        "id" in where &&
+        typeof where.id === "string"
+          ? where.id
+          : null
+
+      if (id === "admin-1") {
+        return {
+          avatarUrl: null,
+          email: "admin@example.com",
+          id,
+          name: "Admin",
+          role: "ADMIN",
+          username: "admin",
+        }
+      }
+
+      if (id === "writer-1" || id === "writer-2") {
+        return {
+          avatarUrl: null,
+          email: `${id}@example.com`,
+          id,
+          name: "Writer",
+          role: "WRITER",
+          username: id,
+        }
+      }
+
+      return null
+    })
     mocks.prisma.$transaction.mockImplementation(async (input) => {
       if (typeof input === "function") {
         return input(mocks.prisma)
@@ -528,6 +605,32 @@ describe("tags API", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.auth.mockResolvedValue(null)
+    mocks.prisma.user.findUnique.mockImplementation(async (query: unknown) => {
+      const where =
+        typeof query === "object" && query !== null && "where" in query
+          ? query.where
+          : null
+      const id =
+        typeof where === "object" &&
+        where !== null &&
+        "id" in where &&
+        typeof where.id === "string"
+          ? where.id
+          : null
+
+      if (id === "writer-1") {
+        return {
+          avatarUrl: null,
+          email: "writer@example.com",
+          id,
+          name: "Writer",
+          role: "WRITER",
+          username: "writer",
+        }
+      }
+
+      return null
+    })
   })
 
   it("searches matching tags for autocomplete", async () => {

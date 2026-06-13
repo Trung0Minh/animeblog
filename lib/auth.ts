@@ -1,28 +1,90 @@
 import { PrismaAdapter } from "@auth/prisma-adapter"
+import type { Role } from "@prisma/client"
 import NextAuth from "next-auth"
-import Resend from "next-auth/providers/resend"
+import Credentials from "next-auth/providers/credentials"
+import { z } from "zod"
 
+import {
+  getAuthSecret,
+  SESSION_MAX_AGE_SECONDS,
+  SESSION_UPDATE_AGE_SECONDS,
+} from "@/lib/authConstants"
+import { verifyPassword } from "@/lib/password"
 import { prisma } from "@/lib/prisma"
 
-const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 180
-const SESSION_UPDATE_AGE_SECONDS = 60 * 60 * 24
-const authSecret =
-  process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || undefined
+function getRole(value: unknown): Role | null {
+  return value === "ADMIN" || value === "WRITER" || value === "REVOKED"
+    ? value
+    : null
+}
+
+const credentialsSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email()
+    .transform((email) => email.toLowerCase()),
+  password: z.string().min(1),
+})
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
-    Resend({
-      apiKey: process.env.RESEND_API_KEY,
-      from: process.env.RESEND_FROM_EMAIL,
+    Credentials({
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const parsedCredentials = credentialsSchema.safeParse(credentials)
+
+        if (!parsedCredentials.success) {
+          return null
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: parsedCredentials.data.email },
+          select: {
+            avatarUrl: true,
+            email: true,
+            id: true,
+            name: true,
+            passwordHash: true,
+            role: true,
+            username: true,
+          },
+        })
+
+        if (!user || user.role === "REVOKED" || !user.passwordHash) {
+          return null
+        }
+
+        const passwordIsValid = await verifyPassword(
+          parsedCredentials.data.password,
+          user.passwordHash
+        )
+
+        if (!passwordIsValid) {
+          return null
+        }
+
+        return {
+          avatarUrl: user.avatarUrl,
+          email: user.email,
+          id: user.id,
+          name: user.name,
+          role: user.role,
+          username: user.username,
+        }
+      },
     }),
   ],
   session: {
     maxAge: SESSION_MAX_AGE_SECONDS,
-    strategy: "database",
+    strategy: "jwt",
     updateAge: SESSION_UPDATE_AGE_SECONDS,
   },
-  secret: authSecret,
+  secret: getAuthSecret(),
   trustHost: true,
   pages: {
     signIn: "/login",
@@ -42,17 +104,58 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return Boolean(existingUser && existingUser.role !== "REVOKED")
     },
-    async session({ session, user }) {
+    async jwt({ token, user }) {
+      if (!user) {
+        return token
+      }
+
+      const userId =
+        typeof token.sub === "string"
+          ? token.sub
+          : typeof user.id === "string"
+            ? user.id
+            : null
+
+      if (!userId) {
+        return token
+      }
+
       const dbUser = await prisma.user.findUnique({
-        where: { id: user.id },
-        select: { role: true, username: true, avatarUrl: true },
+        where: { id: userId },
+        select: {
+          avatarUrl: true,
+          id: true,
+          role: true,
+          username: true,
+        },
       })
 
       if (dbUser) {
-        session.user.role = dbUser.role
-        session.user.username = dbUser.username
-        session.user.avatarUrl = dbUser.avatarUrl
+        token.sub = dbUser.id
+        token.role = dbUser.role
+        token.username = dbUser.username
+        token.avatarUrl = dbUser.avatarUrl
       }
+
+      return token
+    },
+    async session({ session, token }) {
+      if (typeof token.sub === "string") {
+        session.user.id = token.sub
+      }
+
+      const role = getRole(token.role)
+
+      if (role) {
+        session.user.role = role
+      }
+
+      if (typeof token.username === "string") {
+        session.user.username = token.username
+      }
+
+      session.user.avatarUrl =
+        typeof token.avatarUrl === "string" ? token.avatarUrl : null
 
       return session
     },

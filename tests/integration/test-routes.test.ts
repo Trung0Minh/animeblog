@@ -6,18 +6,16 @@ const mocks = vi.hoisted(() => {
     newsletterSubscriber: {
       findUnique: vi.fn(),
     },
-    session: {
-      create: vi.fn(),
-    },
     user: {
       upsert: vi.fn(),
     },
   }
 
-  return { prisma }
+  return { encodeJwt: vi.fn(), prisma }
 })
 
 vi.mock("@/lib/prisma", () => ({ prisma: mocks.prisma }))
+vi.mock("@auth/core/jwt", () => ({ encode: mocks.encodeJwt }))
 
 import { POST as login } from "@/app/api/test/login/route"
 import { GET as getNewsletterToken } from "@/app/api/test/newsletter-token/route"
@@ -34,6 +32,7 @@ describe("test-only API routes", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.stubEnv("NODE_ENV", "test")
+    vi.stubEnv("AUTH_SECRET", "test-secret")
     mocks.prisma.$transaction.mockImplementation(async (callback: unknown) => {
       if (typeof callback !== "function") {
         throw new Error("Expected transaction callback")
@@ -44,13 +43,14 @@ describe("test-only API routes", () => {
       )
     })
     mocks.prisma.user.upsert.mockResolvedValue({
+      avatarUrl: null,
       email: "test-writer@example.com",
       id: "writer-1",
       name: "Test Writer",
       role: "WRITER",
       username: "test-writer",
     })
-    mocks.prisma.session.create.mockResolvedValue({ id: "session-1" })
+    mocks.encodeJwt.mockResolvedValue("encoded-test-jwt")
     mocks.prisma.newsletterSubscriber.findUnique.mockResolvedValue({
       token: "subscriber-token",
     })
@@ -60,7 +60,7 @@ describe("test-only API routes", () => {
     vi.unstubAllEnvs()
   })
 
-  it("creates a database session cookie for a test writer", async () => {
+  it("creates a JWT session cookie for a test writer", async () => {
     const response = await login(postRequest({ role: "WRITER" }))
 
     expect(response.status).toBe(200)
@@ -68,7 +68,7 @@ describe("test-only API routes", () => {
       data: { role: "WRITER", userId: "writer-1" },
     })
     expect(response.headers.get("set-cookie")).toContain(
-      "authjs.session-token=",
+      "authjs.session-token=encoded-test-jwt",
     )
     expect(response.headers.get("set-cookie")).toContain("HttpOnly")
     expect(mocks.prisma.user.upsert).toHaveBeenCalledWith({
@@ -78,7 +78,7 @@ describe("test-only API routes", () => {
         role: "WRITER",
         username: "test-writer",
       },
-      select: { id: true, role: true },
+      select: { avatarUrl: true, id: true, role: true, username: true },
       update: {
         name: "Test Writer",
         role: "WRITER",
@@ -86,13 +86,16 @@ describe("test-only API routes", () => {
       },
       where: { email: "test-writer@example.com" },
     })
-    expect(mocks.prisma.session.create).toHaveBeenCalledWith({
-      data: {
-        expires: expect.any(Date),
-        sessionToken: expect.any(String),
-        userId: "writer-1",
+    expect(mocks.encodeJwt).toHaveBeenCalledWith({
+      maxAge: 60 * 60 * 24 * 7,
+      salt: "authjs.session-token",
+      secret: "test-secret",
+      token: {
+        avatarUrl: null,
+        role: "WRITER",
+        sub: "writer-1",
+        username: "test-writer",
       },
-      select: { id: true },
     })
   })
 

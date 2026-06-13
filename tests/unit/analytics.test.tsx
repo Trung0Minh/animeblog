@@ -1,7 +1,35 @@
 import { act, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-const trackMock = vi.hoisted(() => vi.fn())
+const analyticsTrackerMock = vi.hoisted(() => vi.fn())
+const prismaMocks = vi.hoisted(() => {
+  const prisma = {
+    $transaction: vi.fn(),
+    analyticsDailyPage: {
+      aggregate: vi.fn(),
+      groupBy: vi.fn(),
+      upsert: vi.fn(),
+    },
+    analyticsDailySession: {
+      createMany: vi.fn(),
+    },
+    analyticsDailySummary: {
+      findMany: vi.fn(),
+      upsert: vi.fn(),
+    },
+    analyticsDailyVisitor: {
+      createMany: vi.fn(),
+    },
+    analyticsEvent: {
+      create: vi.fn(),
+    },
+    comment: {
+      count: vi.fn(),
+    },
+  }
+
+  return { prisma }
+})
 
 vi.mock("next/font/google", () => ({
   Inter: () => ({ variable: "--font-inter" }),
@@ -15,41 +43,35 @@ vi.mock("next/script", () => ({
     <script data-testid="umami-script" {...props} />
   ),
 }))
+vi.mock("@/components/analytics/InternalAnalyticsTracker", () => ({
+  InternalAnalyticsTracker: () => {
+    analyticsTrackerMock()
+    return <div data-testid="internal-analytics-tracker" />
+  },
+}))
 vi.mock("@/components/layout/Navbar", () => ({
   Navbar: () => <header>Navbar</header>,
 }))
 vi.mock("@/components/layout/Footer", () => ({
   Footer: () => <footer>Footer</footer>,
 }))
+vi.mock("@/lib/prisma", () => ({ prisma: prismaMocks.prisma }))
 
 import RootLayout from "@/app/layout"
 import { trackEvent } from "@/lib/analytics"
 import {
-  getPostViewCount,
-  getUmamiStats,
-  getUmamiTopPages,
-} from "@/lib/umami"
+  getInternalAnalyticsStats,
+  getInternalTopPages,
+  getPostAnalytics,
+  recordAnalyticsEvent,
+} from "@/lib/internalAnalytics"
 
-describe("Umami layout script", () => {
+describe("internal analytics layout", () => {
   afterEach(() => {
     vi.unstubAllEnvs()
   })
 
-  it("does not load the analytics script outside production", () => {
-    vi.stubEnv("NODE_ENV", "development")
-    vi.stubEnv("NEXT_PUBLIC_UMAMI_SCRIPT_URL", "https://umami.example/script.js")
-    vi.stubEnv("NEXT_PUBLIC_UMAMI_WEBSITE_ID", "website-public")
-
-    render(
-      <RootLayout>
-        <p>Page content</p>
-      </RootLayout>,
-    )
-
-    expect(screen.queryByTestId("umami-script")).not.toBeInTheDocument()
-  })
-
-  it("loads the analytics script in production when public env vars exist", () => {
+  it("mounts the internal tracker and does not load Umami scripts", () => {
     vi.stubEnv("NODE_ENV", "production")
     vi.stubEnv("NEXT_PUBLIC_UMAMI_SCRIPT_URL", "https://umami.example/script.js")
     vi.stubEnv("NEXT_PUBLIC_UMAMI_WEBSITE_ID", "website-public")
@@ -60,158 +82,189 @@ describe("Umami layout script", () => {
       </RootLayout>,
     )
 
-    const script = screen.getByTestId("umami-script")
-    expect(script).toHaveAttribute("src", "https://umami.example/script.js")
-    expect(script).toHaveAttribute("data-website-id", "website-public")
-    expect(script).toHaveAttribute("data-do-not-track", "true")
+    expect(screen.getByTestId("internal-analytics-tracker")).toBeVisible()
+    expect(screen.queryByTestId("umami-script")).not.toBeInTheDocument()
   })
 })
 
 describe("trackEvent", () => {
+  const originalSendBeacon = navigator.sendBeacon
+
   beforeEach(() => {
     vi.clearAllMocks()
-    Object.defineProperty(window, "umami", {
+    Object.defineProperty(navigator, "sendBeacon", {
       configurable: true,
-      value: { track: trackMock },
+      value: vi.fn(() => true),
     })
   })
 
   afterEach(() => {
-    Reflect.deleteProperty(window, "umami")
+    Object.defineProperty(navigator, "sendBeacon", {
+      configurable: true,
+      value: originalSendBeacon,
+    })
+    vi.unstubAllGlobals()
   })
 
-  it("tracks custom events with optional data", () => {
+  it("sends events to the internal analytics endpoint with sendBeacon", () => {
     trackEvent("newsletter_subscribed", { source: "sidebar" })
 
-    expect(trackMock).toHaveBeenCalledWith("newsletter_subscribed", {
-      source: "sidebar",
-    })
+    const sendBeacon = vi.mocked(navigator.sendBeacon)
+    expect(sendBeacon).toHaveBeenCalledTimes(1)
+    expect(sendBeacon).toHaveBeenCalledWith(
+      "/api/analytics/events",
+      expect.stringContaining('"eventName":"newsletter_subscribed"'),
+    )
+    expect(String(sendBeacon.mock.calls[0]?.[1])).toContain(
+      '"source":"sidebar"',
+    )
   })
 
-  it("falls back silently when the tracker is not loaded", () => {
-    Reflect.deleteProperty(window, "umami")
-
-    expect(() => trackEvent("post_read")).not.toThrow()
-  })
-})
-
-describe("Umami API helper", () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    vi.stubEnv("UMAMI_API_URL", "https://umami.example/")
-    vi.stubEnv("UMAMI_USERNAME", "admin")
-    vi.stubEnv("UMAMI_PASSWORD", "password")
-    vi.stubEnv("UMAMI_WEBSITE_ID", "website-server")
-  })
-
-  afterEach(() => {
-    vi.unstubAllGlobals()
-    vi.unstubAllEnvs()
-  })
-
-  it("logs in and normalizes summary statistics from the current Umami API shape", async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ token: "token-1" }), { status: 200 }),
-      )
-      .mockResolvedValueOnce(
-        new Response(
-          JSON.stringify({
-            bounces: 10,
-            comparison: {
-              bounces: 8,
-              pageviews: 80,
-              totaltime: 300,
-              visitors: 20,
-              visits: 30,
-            },
-            pageviews: 120,
-            totaltime: 420,
-            visitors: 25,
-            visits: 40,
-          }),
-          { status: 200 },
-        ),
-      )
+  it("falls back to keepalive fetch when sendBeacon is unavailable", () => {
+    Reflect.deleteProperty(navigator, "sendBeacon")
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 202 }))
     vi.stubGlobal("fetch", fetchMock)
 
-    await expect(getUmamiStats(1000, 2000)).resolves.toEqual({
-      bounces: { prev: 8, value: 10 },
-      pageviews: { prev: 80, value: 120 },
-      totalTime: { prev: 300, value: 420 },
-      visitors: { prev: 20, value: 25 },
-      visits: { prev: 30, value: 40 },
-    })
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      1,
-      "https://umami.example/api/auth/login",
+    trackEvent("search", { query: "frieren" })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/analytics/events",
       expect.objectContaining({
-        body: JSON.stringify({ password: "password", username: "admin" }),
+        body: expect.stringContaining('"eventName":"search"'),
+        keepalive: true,
         method: "POST",
       }),
     )
-    const statsUrl = String(fetchMock.mock.calls[1]?.[0])
-    expect(statsUrl).toContain("/api/websites/website-server/stats?")
-    expect(statsUrl).toContain("startAt=1000")
-    expect(statsUrl).toContain("endAt=2000")
   })
+})
 
-  it("fetches top pages with Umami's path metrics type", async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ token: "token-1" }), { status: 200 }),
-      )
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify([{ x: "/post", y: 9 }]), { status: 200 }),
-      )
-    vi.stubGlobal("fetch", fetchMock)
-
-    await expect(getUmamiTopPages(1000, 2000, 3)).resolves.toEqual([
-      { x: "/post", y: 9 },
-    ])
-    const url = String(fetchMock.mock.calls[1]?.[0])
-    expect(url).toContain("/api/websites/website-server/metrics?")
-    expect(url).toContain("type=path")
-    expect(url).toContain("limit=3")
-  })
-
-  it("does not use Umami Cloud API keys for server-side stats", async () => {
-    vi.stubEnv("UMAMI_API_KEY", "cloud-key")
-    vi.stubEnv("UMAMI_API_URL", "")
-    vi.stubEnv("UMAMI_USERNAME", "")
-    vi.stubEnv("UMAMI_PASSWORD", "")
-
-    const fetchMock = vi.fn()
-    vi.stubGlobal("fetch", fetchMock)
-
-    await expect(getUmamiStats(1000, 2000)).rejects.toThrow(
-      "Umami is not configured",
+describe("internal analytics helpers", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    prismaMocks.prisma.$transaction.mockImplementation(
+      async (callback: (tx: typeof prismaMocks.prisma) => unknown) =>
+        callback(prismaMocks.prisma),
     )
-    expect(fetchMock).not.toHaveBeenCalled()
+    prismaMocks.prisma.analyticsDailyVisitor.createMany.mockResolvedValue({
+      count: 1,
+    })
+    prismaMocks.prisma.analyticsDailySession.createMany.mockResolvedValue({
+      count: 1,
+    })
+    prismaMocks.prisma.analyticsEvent.create.mockResolvedValue({ id: "event-1" })
+    prismaMocks.prisma.analyticsDailySummary.upsert.mockResolvedValue({
+      id: "summary-1",
+    })
+    prismaMocks.prisma.analyticsDailyPage.upsert.mockResolvedValue({
+      id: "page-1",
+    })
   })
 
-  it("returns a post's exact path view count and falls back to zero on errors", async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ token: "token-1" }), { status: 200 }),
-      )
-      .mockResolvedValueOnce(
-        new Response(
-          JSON.stringify([
-            { x: "/other", y: 2 },
-            { x: "/frieren-memory", y: 14 },
-          ]),
-          { status: 200 },
-        ),
-      )
-      .mockRejectedValueOnce(new Error("offline"))
-    vi.stubGlobal("fetch", fetchMock)
+  it("records events and updates daily aggregates", async () => {
+    await expect(
+      recordAnalyticsEvent({
+        eventName: "page_view",
+        occurredAt: new Date("2026-06-13T12:00:00.000Z"),
+        path: "/frieren-memory",
+        sessionHash: "session-1",
+        visitorHash: "visitor-1",
+      }),
+    ).resolves.toEqual({ tracked: true })
 
-    await expect(getPostViewCount("frieren-memory")).resolves.toBe(14)
-    await expect(getPostViewCount("frieren-memory")).resolves.toBe(0)
+    expect(prismaMocks.prisma.analyticsEvent.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          path: "/frieren-memory",
+          type: "PAGE_VIEW",
+          visitorHash: "visitor-1",
+        }),
+      }),
+    )
+    expect(prismaMocks.prisma.analyticsDailySummary.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: expect.objectContaining({
+          pageviews: { increment: 1 },
+          sessions: { increment: 1 },
+          visitors: { increment: 1 },
+        }),
+      }),
+    )
+    expect(prismaMocks.prisma.analyticsDailyPage.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: expect.objectContaining({
+          pageviews: { increment: 1 },
+        }),
+      }),
+    )
+  })
+
+  it("returns dashboard stats, top pages, and per-post analytics", async () => {
+    prismaMocks.prisma.analyticsDailySummary.findMany
+      .mockResolvedValueOnce([
+        {
+          comments: 1,
+          newsletterSignups: 2,
+          pageviews: 100,
+          reads: 25,
+          searches: 3,
+          sessions: 40,
+          totalReadSeconds: 750,
+          visitors: 30,
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          comments: 1,
+          newsletterSignups: 1,
+          pageviews: 50,
+          reads: 10,
+          searches: 1,
+          sessions: 20,
+          totalReadSeconds: 300,
+          visitors: 15,
+        },
+      ])
+    prismaMocks.prisma.analyticsDailyPage.groupBy.mockResolvedValue([
+      {
+        _max: { lastViewedAt: new Date("2026-06-13T12:00:00.000Z") },
+        _sum: { comments: 1, pageviews: 20, reads: 8 },
+        path: "/frieren-memory",
+        postSlug: "frieren-memory",
+      },
+    ])
+    prismaMocks.prisma.analyticsDailyPage.aggregate.mockResolvedValue({
+      _max: { lastViewedAt: new Date("2026-06-13T12:00:00.000Z") },
+      _sum: { comments: 1, pageviews: 20, reads: 8 },
+    })
+    prismaMocks.prisma.comment.count.mockResolvedValue(4)
+
+    await expect(getInternalAnalyticsStats(1000, 2000)).resolves.toEqual(
+      expect.objectContaining({
+        pageviews: { prev: 50, value: 100 },
+        reads: { prev: 10, value: 25 },
+        visitors: { prev: 15, value: 30 },
+        visits: { prev: 20, value: 40 },
+      }),
+    )
+    await expect(getInternalTopPages(1000, 2000, 5)).resolves.toEqual(
+      [
+        expect.objectContaining({
+          path: "/frieren-memory",
+          readRate: 40,
+          views: 20,
+        }),
+      ],
+    )
+    await expect(
+      getPostAnalytics("frieren-memory", 1000, 2000),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        comments: 4,
+        lastViewedAt: new Date("2026-06-13T12:00:00.000Z"),
+        reads: 8,
+        views: 20,
+      }),
+    )
   })
 })
 
@@ -239,6 +292,7 @@ describe("analytics tracking components", () => {
     })
 
     expect(trackSpy).toHaveBeenCalledWith("post_read", {
+      durationSeconds: 30,
       slug: "frieren-memory",
       title: "Frieren and memory",
     })

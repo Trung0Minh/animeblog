@@ -2,15 +2,16 @@ import { notFound, redirect } from "next/navigation"
 import type { JSONContent } from "@tiptap/react"
 
 import { PostEditor } from "@/components/posts/PostEditor"
-import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getCachedEditorReferenceData } from "@/lib/queries"
+import { getCurrentSession } from "@/lib/session"
 
 interface EditPostPageProps {
   params: Promise<{ id: string }>
 }
 
 export default async function EditPostPage({ params }: EditPostPageProps) {
-  const session = await auth()
+  const session = await getCurrentSession()
 
   if (!session) {
     redirect("/login")
@@ -55,26 +56,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
     notFound()
   }
 
-  const [categories, writers] = await Promise.all([
-    prisma.category.findMany({
-      orderBy: { name: "asc" },
-      select: {
-        children: {
-          orderBy: { name: "asc" },
-          select: { id: true, name: true, slug: true },
-        },
-        id: true,
-        name: true,
-        slug: true,
-      },
-      where: { parentId: null },
-    }),
-    prisma.user.findMany({
-      orderBy: { name: "asc" },
-      select: { id: true, name: true, username: true },
-      where: { role: { in: ["ADMIN", "WRITER"] } },
-    }),
-  ])
+  const { categories, writers } = await getCachedEditorReferenceData()
 
   return (
     <PostEditor

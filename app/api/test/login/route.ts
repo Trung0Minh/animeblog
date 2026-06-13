@@ -1,7 +1,12 @@
-import { randomUUID } from "node:crypto"
+import { encode } from "@auth/core/jwt"
 import { NextResponse } from "next/server"
 import { ZodError, z } from "zod"
 
+import {
+  AUTH_SESSION_COOKIE_NAME,
+  getAuthSecret,
+  SESSION_MAX_AGE_SECONDS,
+} from "@/lib/authConstants"
 import { prisma } from "@/lib/prisma"
 
 const loginSchema = z.object({
@@ -26,8 +31,6 @@ const TEST_USERS: Record<
   },
 }
 
-const SESSION_MAX_AGE_DAYS = 30
-
 function notFound() {
   return Response.json({ error: "Not found" }, { status: 404 })
 }
@@ -48,20 +51,21 @@ export async function POST(request: Request) {
   try {
     const { role } = loginSchema.parse(await request.json())
     const testUser = TEST_USERS[role]
-    const sessionToken = randomUUID()
-    const expires = new Date(
-      Date.now() + SESSION_MAX_AGE_DAYS * 24 * 60 * 60 * 1000,
-    )
+    const authSecret = getAuthSecret()
+
+    if (!authSecret) {
+      throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required")
+    }
 
     const user = await prisma.$transaction(async (tx) => {
-      const upsertedUser = await tx.user.upsert({
+      return tx.user.upsert({
         create: {
           email: testUser.email,
           name: testUser.name,
           role,
           username: testUser.username,
         },
-        select: { id: true, role: true },
+        select: { avatarUrl: true, id: true, role: true, username: true },
         update: {
           name: testUser.name,
           role,
@@ -69,17 +73,18 @@ export async function POST(request: Request) {
         },
         where: { email: testUser.email },
       })
-
-      await tx.session.create({
-        data: {
-          expires,
-          sessionToken,
-          userId: upsertedUser.id,
-        },
-        select: { id: true },
-      })
-
-      return upsertedUser
+    })
+    const expires = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000)
+    const sessionToken = await encode({
+      maxAge: SESSION_MAX_AGE_SECONDS,
+      salt: AUTH_SESSION_COOKIE_NAME,
+      secret: authSecret,
+      token: {
+        avatarUrl: user.avatarUrl,
+        role: user.role,
+        sub: user.id,
+        username: user.username,
+      },
     })
 
     const response = NextResponse.json({
@@ -89,7 +94,7 @@ export async function POST(request: Request) {
     response.cookies.set({
       expires,
       httpOnly: true,
-      name: "authjs.session-token",
+      name: AUTH_SESSION_COOKIE_NAME,
       path: "/",
       sameSite: "lax",
       value: sessionToken,

@@ -13,6 +13,7 @@ model User {
   email         String    @unique
   name          String
   username      String    @unique
+  passwordHash  String?
   bio           String?   @db.Text
   avatarUrl     String?
   emailVerified DateTime?
@@ -21,14 +22,32 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  posts           Post[]       @relation("PostPrimaryAuthor")
+  posts           Post[]               @relation("PostPrimaryAuthor")
   coAuthoredPosts PostAuthor[]
   accounts        Account[]
   sessions        Session[]
-  invitesSent     Invite[]     @relation("InviteCreatedBy")
+  invitesSent     Invite[]             @relation("InviteCreatedBy")
+  passwordResets  PasswordResetToken[]
 
   @@index([username])
+  @@index([role, createdAt(sort: Desc)])
+  @@index([role, name])
   @@map("users")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
 }
 
 enum Role {
@@ -90,6 +109,7 @@ model Invite {
 
   @@index([token])
   @@index([email])
+  @@index([status, expiresAt, createdAt(sort: Desc)])
   @@map("invites")
 }
 
@@ -127,6 +147,9 @@ model Post {
   @@index([status, publishedAt(sort: Desc)])
   @@index([authorId])
   @@index([categoryId])
+  @@index([categoryId, status, publishedAt(sort: Desc), updatedAt(sort: Desc)])
+  @@index([authorId, status, publishedAt(sort: Desc), updatedAt(sort: Desc)])
+  @@index([authorId, status, updatedAt(sort: Desc)])
   @@map("posts")
 }
 
@@ -150,6 +173,7 @@ model PostAuthor {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([postId, userId])
+  @@index([userId])
   @@map("post_authors")
 }
 
@@ -165,6 +189,7 @@ model Category {
   posts       Post[]
 
   @@index([slug])
+  @@index([parentId, name])
   @@map("categories")
 }
 
@@ -187,6 +212,7 @@ model PostTag {
   tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([postId, tagId])
+  @@index([tagId])
   @@map("post_tags")
 }
 
@@ -206,6 +232,7 @@ model Comment {
 
   @@index([postId, status])
   @@index([parentId])
+  @@index([status, createdAt(sort: Desc)])
   @@map("comments")
 }
 
@@ -231,4 +258,86 @@ model NewsletterSubscriber {
 enum SubscriberStatus {
   ACTIVE
   UNSUBSCRIBED
+}
+
+enum AnalyticsEventType {
+  PAGE_VIEW
+  POST_READ
+  COMMENT_SUBMITTED
+  NEWSLETTER_SUBSCRIBED
+  SEARCH_PERFORMED
+}
+
+model AnalyticsEvent {
+  id              String             @id @default(cuid())
+  type            AnalyticsEventType
+  path            String?
+  postSlug        String?
+  searchQuery     String?
+  visitorHash     String?
+  sessionHash     String?
+  durationSeconds Int?
+  createdAt       DateTime           @default(now())
+
+  @@index([type, createdAt(sort: Desc)])
+  @@index([path, createdAt(sort: Desc)])
+  @@index([postSlug, type, createdAt(sort: Desc)])
+  @@index([visitorHash, createdAt(sort: Desc)])
+  @@map("analytics_events")
+}
+
+model AnalyticsDailySummary {
+  id                String   @id @default(cuid())
+  day               DateTime @db.Date
+  pageviews         Int      @default(0)
+  visitors          Int      @default(0)
+  sessions          Int      @default(0)
+  reads             Int      @default(0)
+  comments          Int      @default(0)
+  newsletterSignups Int      @default(0)
+  searches          Int      @default(0)
+  totalReadSeconds  Int      @default(0)
+  updatedAt         DateTime @updatedAt
+
+  @@unique([day])
+  @@index([day])
+  @@map("analytics_daily_summaries")
+}
+
+model AnalyticsDailyPage {
+  id           String    @id @default(cuid())
+  day          DateTime  @db.Date
+  path         String
+  postSlug     String?
+  pageviews    Int       @default(0)
+  reads        Int       @default(0)
+  comments     Int       @default(0)
+  lastViewedAt DateTime?
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([day, path])
+  @@index([path, day(sort: Desc)])
+  @@index([postSlug, day(sort: Desc)])
+  @@index([day, pageviews(sort: Desc)])
+  @@map("analytics_daily_pages")
+}
+
+model AnalyticsDailyVisitor {
+  id          String   @id @default(cuid())
+  day         DateTime @db.Date
+  visitorHash String
+  createdAt   DateTime @default(now())
+
+  @@unique([day, visitorHash])
+  @@map("analytics_daily_visitors")
+}
+
+model AnalyticsDailySession {
+  id          String   @id @default(cuid())
+  day         DateTime @db.Date
+  sessionHash String
+  createdAt   DateTime @default(now())
+
+  @@unique([day, sessionHash])
+  @@map("analytics_daily_sessions")
 }

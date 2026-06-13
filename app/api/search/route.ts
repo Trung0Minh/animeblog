@@ -1,6 +1,6 @@
 import { z, ZodError } from "zod"
 
-import { prisma } from "@/lib/prisma"
+import { getCachedSearchResults } from "@/lib/queries"
 import { buildSearchQuery, type SearchResult } from "@/lib/search"
 
 const searchSchema = z.object({
@@ -30,44 +30,11 @@ export async function GET(request: Request) {
       return Response.json({ data: emptySearchPayload(page, limit) })
     }
 
-    const offset = (page - 1) * limit
-    const [results, countResult] = await Promise.all([
-      prisma.$queryRaw<SearchResult[]>`
-        SELECT
-          p.id,
-          p.title,
-          p.slug,
-          p.excerpt,
-          p."coverUrl",
-          p."publishedAt",
-          u.name AS "authorName",
-          u.username AS "authorUsername",
-          u."avatarUrl" AS "authorAvatarUrl",
-          ts_rank(p.search_vector, to_tsquery('simple', ${tsQuery})) AS rank,
-          ts_headline(
-            'simple',
-            COALESCE(p."contentText", ''),
-            to_tsquery('simple', ${tsQuery}),
-            'MaxWords=30, MinWords=15, StartSel=<mark>, StopSel=</mark>, HighlightAll=false'
-          ) AS snippet
-        FROM posts p
-        JOIN users u ON u.id = p."authorId"
-        WHERE
-          p.status = 'PUBLISHED'
-          AND p.search_vector @@ to_tsquery('simple', ${tsQuery})
-        ORDER BY rank DESC, p."publishedAt" DESC
-        LIMIT ${limit}
-        OFFSET ${offset}
-      `,
-      prisma.$queryRaw<[{ count: bigint }]>`
-        SELECT COUNT(*) AS count
-        FROM posts p
-        WHERE
-          p.status = 'PUBLISHED'
-          AND p.search_vector @@ to_tsquery('simple', ${tsQuery})
-      `,
-    ])
-    const total = Number(countResult[0]?.count ?? 0)
+    const { results, total } = await getCachedSearchResults(
+      tsQuery,
+      page,
+      limit,
+    )
 
     return Response.json({
       data: {
