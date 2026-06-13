@@ -1,6 +1,6 @@
 "use client"
 
-import { X } from "lucide-react"
+import { X, ChevronLeft, ChevronRight } from "lucide-react"
 import { useCallback, useEffect, useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 
@@ -286,7 +286,19 @@ export function PostEditor({
         titlePreview={title}
       />
 
-      <main className="mt-12 flex min-h-0 flex-1 overflow-hidden bg-background">
+      <main className="relative mt-12 flex min-h-0 flex-1 overflow-hidden bg-background">
+        <button
+          aria-label={isSettingsOpen ? "Close settings" : "Open settings"}
+          className={cn(
+            "hidden lg:flex absolute top-1/2 -translate-y-1/2 z-50 h-10 w-6 items-center justify-center border border-border-default bg-subtle-bg/40 text-text-tertiary transition-colors hover:bg-subtle-bg hover:text-text-primary",
+            isSettingsOpen
+              ? "left-[320px] xl:left-[360px] rounded-r-md border-l-0"
+              : "left-0 rounded-r-md border-l-0"
+          )}
+          onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+        >
+          {isSettingsOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        </button>
         <aside
           className={cn(
             "w-full shrink-0 overflow-y-auto border-r border-border-default bg-subtle-bg/40 px-5 py-6 shadow-[8px_0_24px_rgba(0,0,0,0.02)] transition-all lg:w-[320px] xl:w-[360px]",
