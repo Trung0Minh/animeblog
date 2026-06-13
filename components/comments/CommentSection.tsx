@@ -47,14 +47,19 @@ export function CommentSection({
   }
 
   return (
-    <section className="mt-12 border-t pt-10" id="comments">
+    <section className="mt-12 font-sans" id="comments">
       <div className="mb-6">
-        <h2 className="text-[20px] font-bold tracking-tight">Comments</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <h2 className="text-[20px] font-bold tracking-tight text-text-primary">
+          Comments
+        </h2>
+        <p className="mt-1 text-[14px] text-text-secondary">
           {total} comment{total === 1 ? "" : "s"}
         </p>
       </div>
 
+      <h3 className="mb-4 text-[14px] font-semibold text-text-primary">
+        Leave a comment
+      </h3>
       <CommentForm
         onSuccess={handleNewComment}
         postId={postId}

@@ -18,7 +18,9 @@ test.describe("Writer post flow", () => {
     await expect(page.getByTestId("editor-writing-surface")).toBeVisible()
     await expect(page.getByLabel("Category")).toHaveCount(0)
     await page.getByRole("button", { name: "Post settings" }).click()
-    await expect(page.getByRole("button", { name: "Hide settings" })).toBeVisible()
+    await expect(
+      page.getByRole("button", { name: "Hide post settings" }).first(),
+    ).toBeVisible()
     await expect(page.getByLabel("Category")).toBeVisible()
 
     await page.getByRole("textbox", { name: "Title" }).fill(title)

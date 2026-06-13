@@ -59,7 +59,7 @@ export function TiptapEditor({
       GalleryExtension,
       Link.configure({
         HTMLAttributes: {
-          class: "text-editorial underline underline-offset-2 hover:opacity-80",
+          class: "text-accent underline underline-offset-2 hover:opacity-80",
           rel: "noopener noreferrer",
           target: "_blank",
         },
@@ -104,7 +104,7 @@ export function TiptapEditor({
       <EditorContent editor={editor} />
 
       {editable && (
-        <p className="mt-2 text-right text-xs text-muted-foreground">
+        <p className="mt-2 text-right text-xs text-text-tertiary">
           {editor.storage.characterCount.characters().toLocaleString()}{" "}
           characters
         </p>

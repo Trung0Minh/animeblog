@@ -28,7 +28,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "flex w-full shrink-0 flex-col gap-12 lg:sticky lg:top-[104px] lg:h-fit lg:w-[240px]",
+        "flex w-full shrink-0 flex-col gap-12 lg:w-[240px]",
         className,
       )}
     >
@@ -40,22 +40,22 @@ export function Sidebar({
         <SidebarSection title="Categories">
           <ul className="flex flex-col text-sm">
             {categories.map((category) => (
-              <li key={category.id}>
+              <li key={category.id} className="group">
                 <Link
-                  className="flex items-center justify-between border-b border-border py-2.5 transition-colors last:border-0 hover:text-editorial"
+                  className="flex items-center justify-between border-b border-border-default py-2.5 transition-colors last:border-0 group-hover:text-accent"
                   href={`/category/${category.slug}`}
                 >
                   <span>{category.name}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-[12px] text-text-tertiary">
                     {category._count.posts}
                   </span>
                 </Link>
                 {category.children.length > 0 && (
-                  <ul className="ml-3 mt-2 flex flex-col gap-2 border-l pl-3">
+                  <ul className="ml-3 mt-2 flex flex-col gap-2 border-l border-border-default pl-3">
                     {category.children.map((child) => (
                       <li key={child.id}>
                         <Link
-                          className="block text-[13px] text-muted-foreground transition-colors hover:text-editorial"
+                          className="block text-[13px] text-text-secondary transition-colors hover:text-accent"
                           href={`/category/${child.slug}`}
                         >
                           {child.name}
@@ -76,13 +76,13 @@ export function Sidebar({
             {recentPosts.map((post) => (
               <li key={post.slug}>
                 <Link
-                  className="line-clamp-2 text-[13px] font-medium leading-snug transition-colors hover:text-editorial"
+                  className="line-clamp-2 text-[13px] font-medium leading-snug transition-colors hover:text-accent"
                   href={`/${post.slug}`}
                 >
                   {post.title}
                 </Link>
                 {post.publishedAt && (
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 text-[12px] text-text-tertiary">
                     {formatDate(post.publishedAt)}
                   </p>
                 )}
@@ -104,9 +104,9 @@ function SidebarSection({
 }) {
   return (
     <section>
-      <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+      <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-text-secondary">
         {title}
-      </h2>
+      </h3>
       {children}
     </section>
   )

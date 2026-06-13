@@ -77,6 +77,10 @@ describe("Navbar", () => {
     expect(
       screen.getByRole("searchbox", { name: "Search posts" }),
     ).toBeInTheDocument()
+    expect(screen.getByRole("searchbox", { name: "Search posts" })).toHaveAttribute(
+      "placeholder",
+      "Search posts...",
+    )
   })
 
   it("keeps the desktop writer menu hidden on mobile", () => {
@@ -203,6 +207,11 @@ describe("Navbar", () => {
       "mx-auto",
       "max-w-[1440px]",
     )
+    expect(container.querySelector("header")).toHaveClass(
+      "border-border-default/50",
+      "bg-background/80",
+      "backdrop-blur-md",
+    )
   })
 })
 
@@ -309,8 +318,41 @@ describe("WriterMenu", () => {
   })
 })
 
+describe("Sidebar", () => {
+  it("uses the Figma fixed-width sidebar without sticky positioning", () => {
+    const { container } = render(
+      <Sidebar
+        categories={[
+          {
+            _count: { posts: 3 },
+            children: [{ id: "child-1", name: "Animation", slug: "animation" }],
+            id: "category-1",
+            name: "Analysis",
+            slug: "analysis",
+          },
+        ]}
+        recentPosts={[
+          {
+            publishedAt: new Date("2024-04-01T00:00:00Z"),
+            slug: "recent-post",
+            title: "Recent Post",
+          },
+        ]}
+      />,
+    )
+
+    const sidebar = container.querySelector("aside")
+    expect(sidebar).toHaveClass("lg:w-[240px]", "gap-12")
+    expect(sidebar).not.toHaveClass("lg:sticky")
+    expect(screen.getByRole("heading", { name: "Categories" })).toHaveClass(
+      "text-[11px]",
+      "text-text-secondary",
+    )
+  })
+})
+
 describe("MobileNav", () => {
-  it("opens a drawer containing navigation and search links", async () => {
+  it("opens a drawer containing navigation links and inline search", async () => {
     const user = userEvent.setup()
     render(
       <MobileNav
@@ -329,12 +371,13 @@ describe("MobileNav", () => {
     expect(
       screen.getByText("Browse publication pages and search posts."),
     ).toBeInTheDocument()
-    const search = screen.getByRole("link", { name: "Search posts" })
-    expect(search).toHaveAttribute("href", "/search")
-    expect(search).toHaveAttribute("data-prefetch", "undefined")
+    expect(screen.getByRole("searchbox", { name: "Search posts" })).toHaveAttribute(
+      "placeholder",
+      "Search posts...",
+    )
     expect(screen.getByRole("button", { name: "Close" })).toHaveClass(
-      "h-11",
-      "w-11",
+      "h-8",
+      "w-8",
     )
   })
 

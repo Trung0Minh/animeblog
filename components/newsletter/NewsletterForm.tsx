@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from "react"
 
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { trackEvent } from "@/lib/analytics"
 
@@ -73,11 +72,11 @@ export function NewsletterForm() {
 
   return (
     <div>
-      <p className="text-[13px] leading-6 text-muted-foreground">
-        Get notified when new essays are published.
+      <p className="text-[13px] text-text-secondary mb-4">
+        Get notified when new posts are published.
       </p>
-      <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-        <div className="space-y-2">
+      <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+        <div className="flex flex-col">
           <label className="sr-only" htmlFor="newsletter-email">
             Email address
           </label>
@@ -88,7 +87,7 @@ export function NewsletterForm() {
             id="newsletter-email"
             inputMode="email"
             onChange={(event) => setEmail(event.target.value)}
-            className="text-[13px]"
+            className="w-full h-10 px-3 border border-border-default rounded-[4px] bg-transparent text-[13px] outline-none focus:border-accent transition-colors"
             placeholder="Your email address"
             required
             type="email"
@@ -103,16 +102,20 @@ export function NewsletterForm() {
         )}
 
         {state === "success" && (
-          <p className="text-[13px] font-medium text-editorial" role="status">
+          <p className="text-[13px] font-medium text-accent" role="status">
             {message}
           </p>
         )}
 
-        <Button className="w-full" disabled={state === "loading"} type="submit">
+        <button
+          className="w-full h-10 bg-button-bg text-button-text font-medium text-[13px] rounded-[4px] hover:opacity-90 transition-opacity"
+          disabled={state === "loading"}
+          type="submit"
+        >
           {state === "loading" ? "Subscribing..." : "Subscribe"}
-        </Button>
+        </button>
       </form>
-      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+      <p className="mt-3 text-xs leading-5 text-text-tertiary">
         No spam. Every email includes a one-click unsubscribe link.
       </p>
     </div>

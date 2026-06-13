@@ -19,9 +19,18 @@ function getInitial(name: string) {
   return name.trim().charAt(0).toUpperCase() || "?"
 }
 
+function avatarColor(name: string) {
+  const colors = ["#4a6fa5", "#4a7c59", "#7b5ea7", "#c47f5a", "#2d6e7e"]
+  const total = Array.from(name).reduce(
+    (sum, character) => sum + character.charCodeAt(0),
+    0,
+  )
+
+  return colors[total % colors.length]
+}
+
 function CommentBubble({
   comment,
-  isReply = false,
 }: {
   comment: PublicComment
   isReply?: boolean
@@ -30,26 +39,24 @@ function CommentBubble({
     <div className="flex gap-3">
       <div
         aria-hidden="true"
-        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground"
+        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
+        style={{ backgroundColor: avatarColor(comment.authorName) }}
       >
         {getInitial(comment.authorName)}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className="text-[13px] font-semibold">{comment.authorName}</span>
+          <span className="text-[13px] font-semibold text-text-primary">
+            {comment.authorName}
+          </span>
           <time
-            className="text-xs text-muted-foreground"
+            className="text-[12px] text-text-tertiary"
             dateTime={new Date(comment.createdAt).toISOString()}
           >
             {formatDate(comment.createdAt)}
           </time>
-          {isReply && (
-            <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Reply
-            </span>
-          )}
         </div>
-        <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground">
+        <p className="mt-1 whitespace-pre-wrap break-words text-[14px] leading-[1.6] text-text-secondary">
           {comment.content}
         </p>
       </div>
@@ -77,14 +84,14 @@ function CommentThread({
 
   return (
     <article
-      className="scroll-mt-24 border-t pt-6 first:border-t-0 first:pt-0"
+      className="scroll-mt-24 border-t border-border-default pt-6 first:border-t-0 first:pt-0"
       id={`comment-${comment.id}`}
     >
       <CommentBubble comment={comment} />
       <div className="mt-3 pl-11">
         <Button
           aria-label={`Reply to ${comment.authorName}'s comment`}
-          className="h-auto min-h-0 px-0 py-1 text-xs hover:bg-transparent"
+          className="h-auto min-h-0 px-0 py-1 text-[12px] text-text-tertiary hover:bg-transparent hover:text-text-primary"
           onClick={() => setIsReplying((value) => !value)}
           type="button"
           variant="ghost"
@@ -95,7 +102,7 @@ function CommentThread({
       </div>
 
       {isReplying && (
-        <div className="mt-4 border-l pl-4 sm:ml-11">
+        <div className="mt-4 border-l border-border-default pl-4 sm:ml-11">
           <CommentForm
             ariaLabel={`Reply to ${comment.authorName}`}
             onCancel={() => setIsReplying(false)}
@@ -108,7 +115,7 @@ function CommentThread({
       )}
 
       {comment.replies.length > 0 && (
-        <div className="mt-5 space-y-4 border-l pl-4 sm:ml-11">
+        <div className="mt-5 space-y-4 border-l border-border-default pl-4 sm:ml-11">
           {comment.replies.map((reply) => (
             <article
               className="scroll-mt-24"

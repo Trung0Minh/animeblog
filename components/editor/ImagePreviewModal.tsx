@@ -59,7 +59,7 @@ export function ImagePreviewModal({
     <div
       aria-label={`${images.length} image${images.length === 1 ? "" : "s"} selected`}
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
       onClick={(event) => {
         if (event.target === event.currentTarget) {
           onClose()
@@ -67,19 +67,19 @@ export function ImagePreviewModal({
       }}
       role="dialog"
     >
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-[8px] border bg-background shadow-[0_12px_32px_rgba(0,0,0,0.18)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.45)]">
-        <div className="flex items-center justify-between border-b px-4 py-3">
+      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-[8px] border border-border-default bg-background shadow-[0_12px_32px_rgba(0,0,0,0.18)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.45)]">
+        <div className="flex items-center justify-between border-b border-border-default px-4 py-3">
           <div>
-            <h3 className="font-sans text-sm font-semibold">
+            <h3 className="font-sans text-sm font-semibold text-text-primary">
               {images.length} image{images.length === 1 ? "" : "s"} selected
             </h3>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-0.5 text-xs text-text-secondary">
               Reorder, add captions, then choose how to insert them.
             </p>
           </div>
           <button
             aria-label="Close image preview"
-            className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="rounded p-1.5 text-text-secondary transition-colors hover:bg-subtle-bg hover:text-text-primary"
             onClick={onClose}
             type="button"
           >
@@ -87,13 +87,13 @@ export function ImagePreviewModal({
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-2 border-b p-4">
+        <div className="flex flex-wrap gap-2 border-b border-border-default p-4">
           <button
             className={[
               "inline-flex items-center gap-1.5 rounded-[5px] border px-3 py-1.5 text-sm transition-colors",
               mode === "individual"
-                ? "border-primary bg-primary text-primary-foreground"
-                : "hover:bg-muted",
+                ? "border-text-primary bg-text-primary text-background"
+                : "border-border-default text-text-primary hover:bg-subtle-bg",
             ].join(" ")}
             onClick={() => setMode("individual")}
             type="button"
@@ -105,8 +105,8 @@ export function ImagePreviewModal({
             className={[
               "inline-flex items-center gap-1.5 rounded-[5px] border px-3 py-1.5 text-sm transition-colors",
               mode === "gallery"
-                ? "border-primary bg-primary text-primary-foreground"
-                : "hover:bg-muted",
+                ? "border-text-primary bg-text-primary text-background"
+                : "border-border-default text-text-primary hover:bg-subtle-bg",
             ].join(" ")}
             onClick={() => setMode("gallery")}
             type="button"
@@ -121,7 +121,7 @@ export function ImagePreviewModal({
             <div
               aria-label={`Selected image ${image.file.name}`}
               className={[
-                "grid gap-3 rounded-[8px] border bg-muted/25 p-3 transition-opacity sm:grid-cols-[auto_5rem_1fr_auto]",
+                "grid gap-3 rounded-[8px] border border-border-default bg-subtle-bg/50 p-3 transition-opacity sm:grid-cols-[auto_5rem_1fr_auto]",
                 dragIndex === index ? "opacity-50" : "",
               ].join(" ")}
               draggable
@@ -130,7 +130,7 @@ export function ImagePreviewModal({
               onDragOver={(event) => handleDragOver(event, index)}
               onDragStart={() => setDragIndex(index)}
             >
-              <div className="hidden items-start pt-5 text-muted-foreground sm:flex">
+              <div className="hidden items-start pt-5 text-text-tertiary sm:flex">
                 <GripVertical aria-hidden="true" className="h-4 w-4" />
               </div>
 
@@ -141,14 +141,14 @@ export function ImagePreviewModal({
               />
 
               <div className="min-w-0 space-y-2">
-                <p className="truncate font-sans text-xs font-medium text-muted-foreground">
+                <p className="truncate font-sans text-xs font-medium text-text-tertiary">
                   {image.file.name}
                 </p>
                 <label className="sr-only" htmlFor={`caption-${image.id}`}>
                   Caption for {image.file.name}
                 </label>
                 <input
-                  className="w-full rounded-[5px] border bg-background px-2 py-1.5 text-sm focus:border-editorial focus:outline-none"
+                  className="w-full rounded-[5px] border border-border-default bg-background px-2 py-1.5 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none"
                   id={`caption-${image.id}`}
                   onChange={(event) =>
                     updateImage(index, { caption: event.target.value })
@@ -161,7 +161,7 @@ export function ImagePreviewModal({
                   Alt text for {image.file.name}
                 </label>
                 <input
-                  className="w-full rounded-[5px] border bg-background px-2 py-1.5 text-xs text-muted-foreground focus:border-editorial focus:outline-none"
+                  className="w-full rounded-[5px] border border-border-default bg-background px-2 py-1.5 text-xs text-text-secondary placeholder:text-text-tertiary focus:border-accent focus:outline-none"
                   id={`alt-${image.id}`}
                   onChange={(event) =>
                     updateImage(index, { alt: event.target.value })
@@ -174,7 +174,7 @@ export function ImagePreviewModal({
 
               <button
                 aria-label={`Remove ${image.file.name}`}
-                className="justify-self-end rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
+                className="justify-self-end rounded p-1.5 text-text-tertiary transition-colors hover:bg-subtle-bg hover:text-destructive"
                 onClick={() => removeImage(index)}
                 type="button"
               >
@@ -184,16 +184,16 @@ export function ImagePreviewModal({
           ))}
         </div>
 
-        <div className="flex justify-end gap-2 border-t p-4">
+        <div className="flex justify-end gap-2 border-t border-border-default p-4">
           <button
-            className="rounded-[5px] border px-4 py-2 text-sm transition-colors hover:bg-muted"
+            className="rounded-[5px] border border-border-default px-4 py-2 text-sm text-text-primary transition-colors hover:bg-subtle-bg"
             onClick={onClose}
             type="button"
           >
             Cancel
           </button>
           <button
-            className="rounded-[5px] bg-primary px-4 py-2 text-sm text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="rounded-[5px] bg-button-bg px-4 py-2 text-sm text-button-text transition-opacity hover:opacity-85 disabled:opacity-50"
             disabled={images.length === 0}
             onClick={() => onConfirm(images, mode)}
             type="button"

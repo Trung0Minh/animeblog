@@ -25,7 +25,7 @@ describe("NewsletterForm", () => {
     render(<NewsletterForm />)
 
     expect(
-      screen.getByText("Get notified when new essays are published."),
+      screen.getByText("Get notified when new posts are published."),
     ).toBeInTheDocument()
     expect(
       screen.getByRole("textbox", { name: "Email address" }),

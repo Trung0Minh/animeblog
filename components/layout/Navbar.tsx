@@ -14,10 +14,10 @@ export function Navbar({ user }: { user?: WriterMenuUser | null }) {
   const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "Anime Blog"
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto flex h-[52px] max-w-[1440px] items-center justify-between gap-4 px-4 md:h-14 md:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full border-b border-border-default/50 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
+      <div className="mx-auto flex h-[52px] max-w-[1440px] items-center justify-between gap-4 px-4 md:h-[56px] md:px-6 lg:px-8">
         <Link
-          className="shrink-0 text-[16px] font-bold tracking-tight transition-colors duration-150 hover:text-editorial"
+          className="shrink-0 text-[16px] font-bold tracking-tight transition-colors duration-150 hover:text-accent"
           href="/"
         >
           {appName}
@@ -29,7 +29,7 @@ export function Navbar({ user }: { user?: WriterMenuUser | null }) {
         >
           {NAV_LINKS.map((link) => (
             <Link
-              className="text-[14px] font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground"
+              className="text-[14px] font-medium text-text-secondary transition-colors duration-150 hover:text-text-primary"
               href={link.href}
               key={link.href}
             >
@@ -38,11 +38,10 @@ export function Navbar({ user }: { user?: WriterMenuUser | null }) {
           ))}
         </nav>
 
-        <div className="hidden w-[280px] md:block">
-          <SearchBar />
-        </div>
-
-        <div className="ml-auto flex items-center gap-1 md:ml-0">
+        <div className="ml-auto flex items-center gap-4">
+          <div className="hidden w-[280px] md:block">
+            <SearchBar />
+          </div>
           <ThemeToggle />
           <WriterNavControls links={NAV_LINKS} user={user} />
         </div>

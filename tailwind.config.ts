@@ -48,10 +48,7 @@ const config: Config = {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
+        accent: "var(--accent)",
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -64,6 +61,14 @@ const config: Config = {
           DEFAULT: "hsl(var(--editorial))",
           hover: "hsl(var(--editorial-hover))",
         },
+        "subtle-bg": "var(--subtle-bg)",
+        "text-primary": "var(--text-primary)",
+        "text-secondary": "var(--text-secondary)",
+        "text-tertiary": "var(--text-tertiary)",
+        "border-default": "var(--border-default)",
+        "border-strong": "var(--border-strong)",
+        "button-bg": "var(--button-bg)",
+        "button-text": "var(--button-text)",
       },
       borderRadius: {
         lg: "var(--radius)",

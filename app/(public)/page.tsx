@@ -47,7 +47,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <PageContainer size="wide">
       <div className="flex flex-col gap-12 lg:flex-row xl:gap-[48px]">
-        <section className="min-w-0 flex-1" aria-label="Published posts">
+        <section className="flex-1 lg:w-[calc(100%-288px)] xl:w-[calc(100%-288px)] flex flex-col" aria-label="Published posts">
           <Suspense fallback={<PostListSkeleton />}>
             <HomePostList page={page} />
           </Suspense>

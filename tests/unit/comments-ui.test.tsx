@@ -65,14 +65,12 @@ describe("CommentForm", () => {
       />,
     )
 
-    expect(
-      screen.getByText("Your email stays private. We only use it for replies."),
-    ).toBeVisible()
+    expect(screen.getByText("Not shown publicly")).toBeVisible()
 
-    await user.type(screen.getByLabelText("Name"), "Mina")
-    await user.type(screen.getByLabelText("Email"), "mina@example.com")
+    await user.type(screen.getByLabelText("Name *"), "Mina")
+    await user.type(screen.getByLabelText("Email *"), "mina@example.com")
     await user.type(
-      screen.getByLabelText("Comment"),
+      screen.getByLabelText("Comment *"),
       "This changed my read of the scene.",
     )
     await user.click(screen.getByRole("button", { name: "Post comment" }))
@@ -105,15 +103,17 @@ describe("CommentForm", () => {
   it("stacks identity fields and full-width actions on mobile", () => {
     render(<CommentForm onSuccess={vi.fn()} postId="post-1" />)
 
-    const identityGrid = screen.getByLabelText("Name").closest(".grid")
+    const identityGrid = screen.getByLabelText("Name *").closest(".grid")
     if (!identityGrid) {
       throw new Error("Identity grid not found")
     }
 
-    expect(identityGrid).toHaveClass("grid-cols-1", "sm:grid-cols-2")
+    expect(identityGrid).toHaveClass("grid-cols-1", "md:grid-cols-2")
     expect(screen.getByRole("button", { name: "Post comment" })).toHaveClass(
-      "w-full",
-      "sm:w-auto",
+      "h-[38px]",
+      "px-5",
+      "bg-button-bg",
+      "text-button-text",
     )
   })
 })
@@ -139,7 +139,8 @@ describe("CommentSection", () => {
     expect(screen.queryByText(/@example\.com/)).not.toBeInTheDocument()
     expect(
       screen.getByRole("button", { name: "Reply to Mina's comment" }),
-    ).toHaveClass("min-h-0", "px-0")
+    ).toHaveClass("text-[12px]", "text-text-tertiary")
+    expect(screen.getByText("2 comments")).toHaveClass("text-text-secondary")
   })
 
   it("adds a successful reply under the selected parent comment", async () => {
@@ -175,13 +176,13 @@ describe("CommentSection", () => {
     )
 
     const replyForm = screen.getByRole("form", { name: "Reply to Mina" })
-    await user.type(within(replyForm).getByLabelText("Name"), "Rei")
+    await user.type(within(replyForm).getByLabelText("Name *"), "Rei")
     await user.type(
-      within(replyForm).getByLabelText("Email"),
+      within(replyForm).getByLabelText("Email *"),
       "rei@example.com",
     )
     await user.type(
-      within(replyForm).getByLabelText("Comment"),
+      within(replyForm).getByLabelText("Comment *"),
       "That is the line I noticed too.",
     )
     await user.click(within(replyForm).getByRole("button", { name: "Post reply" }))

@@ -4,13 +4,17 @@ import type { JSONContent } from "@tiptap/react"
 
 import { CommentSection } from "@/components/comments/CommentSection"
 import { PageContainer } from "@/components/layout/PageContainer"
+import { AuthorBio } from "@/components/posts/AuthorBio"
 import { PostBody } from "@/components/posts/PostBody"
 import { PostHeader } from "@/components/posts/PostHeader"
 import { PostJsonLd } from "@/components/posts/PostJsonLd"
 import { PostReadTracker } from "@/components/posts/PostReadTracker"
 import { TableOfContents } from "@/components/posts/TableOfContents"
 import { prisma } from "@/lib/prisma"
-import { getCachedPublishedPost } from "@/lib/queries"
+import {
+  getCachedPublishedPost,
+  type PublishedPostDetail,
+} from "@/lib/queries"
 import { buildMetadata } from "@/lib/seo"
 
 interface PostPageProps {
@@ -24,7 +28,7 @@ export async function generateStaticParams() {
     return []
   }
 
-  const posts = await prisma.post.findMany({
+  const posts: { slug: string }[] = await prisma.post.findMany({
     orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
     select: { slug: true },
     take: 20,
@@ -38,7 +42,9 @@ export async function generateMetadata({
   params,
 }: PostPageProps): Promise<Metadata> {
   const { slug } = await params
-  const post = await getCachedPublishedPost(slug)
+  const post = (await getCachedPublishedPost(slug)) as
+    | PublishedPostDetail
+    | null
 
   if (!post) {
     return buildMetadata({ canonicalPath: `/${slug}`, noIndex: true })
@@ -68,7 +74,9 @@ export async function generateMetadata({
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params
-  const post = await getCachedPublishedPost(slug)
+  const post = (await getCachedPublishedPost(slug)) as
+    | PublishedPostDetail
+    | null
 
   if (!post) {
     notFound()
@@ -94,9 +102,10 @@ export default async function PostPage({ params }: PostPageProps) {
         size="wide"
       >
         <div className="flex w-full max-w-[720px] flex-col gap-[48px] xl:max-w-[968px] xl:flex-row">
-          <article className="min-w-0 flex-1">
+          <article className="min-w-0 flex-1 max-w-[720px]">
             <PostHeader post={post} />
             <PostBody content={content} />
+            <AuthorBio author={post.author} />
             <CommentSection
               initialComments={post.comments}
               postId={post.id}

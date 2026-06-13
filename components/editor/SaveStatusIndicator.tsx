@@ -8,7 +8,7 @@ export function SaveStatusIndicator({ status }: { status: SaveStatus }) {
   if (status === "idle") return null
 
   return (
-    <div className="flex min-h-5 items-center gap-1.5 text-xs text-muted-foreground">
+    <div className="flex min-h-5 items-center gap-1.5 text-xs text-text-tertiary">
       {status === "saving" && (
         <>
           <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" />

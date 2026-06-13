@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { FileText, LogOut, Menu, Search, Shield, User } from "lucide-react"
+import { FileText, LogOut, Menu, Shield, User } from "lucide-react"
 import Link from "next/link"
 import { signOut } from "next-auth/react"
 
@@ -14,6 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import type { WriterMenuUser } from "@/components/layout/WriterMenu"
+import { SearchBar } from "@/components/search/SearchBar"
 
 interface MobileNavProps {
   links: { href: string; label: string }[]
@@ -34,7 +35,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
       <SheetTrigger asChild>
         <Button
           aria-label="Open navigation menu"
-          className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+          className="h-8 w-8 rounded-full text-text-secondary hover:bg-subtle-bg hover:text-text-primary md:hidden"
           size="icon"
           type="button"
           variant="ghost"
@@ -42,15 +43,21 @@ export function MobileNav({ links, user }: MobileNavProps) {
           <Menu aria-hidden="true" className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-[280px] border-border bg-background px-6 pt-14" side="right">
+      <SheetContent className="flex w-[280px] flex-col border-border-default bg-background px-6 py-6" side="right">
         <SheetTitle className="sr-only">Navigation menu</SheetTitle>
         <SheetDescription className="sr-only">
           Browse publication pages and search posts.
         </SheetDescription>
-        <nav aria-label="Mobile navigation" className="flex flex-col gap-5">
+        <div className="mb-8 flex items-center justify-between pr-8">
+          <span className="text-[16px] font-bold tracking-tight">
+            {process.env.NEXT_PUBLIC_APP_NAME ?? "Anime Blog"}
+          </span>
+        </div>
+
+        <nav aria-label="Mobile navigation" className="flex flex-col gap-6">
           {links.map((link) => (
             <Link
-              className="text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="text-base font-medium text-text-secondary transition-colors hover:text-text-primary"
               href={link.href}
               key={link.href}
               onClick={() => setOpen(false)}
@@ -60,29 +67,21 @@ export function MobileNav({ links, user }: MobileNavProps) {
           ))}
         </nav>
 
-        <div className="mt-6 border-t pt-6">
-          <Link
-            aria-label="Search posts"
-            className="flex min-h-10 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-            href="/search"
-            onClick={() => setOpen(false)}
-          >
-            <Search aria-hidden="true" className="h-4 w-4" />
-            Search posts
-          </Link>
+        <div className="mt-6 border-t border-border-default pt-6">
+          <SearchBar />
         </div>
 
         {menuUser ? (
-          <div className="mt-6 border-t pt-6">
+          <div className="mt-6 border-t border-border-default pt-6">
             <div className="pb-4">
-              <p className="truncate text-sm font-medium">{menuUser.name}</p>
-              <p className="truncate text-xs text-muted-foreground">
+              <p className="truncate text-sm font-medium text-text-primary">{menuUser.name}</p>
+              <p className="truncate text-xs text-text-tertiary">
                 @{menuUser.username}
               </p>
             </div>
             <div className="flex flex-col gap-2">
               <Link
-                className="flex min-h-9 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="flex min-h-9 items-center gap-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
                 href="/dashboard"
                 onClick={() => setOpen(false)}
                 prefetch={false}
@@ -92,7 +91,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
               </Link>
               {menuUser.role === "ADMIN" && (
                 <Link
-                  className="flex min-h-9 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="flex min-h-9 items-center gap-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
                   href="/admin"
                   onClick={() => setOpen(false)}
                   prefetch={false}
@@ -102,7 +101,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
                 </Link>
               )}
               <Link
-                className="flex min-h-9 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="flex min-h-9 items-center gap-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
                 href="/dashboard/profile"
                 onClick={() => setOpen(false)}
                 prefetch={false}
@@ -111,7 +110,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
                 Edit profile
               </Link>
               <Link
-                className="flex min-h-9 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="flex min-h-9 items-center gap-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
                 href={`/authors/${menuUser.username}`}
                 onClick={() => setOpen(false)}
               >
@@ -119,7 +118,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
                 View public profile
               </Link>
               <Button
-                className="min-h-9 justify-start gap-2 px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
+                className="min-h-9 justify-start gap-2 px-0 text-accent hover:bg-transparent hover:text-accent/80"
                 onClick={handleSignOut}
                 type="button"
                 variant="ghost"

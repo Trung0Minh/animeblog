@@ -1,9 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { ImagePlus, Loader2, X } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
+import { Camera, ImagePlus, Loader2, X } from "lucide-react"
 
 interface CoverImageUploadProps {
   onChange: (url: string) => void
@@ -85,71 +83,71 @@ export function CoverImageUpload({ onChange, value }: CoverImageUploadProps) {
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <label className="text-xs font-semibold text-muted-foreground" htmlFor="cover-image">
-          Cover image
-        </label>
-        {value && (
-          <Button
-            onClick={() => onChange("")}
-            size="sm"
-            type="button"
-            variant="ghost"
-          >
-            <X aria-hidden="true" className="mr-1 h-3.5 w-3.5" />
-            Remove
-          </Button>
-        )}
-      </div>
+    <div className="space-y-2.5">
+      <label className="block text-[12px] font-semibold text-text-secondary" htmlFor="cover-image">
+        Cover image
+      </label>
 
-      {value && (
-        <div className="aspect-video overflow-hidden rounded-[8px] border bg-muted">
+      {value ? (
+        <div className="group relative aspect-video w-full overflow-hidden rounded-[8px] border border-border-default bg-subtle-bg">
           <img
             alt="Selected cover"
             className="h-full w-full object-cover"
             src={value}
           />
+          <button
+            className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 text-white opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
+            onClick={() => inputRef.current?.click()}
+            type="button"
+          >
+            <Camera aria-hidden="true" className="mb-2 h-6 w-6" />
+            <span className="text-[13px] font-medium">Change</span>
+          </button>
+          <button
+            aria-label="Remove cover image"
+            className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black"
+            onClick={() => onChange("")}
+            type="button"
+          >
+            <X aria-hidden="true" className="h-4 w-4" />
+          </button>
         </div>
-      )}
-
-      <div className="flex aspect-video flex-col items-center justify-center gap-2 rounded-[8px] border border-dashed border-input bg-muted p-4 text-center transition-colors hover:border-muted-foreground/60 hover:bg-border/30">
-        <div>
-          <p className="text-[13px] font-medium">Add cover image</p>
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            JPG, PNG, GIF, WebP · Max 10MB
-          </p>
-        </div>
-        <Button
+      ) : (
+        <button
+          className="flex aspect-video w-full flex-col items-center justify-center rounded-[8px] border-[1.5px] border-dashed border-border-strong bg-subtle-bg p-4 text-center transition-colors hover:border-text-secondary hover:bg-border-default/30"
           disabled={uploading}
           onClick={() => inputRef.current?.click()}
           type="button"
-          size="sm"
-          variant="outline"
         >
           {uploading ? (
-            <Loader2 aria-hidden="true" className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-text-tertiary" />
           ) : (
-            <ImagePlus aria-hidden="true" className="mr-2 h-4 w-4" />
+            <ImagePlus aria-hidden="true" className="h-6 w-6 text-text-tertiary" />
           )}
-          Upload
-        </Button>
-        <input
-          accept="image/jpeg,image/png,image/gif,image/webp"
-          aria-label="Upload cover image"
-          className="sr-only"
-          id="cover-image"
-          onChange={(event) => {
-            const file = event.target.files?.[0]
+          <span className="mt-2 text-[13px] text-text-secondary">
+            {uploading ? "Uploading..." : "Add cover image"}
+          </span>
+          <span className="mt-1 text-[11px] text-text-tertiary">
+            JPG, PNG, GIF, WebP · Max 10MB
+          </span>
+        </button>
+      )}
 
-            if (file) {
-              void handleFile(file)
-            }
-          }}
-          ref={inputRef}
-          type="file"
-        />
-      </div>
+      <input
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        aria-label="Upload cover image"
+        className="sr-only"
+        id="cover-image"
+        onChange={(event) => {
+          const file = event.target.files?.[0]
+
+          if (file) {
+            void handleFile(file)
+          }
+        }}
+        ref={inputRef}
+        type="file"
+      />
 
       {error && (
         <p className="text-sm text-destructive" role="alert">

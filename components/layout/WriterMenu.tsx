@@ -87,7 +87,7 @@ function WriterAvatar({
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center rounded-full border border-border bg-muted text-xs font-semibold",
+        "inline-flex items-center justify-center rounded-full border border-border-default bg-subtle-bg text-xs font-semibold text-text-primary",
         className,
       )}
     >
@@ -135,7 +135,7 @@ export function WriterMenu({ user }: { user?: WriterMenuUser | null }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Open writer menu"
-        className="inline-flex h-8 items-center gap-1.5 rounded-full px-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="inline-flex h-8 items-center gap-1.5 rounded-full px-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-subtle-bg hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <WriterAvatar className="h-6 w-6" user={menuUser} />
         <ChevronDown aria-hidden="true" className="h-3.5 w-3.5" />
@@ -144,8 +144,8 @@ export function WriterMenu({ user }: { user?: WriterMenuUser | null }) {
         <DropdownMenuLabel className="flex items-center gap-2">
           <WriterAvatar className="h-8 w-8" user={menuUser} />
           <span className="min-w-0">
-            <span className="block truncate text-sm">{menuUser.name}</span>
-            <span className="block truncate text-xs font-normal text-muted-foreground">
+            <span className="block truncate text-sm text-text-primary">{menuUser.name}</span>
+            <span className="block truncate text-xs font-normal text-text-tertiary">
               @{menuUser.username}
             </span>
           </span>
@@ -179,7 +179,7 @@ export function WriterMenu({ user }: { user?: WriterMenuUser | null }) {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="text-muted-foreground"
+          className="text-text-secondary"
           onClick={() => void signOut({ callbackUrl: "/" })}
         >
           <LogOut aria-hidden="true" />

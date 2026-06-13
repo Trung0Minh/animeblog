@@ -109,11 +109,11 @@ export function SearchBar() {
       <div className="group relative">
         <Search
           aria-hidden="true"
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-editorial"
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-tertiary transition-colors group-focus-within:text-accent"
         />
         <input
           aria-label="Search posts"
-          className="h-8 w-full rounded-full border border-transparent bg-muted pl-9 pr-9 text-[13px] text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-border focus:bg-background"
+          className="h-8 w-full rounded-full border border-transparent bg-subtle-bg pl-9 pr-9 text-[13px] text-text-primary outline-none transition-colors placeholder:text-text-tertiary focus:border-border-default focus:bg-background"
           onChange={(event) => {
             const nextQuery = event.target.value
             setQuery(nextQuery)
@@ -127,7 +127,7 @@ export function SearchBar() {
             if (results.length > 0 || query.trim()) setIsOpen(true)
           }}
           onKeyDown={handleKeyDown}
-          placeholder="Search essays"
+          placeholder="Search posts..."
           type="search"
           value={query}
         />
@@ -139,7 +139,7 @@ export function SearchBar() {
         ) : query ? (
           <Button
             aria-label="Clear search"
-            className="absolute right-0 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full text-muted-foreground"
+            className="absolute right-0 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full text-text-tertiary hover:text-text-primary"
             onClick={clearSearch}
             size="icon"
             type="button"
@@ -151,9 +151,9 @@ export function SearchBar() {
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-[8px] border bg-popover shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.28)]">
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-[8px] border border-border-default bg-background shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.28)]">
           {results.length === 0 && !isLoading && (
-            <p className="px-4 py-3 text-sm text-muted-foreground">
+            <p className="px-4 py-3 text-sm text-text-secondary">
               No results for &quot;{debouncedQuery.trim()}&quot;
             </p>
           )}
@@ -161,7 +161,7 @@ export function SearchBar() {
           {results.map((result) => (
             <Link
               aria-label={result.title}
-              className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted"
+              className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-subtle-bg"
               href={`/${result.slug}`}
               key={result.id}
               onClick={clearSearch}
@@ -176,10 +176,10 @@ export function SearchBar() {
                 />
               )}
               <span className="min-w-0">
-                <span className="block truncate text-sm font-medium">
+                <span className="block truncate text-sm font-medium text-text-primary">
                   {result.title}
                 </span>
-                <span className="block truncate text-xs text-muted-foreground">
+                <span className="block truncate text-xs text-text-secondary">
                   {result.authorName}
                 </span>
               </span>
@@ -188,7 +188,7 @@ export function SearchBar() {
 
           {results.length > 0 && (
             <Link
-              className="block border-t px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-editorial transition-colors hover:bg-muted"
+              className="block border-t border-border-default px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-accent transition-colors hover:bg-subtle-bg"
               href={`/search?q=${encodeURIComponent(query.trim())}`}
               onClick={() => setIsOpen(false)}
             >

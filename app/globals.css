@@ -33,6 +33,17 @@
     --font-size-xl: 1.5rem;
     --font-size-2xl: 2rem;
     --font-size-3xl: 2.5rem;
+
+    /* Redesign tokens */
+    --subtle-bg: #f7f7f7;
+    --text-primary: #111111;
+    --text-secondary: #6b6b6b;
+    --text-tertiary: #888888;
+    --border-default: #e5e5e5;
+    --border-strong: #d4d4d4;
+    --accent: #c0392b;
+    --button-bg: #111111;
+    --button-text: #ffffff;
   }
 
   .dark {
@@ -57,10 +68,21 @@
     --ring: 7 71% 58%;
     --editorial: 7 71% 58%;
     --editorial-hover: 7 55% 51%;
+
+    /* Redesign tokens */
+    --subtle-bg: #1e1e1e;
+    --text-primary: #e8e8e8;
+    --text-secondary: #888888;
+    --text-tertiary: #555555;
+    --border-default: #2a2a2a;
+    --border-strong: #404040;
+    --accent: #e05c4a;
+    --button-bg: #e8e8e8;
+    --button-text: #141414;
   }
 
   * {
-    @apply border-border;
+    @apply border-border-default;
   }
 
   html {
@@ -68,7 +90,7 @@
   }
 
   body {
-    @apply overflow-x-hidden bg-background text-foreground antialiased;
+    @apply overflow-x-hidden bg-background text-text-primary antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
@@ -105,7 +127,7 @@
   }
 
   .prose-editor {
-    color: hsl(var(--foreground));
+    color: var(--text-primary);
     font-family: var(--font-lora), Georgia, serif;
     font-size: 1rem;
     line-height: 1.65;
@@ -117,7 +139,7 @@
   }
 
   .prose-editor h2 {
-    border-left: 3px solid hsl(var(--editorial));
+    border-left: 3px solid var(--accent);
     font-family: var(--font-inter), system-ui, sans-serif;
     font-size: 1.375rem;
     font-weight: 700;
@@ -142,10 +164,10 @@
   }
 
   .prose-editor blockquote {
-    background: hsl(var(--muted));
-    border-left: 3px solid hsl(var(--input));
+    background: var(--subtle-bg);
+    border-left: 3px solid var(--border-strong);
     border-radius: 0 4px 4px 0;
-    color: hsl(var(--muted-foreground));
+    color: var(--text-secondary);
     font-style: italic;
     margin-bottom: 1.2em;
     margin-top: 1.2em;
@@ -160,7 +182,7 @@
   }
 
   .prose-editor p.is-editor-empty:first-child::before {
-    color: hsl(var(--muted-foreground));
+    color: var(--text-tertiary);
     content: attr(data-placeholder);
     float: left;
     height: 0;
@@ -168,11 +190,12 @@
   }
 
   .post-content {
-    color: hsl(var(--foreground));
+    color: var(--text-primary);
     font-family: var(--font-lora), Georgia, serif;
     font-size: 1rem;
     line-height: 1.75;
     max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   @media (min-width: 768px) {
@@ -193,7 +216,7 @@
   }
 
   .post-content h2 {
-    border-left: 3px solid hsl(var(--editorial));
+    border-left: 3px solid var(--accent);
     font-family: var(--font-inter), system-ui, sans-serif;
     font-size: 1.375rem;
     font-weight: 700;
@@ -212,20 +235,20 @@
 
   .post-content a {
     border-bottom: 1px solid transparent;
-    color: hsl(var(--editorial));
+    color: var(--accent);
     text-decoration: none;
     transition: border-color 150ms ease;
   }
 
   .post-content a:hover {
-    border-bottom-color: hsl(var(--editorial));
+    border-bottom-color: var(--accent);
   }
 
   .post-content blockquote {
-    background: hsl(var(--muted));
-    border-left: 3px solid hsl(var(--input));
+    background: var(--subtle-bg);
+    border-left: 3px solid var(--border-strong);
     border-radius: 0 4px 4px 0;
-    color: hsl(var(--muted-foreground));
+    color: var(--text-secondary);
     font-style: italic;
     margin-bottom: 2em;
     margin-top: 2em;
@@ -247,7 +270,7 @@
 
   .post-content figcaption,
   .post-content .media-caption {
-    color: hsl(var(--muted-foreground));
+    color: var(--text-tertiary);
     font-family: var(--font-inter), system-ui, sans-serif;
     font-size: 0.75rem;
     font-style: italic;
@@ -257,7 +280,7 @@
 
   .post-content hr {
     border: none;
-    border-top: 1px solid hsl(var(--border));
+    border-top: 1px solid var(--border-default);
     margin-bottom: 3em;
     margin-top: 3em;
     width: 40%;
@@ -305,7 +328,7 @@
   }
 
   .image-gallery__caption {
-    color: hsl(var(--muted-foreground));
+    color: var(--text-tertiary);
     font-size: 0.75rem;
     font-style: italic;
     margin-top: 0.5rem;
@@ -314,8 +337,8 @@
 
   .post-content pre,
   .ProseMirror pre {
-    background: hsl(var(--muted));
-    border: 1px solid hsl(var(--border));
+    background: var(--subtle-bg);
+    border: 1px solid var(--border-default);
     border-radius: 6px;
     font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
     font-size: 0.875rem;
@@ -337,8 +360,8 @@
 
   .post-content code:not(pre code),
   .ProseMirror code:not(pre code) {
-    background: hsl(var(--muted));
-    border: 1px solid hsl(var(--border));
+    background: var(--subtle-bg);
+    border: 1px solid var(--border-default);
     border-radius: 3px;
     font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
     font-size: 0.875em;

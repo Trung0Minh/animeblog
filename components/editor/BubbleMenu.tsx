@@ -20,7 +20,7 @@ function BubbleMenuButton({
     <button
       className={[
         "rounded p-1.5 text-sm transition-colors",
-        active ? "bg-primary/10 text-primary" : "hover:bg-muted",
+        active ? "bg-subtle-bg text-text-primary" : "text-text-secondary hover:bg-subtle-bg hover:text-text-primary",
       ].join(" ")}
       onMouseDown={(event) => {
         event.preventDefault()
@@ -54,7 +54,7 @@ export function BubbleMenuComponent({ editor }: { editor: Editor }) {
 
   return (
     <BubbleMenu
-      className="flex items-center gap-0.5 rounded-md border bg-background p-1 shadow-md"
+      className="flex items-center gap-0.5 rounded-md border border-border-default bg-background p-1 shadow-md"
       editor={editor}
       tippyOptions={{ duration: 100 }}
     >

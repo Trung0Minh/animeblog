@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Settings2 } from "lucide-react"
 import Link from "next/link"
 
 import { SaveStatusIndicator } from "@/components/editor/SaveStatusIndicator"
@@ -12,7 +12,9 @@ interface EditorTopBarProps {
   canSave: boolean
   exitHref: string
   isPending: boolean
+  isSettingsOpen?: boolean
   isPublished: boolean
+  onToggleSettings?: () => void
   onPublish: () => void
   onSaveDraft: () => void
   saveStatus: SaveStatus
@@ -24,7 +26,9 @@ export function EditorTopBar({
   canSave,
   exitHref,
   isPending,
+  isSettingsOpen = false,
   isPublished,
+  onToggleSettings,
   onPublish,
   onSaveDraft,
   saveStatus,
@@ -36,10 +40,10 @@ export function EditorTopBar({
     : "Add a title to enable saving and publishing."
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-[100] h-12 border-b bg-background px-5">
+    <header className="fixed left-0 right-0 top-0 z-[100] h-12 border-b border-border-default bg-background px-5">
       <div className="flex h-full items-center justify-between gap-3">
         <Link
-          className="group flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+          className="group flex items-center gap-1.5 text-text-secondary transition-colors hover:text-text-primary"
           href={exitHref}
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
@@ -51,22 +55,39 @@ export function EditorTopBar({
         <div className="absolute left-1/2 flex h-full -translate-x-1/2 items-center">
           <div className="flex min-w-[70px] justify-end">
             {isPending ? (
-              <span className="text-xs text-muted-foreground">Saving...</span>
+              <span className="text-xs text-text-tertiary">Saving...</span>
             ) : saveStatus === "idle" ? (
-              <span className="block max-w-[150px] truncate text-xs text-muted-foreground">
+              <span className="block max-w-[150px] truncate text-xs text-text-tertiary">
                 {statusText}
               </span>
             ) : (
               <SaveStatusIndicator status={saveStatus} />
             )}
           </div>
-          <div className="mx-3 hidden h-4 w-px bg-border md:block" />
-          <div className="hidden max-w-[280px] truncate text-[13px] text-muted-foreground md:block">
+          <div className="mx-3 hidden h-4 w-px bg-border-default md:block" />
+          <div className="hidden max-w-[280px] truncate text-[13px] text-text-tertiary md:block">
             {titlePreview?.trim() || "Untitled post"}
           </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
+          {onToggleSettings && (
+            <Button
+              aria-controls="post-settings-panel"
+              aria-expanded={isSettingsOpen}
+              aria-label={isSettingsOpen ? "Hide post settings" : "Post settings"}
+              className="h-8 px-2 md:px-3 lg:hidden"
+              onClick={onToggleSettings}
+              size="sm"
+              type="button"
+              variant={isSettingsOpen ? "default" : "outline"}
+            >
+              <Settings2 aria-hidden="true" className="h-4 w-4" />
+              <span className="hidden md:inline">
+                {isSettingsOpen ? "Hide settings" : "Post settings"}
+              </span>
+            </Button>
+          )}
           <Button
             className="h-8 px-2 md:px-3.5"
             disabled={actionsDisabled}

@@ -170,7 +170,7 @@ export function MediaUpload({
   return (
     <>
       <button
-        className="flex h-[30px] w-[30px] items-center justify-center rounded-[5px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
+        className="flex h-[30px] w-[30px] items-center justify-center rounded-[5px] text-text-secondary transition-colors hover:bg-subtle-bg hover:text-text-primary disabled:opacity-40"
         disabled={uploading}
         onMouseDown={(event) => {
           event.preventDefault()

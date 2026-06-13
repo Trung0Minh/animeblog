@@ -71,30 +71,30 @@ export function TableOfContents({ content }: TableOfContentsProps) {
     return () => observer.disconnect()
   }, [headings])
 
-  if (headings.length < 2) {
-    return null
-  }
-
   return (
-    <nav className="sticky top-24 text-sm" aria-label="Table of contents">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+    <nav className="sticky top-[80px] font-sans" aria-label="Table of contents">
+      <h4 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-text-tertiary">
         Contents
-      </p>
-      <ul className="space-y-1.5">
+      </h4>
+      <ul className="flex flex-col relative">
+        <div className="absolute left-0 top-0 bottom-0 w-px bg-border-default"></div>
         {headings.map(({ id, level, text }) => (
           <li
             key={id}
-            style={{ paddingLeft: `${Math.max(0, level - 2) * 12}px` }}
           >
             <a
               className={cn(
-                "block leading-snug transition-colors hover:text-foreground",
+                "py-1.5 text-[13px] relative flex items-center transition-colors",
                 activeId === id
-                  ? "font-medium text-editorial"
-                  : "text-muted-foreground",
+                  ? "font-medium text-accent"
+                  : "text-text-secondary hover:text-text-primary",
               )}
+              style={{ paddingLeft: `${Math.max(0, level - 2) * 12 + 8}px` }}
               href={`#${id}`}
             >
+              {activeId === id && (
+                <div className="absolute left-[-1px] top-0 bottom-0 w-[2px] bg-accent"></div>
+              )}
               {text}
             </a>
           </li>

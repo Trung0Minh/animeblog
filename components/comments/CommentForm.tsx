@@ -97,18 +97,18 @@ export function CommentForm({
           </p>
         )}
         {successMessage && (
-          <p className="rounded-[5px] bg-muted px-3 py-2 text-sm text-foreground">
+          <p className="rounded-[5px] bg-subtle-bg px-3 py-2 text-sm text-text-primary">
             {successMessage}
           </p>
         )}
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
             <label
-              className="text-[13px] font-medium"
+              className="text-[13px] font-medium text-text-primary"
               htmlFor={`${id}-comment-name`}
             >
-              Name
+              Name *
             </label>
             <Input
               autoComplete="name"
@@ -121,10 +121,10 @@ export function CommentForm({
           </div>
           <div className="space-y-1.5">
             <label
-              className="text-[13px] font-medium"
+              className="text-[13px] font-medium text-text-primary"
               htmlFor={`${id}-comment-email`}
             >
-              Email
+              Email *
             </label>
             <Input
               autoComplete="email"
@@ -135,50 +135,42 @@ export function CommentForm({
               type="email"
               value={authorEmail}
             />
-            <p className="text-xs text-muted-foreground">
-              Your email stays private. We only use it for replies.
+            <p className="text-[11px] text-text-tertiary">
+              Not shown publicly
             </p>
           </div>
         </div>
 
         <div className="space-y-1.5">
             <label
-            className="text-[13px] font-medium"
+            className="text-[13px] font-medium text-text-primary"
             htmlFor={`${id}-comment-content`}
           >
-            Comment
+            Comment *
           </label>
           <Textarea
             id={`${id}-comment-content`}
             maxLength={2000}
             minLength={1}
             onChange={(event) => setContent(event.target.value)}
-            placeholder={
-              parentId
-                ? "Add a direct reply to this comment..."
-                : "Share a close read, question, or counterpoint..."
-            }
             required
             rows={5}
             value={content}
           />
-          <p className="text-right text-xs text-muted-foreground">
-            {content.length}/2000
-          </p>
         </div>
 
-        <label className="flex items-start gap-2 text-[13px] text-muted-foreground">
-          <input
-            checked={notifyReply}
-            className="mt-1 h-4 w-4 rounded border-input accent-primary"
-            onChange={(event) => setNotifyReply(event.target.checked)}
-            type="checkbox"
-          />
-          Notify me by email when someone replies
-        </label>
+        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+          <label className="flex items-center gap-2 text-[13px] text-text-secondary">
+            <input
+              checked={notifyReply}
+              className="h-4 w-4 rounded border-border-strong accent-[var(--accent)]"
+              onChange={(event) => setNotifyReply(event.target.checked)}
+              type="checkbox"
+            />
+            Notify me by email when someone replies
+          </label>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Button className="w-full sm:w-auto" disabled={isSubmitting}>
+          <Button className="h-[38px] px-5 font-semibold" disabled={isSubmitting}>
             {isSubmitting
               ? "Posting..."
               : parentId
@@ -187,7 +179,7 @@ export function CommentForm({
           </Button>
           {onCancel && (
             <Button
-              className="w-full sm:w-auto"
+              className="h-[38px] px-5"
               onClick={onCancel}
               type="button"
               variant="outline"

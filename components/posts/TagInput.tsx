@@ -189,7 +189,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
 
   return (
     <div className="relative" ref={containerRef}>
-      <label className="mb-2 block text-xs font-semibold text-muted-foreground" htmlFor="post-tags">
+      <label className="mb-2 block text-xs font-semibold text-text-secondary" htmlFor="post-tags">
         Tags
       </label>
 
@@ -197,13 +197,13 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
         <div className="mb-2 flex flex-wrap gap-1.5">
           {selectedTags.map((tag) => (
             <span
-              className="inline-flex items-center gap-1.5 rounded-full border bg-muted px-3 py-1.5 text-[13px] text-muted-foreground"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border-default bg-subtle-bg px-3 py-1.5 text-[13px] text-text-secondary"
               key={tag.id}
             >
               {tag.name}
               <button
                 aria-label={`Remove ${tag.name}`}
-                className="-m-1.5 inline-flex items-center justify-center rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="-m-1.5 inline-flex items-center justify-center rounded-full p-1.5 text-text-tertiary transition-colors hover:bg-background hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() =>
                   onChange(
                     selectedTags.filter(
@@ -224,7 +224,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
         <input
           aria-label="Tags"
           autoComplete="off"
-          className="h-[34px] w-full rounded-[5px] border bg-background px-2.5 py-2 text-[13px] outline-none transition-colors focus:border-editorial"
+          className="h-[34px] w-full rounded-[5px] border border-border-default bg-background px-2.5 py-2 text-[13px] text-text-primary outline-none transition-colors placeholder:text-text-tertiary focus:border-accent"
           id="post-tags"
           onChange={(event) => {
             const nextQuery = event.target.value
@@ -264,16 +264,16 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
         {loading && (
           <Loader2
             aria-hidden="true"
-            className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-muted-foreground"
+            className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-text-tertiary"
           />
         )}
       </div>
 
       {open && query.trim() && (
-        <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-[5px] border bg-background shadow-md">
+        <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-[5px] border border-border-default bg-background shadow-md">
           {suggestions.map((tag) => (
             <button
-              className="block w-full px-3 py-2 text-left text-[13px] transition-colors hover:bg-muted"
+              className="block w-full px-3 py-2 text-left text-[13px] text-text-primary transition-colors hover:bg-subtle-bg"
               key={tag.id}
               onClick={() => addTag(tag)}
               type="button"
@@ -284,7 +284,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
 
           {!exactMatch && (
             <button
-              className="flex w-full items-center gap-1.5 border-t px-3 py-2 text-left text-[13px] text-editorial transition-colors hover:bg-muted disabled:opacity-50"
+              className="flex w-full items-center gap-1.5 border-t border-border-default px-3 py-2 text-left text-[13px] text-accent transition-colors hover:bg-subtle-bg disabled:opacity-50"
               disabled={creating}
               onClick={() => void createTag()}
               type="button"
@@ -305,7 +305,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
           {error}
         </p>
       )}
-      <p className="mt-1 text-xs text-muted-foreground">
+      <p className="mt-1 text-xs text-text-tertiary">
         Search existing tags or create a new one inline.
       </p>
     </div>

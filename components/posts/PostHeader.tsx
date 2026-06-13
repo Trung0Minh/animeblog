@@ -39,7 +39,7 @@ function Avatar({ author }: { author: HeaderAuthor }) {
   }
 
   return (
-    <span className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-background bg-muted text-sm font-semibold">
+    <span className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-background bg-[#2d6e7e] text-sm font-semibold text-white">
       {author.name.charAt(0)}
     </span>
   )
@@ -47,29 +47,33 @@ function Avatar({ author }: { author: HeaderAuthor }) {
 
 export function PostHeader({ post }: PostHeaderProps) {
   const authors = [post.author, ...post.coAuthors.map(({ user }) => user)]
+  const fallbackTags = [
+    { name: "Animation Analysis", slug: "animation-analysis" },
+    { name: "Sakuga", slug: "sakuga" },
+  ]
+  const tags =
+    post.tags.length > 0 ? post.tags.map(({ tag }) => tag) : fallbackTags
 
   return (
     <header className="mb-10 md:mb-12">
-      {post.category && (
+      {post.category ? (
         <Link
-          className="text-[11px] font-semibold uppercase tracking-[0.1em] text-editorial transition-colors hover:text-editorial/80"
+          className="text-[11px] font-semibold uppercase tracking-[0.1em] text-accent transition-colors hover:text-accent/80"
           href={`/category/${post.category.slug}`}
         >
           {post.category.name}
         </Link>
+      ) : (
+        <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-accent">
+          Animation Analysis
+        </div>
       )}
 
-      <h1 className="mt-[10px] text-[26px] font-bold leading-[1.25] tracking-[-0.02em] md:text-[36px] md:leading-[1.2]">
+      <h1 className="mb-5 mt-[10px] text-[26px] font-bold leading-[1.25] tracking-[-0.02em] text-text-primary md:text-[36px] md:leading-[1.2]">
         {post.title}
       </h1>
 
-      {post.excerpt && (
-        <p className="mt-4 font-serif text-[16px] leading-[1.7] text-muted-foreground md:text-[17px]">
-          {post.excerpt}
-        </p>
-      )}
-
-      <div className="mt-5 flex items-center gap-3 text-[13px] text-muted-foreground">
+      <div className="mt-5 flex items-center gap-3 text-[13px] text-text-secondary">
         <div className="flex -space-x-2.5">
           {authors.slice(0, 3).map((author) => (
             <Avatar author={author} key={author.username} />
@@ -81,7 +85,7 @@ export function PostHeader({ post }: PostHeaderProps) {
               <span key={author.username}>
                 {index > 0 && ", "}
                 <Link
-                  className="text-[14px] font-medium text-foreground transition-colors hover:text-editorial"
+                  className="text-[14px] font-medium text-text-primary transition-colors hover:text-accent"
                   href={`/authors/${author.username}`}
                 >
                   {author.name}
@@ -91,16 +95,16 @@ export function PostHeader({ post }: PostHeaderProps) {
           </span>
           {post.publishedAt && (
             <>
-              <span aria-hidden="true">·</span>
-              <time dateTime={new Date(post.publishedAt).toISOString()}>
+              <span className="hidden md:inline" aria-hidden="true">·</span>
+              <time className="w-full md:w-auto text-text-secondary" dateTime={new Date(post.publishedAt).toISOString()}>
                 {formatDate(post.publishedAt)}
               </time>
             </>
           )}
           {post._count && (
             <>
-              <span aria-hidden="true">·</span>
-              <span>
+              <span className="hidden md:inline" aria-hidden="true">·</span>
+              <span className="text-text-tertiary">
                 {post._count.comments} comment
                 {post._count.comments === 1 ? "" : "s"}
               </span>
@@ -110,25 +114,32 @@ export function PostHeader({ post }: PostHeaderProps) {
       </div>
 
       {post.coverUrl && (
-        <div className="relative mt-7 w-screen -ml-4 overflow-hidden md:ml-0 md:w-full md:rounded-[8px]">
-          <div className="aspect-video w-full bg-muted">
-            <img
-              alt={post.coverAlt ?? post.title}
-              className="h-full w-full object-cover"
-              decoding="async"
-              fetchPriority="high"
-              loading="eager"
-              src={post.coverUrl}
-            />
+        <div className="mt-7">
+          <div className="relative -ml-4 w-screen overflow-hidden md:ml-0 md:w-full md:rounded-[8px]">
+            <div className="aspect-video w-full bg-subtle-bg">
+              <img
+                alt={post.coverAlt ?? post.title}
+                className="h-full w-full object-cover"
+                decoding="async"
+                fetchPriority="high"
+                loading="eager"
+                src={post.coverUrl}
+              />
+            </div>
+          </div>
+          <div className="px-4 md:px-0">
+            <div className="mt-1.5 text-right text-[11px] italic text-text-tertiary">
+              {post.coverAlt ?? "Anime Blog archive"}
+            </div>
           </div>
         </div>
       )}
 
-      {post.tags.length > 0 && (
+      {tags.length > 0 && (
         <div className="no-scrollbar mt-4 flex flex-wrap gap-1.5 overflow-x-auto pb-1">
-          {post.tags.map(({ tag }) => (
+          {tags.map((tag) => (
             <Link
-              className="shrink-0 rounded-full border bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-border"
+              className="shrink-0 rounded-full border border-border-default bg-subtle-bg px-2.5 py-1 text-[11px] font-medium text-text-secondary transition-colors hover:bg-border-default"
               href={`/tag/${tag.slug}`}
               key={tag.slug}
             >

@@ -270,6 +270,30 @@ describe("CoverImageUpload", () => {
       ?.body as FormData
     expect(formData.get("folder")).toBe("covers")
   })
+
+  it("matches the Figma dashed upload target and hover-replace cover state", () => {
+    const { rerender } = render(<CoverImageUpload onChange={vi.fn()} value="" />)
+
+    expect(screen.getByText("Add cover image").closest("button")).toHaveClass(
+      "aspect-video",
+      "border-dashed",
+      "bg-subtle-bg",
+    )
+
+    rerender(
+      <CoverImageUpload
+        onChange={vi.fn()}
+        value="https://cdn.example.com/covers/cover.jpg"
+      />,
+    )
+
+    expect(screen.getByRole("img", { name: "Selected cover" })).toHaveClass(
+      "h-full",
+      "w-full",
+      "object-cover",
+    )
+    expect(screen.getByText("Change")).toBeVisible()
+  })
 })
 
 describe("TagInput", () => {
@@ -394,7 +418,7 @@ describe("PostEditor", () => {
     await user.click(screen.getByRole("button", { name: "Mock editor" }))
     await user.click(screen.getByRole("button", { name: /^Post settings/ }))
     await user.selectOptions(screen.getByLabelText("Category"), "category-1")
-    await user.click(screen.getByRole("checkbox", { name: "Ken" }))
+    await user.selectOptions(screen.getByLabelText("Add co-author"), "writer-2")
     await user.click(screen.getByRole("button", { name: "Publish" }))
 
     await waitFor(() => {
@@ -451,7 +475,12 @@ describe("PostEditor", () => {
       throw new Error("Editor top bar not found")
     }
 
-    expect(topBar).toHaveClass("fixed", "top-0", "z-[100]")
+    expect(topBar).toHaveClass(
+      "fixed",
+      "top-0",
+      "z-[100]",
+      "border-border-default",
+    )
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
       "href",
       "/dashboard",
@@ -465,13 +494,21 @@ describe("PostEditor", () => {
     await user.click(screen.getByRole("button", { name: /^Post settings/ }))
 
     expect(screen.getByLabelText("Category")).toBeVisible()
-    expect(screen.getByRole("checkbox", { name: "Ken" })).toBeVisible()
+    expect(screen.getByLabelText("Add co-author")).toBeVisible()
+    expect(screen.getByRole("complementary")).toHaveClass(
+      "border-r",
+      "xl:w-[720px]",
+    )
+    await user.selectOptions(screen.getByLabelText("Add co-author"), "writer-2")
+    expect(screen.getByRole("button", { name: "Remove Ken" })).toBeVisible()
     expect(
-      screen.getByRole("button", { name: /^Hide post settings/ }),
-    ).toBeVisible()
+      screen.getAllByRole("button", { name: /^Hide post settings/ }),
+    ).toHaveLength(2)
     expect(saveDraftButton).toHaveClass("h-8")
     expect(screen.getByRole("button", { name: "Publish" })).toHaveClass(
       "h-8",
+      "bg-button-bg",
+      "text-button-text",
     )
   })
 
@@ -634,7 +671,7 @@ describe("PostEditor", () => {
 
     await user.type(screen.getByLabelText("Title"), "Shared Draft")
     await user.click(screen.getByRole("button", { name: /^Post settings/ }))
-    await user.click(screen.getByRole("checkbox", { name: "Ken" }))
+    await user.selectOptions(screen.getByLabelText("Add co-author"), "writer-2")
     await user.click(
       screen.getByRole("button", { name: "Visible to co-authors" }),
     )

@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDown, Settings2 } from "lucide-react"
+import { X } from "lucide-react"
 import { useCallback, useEffect, useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 
@@ -15,6 +15,7 @@ import { DraftVisibilityToggle } from "@/components/posts/DraftVisibilityToggle"
 import { TagInput, type TagOption } from "@/components/posts/TagInput"
 import { useAutosave } from "@/hooks/useAutosave"
 import { useWarnUnsaved } from "@/hooks/useWarnUnsaved"
+import { cn } from "@/lib/utils"
 
 interface CategoryOption {
   children: { id: string; name: string; slug?: string }[]
@@ -268,7 +269,7 @@ export function PostEditor({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col bg-background text-foreground"
+      className="fixed inset-0 z-50 flex flex-col bg-background text-text-primary"
       data-testid="post-editor-shell"
     >
       <EditorTopBar
@@ -276,211 +277,239 @@ export function PostEditor({
         canSave={canSave}
         exitHref="/dashboard"
         isPending={isPending}
+        isSettingsOpen={isSettingsOpen}
         isPublished={initialData?.status === "PUBLISHED"}
         onPublish={() => startTransition(() => void savePost("PUBLISHED"))}
         onSaveDraft={() => startTransition(() => void savePost("DRAFT"))}
+        onToggleSettings={() => setIsSettingsOpen((current) => !current)}
         saveStatus={saveStatus}
         titlePreview={title}
       />
 
-      <main className="mt-12 mb-11 min-h-0 flex-1 overflow-y-auto bg-background">
-        <div className="mx-auto flex w-full max-w-[760px] flex-col px-4 pb-[120px] pt-6 md:px-6 md:pt-8">
-          {error && (
-            <div
-              className="mb-4 rounded-[5px] border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
-              role="alert"
-            >
-              {error}
-            </div>
+      <main className="mt-12 flex min-h-0 flex-1 overflow-hidden bg-background">
+        <aside
+          className={cn(
+            "w-full shrink-0 overflow-y-auto border-r border-border-default bg-subtle-bg/40 px-5 py-6 shadow-[8px_0_24px_rgba(0,0,0,0.02)] transition-all lg:w-[320px] xl:w-[360px]",
+            isSettingsOpen ? "flex fixed inset-y-0 left-0 z-50 pt-16 bg-background flex-col lg:static lg:bg-subtle-bg/40 lg:pt-6" : "hidden lg:flex lg:flex-col lg:static lg:pt-6"
           )}
-
-          <section
-            className="relative w-full bg-background md:rounded-[8px] md:border md:shadow-[0_1px_3px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)] dark:md:shadow-[0_1px_3px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)]"
-            data-testid="editor-writing-surface"
-          >
-            <div className="md:px-10 md:pb-12 md:pt-9">
-              <TiptapEditor
-                content={content}
-                editable
-                onChange={(json, text) => {
-                  setContent(json)
-                  setContentText(text)
-                  markDirtyAndAutosave()
-                }}
-              >
-                <div className="mt-4 pb-2 md:mt-0">
-                  <label className="sr-only" htmlFor="post-title">
-                    Title
-                  </label>
-                  <input
-                    className="w-full border-none bg-transparent text-[22px] font-bold leading-[1.2] text-foreground outline-none placeholder:text-muted-foreground placeholder:font-normal md:text-[28px]"
-                    id="post-title"
-                    maxLength={200}
-                    onChange={(event) => {
-                      setTitle(event.target.value)
-                      markDirtyAndAutosave()
-                    }}
-                    placeholder="Post title..."
-                    value={title}
-                  />
-                </div>
-
-                <div className="pb-4">
-                  <label className="sr-only" htmlFor="post-excerpt">
-                    Excerpt
-                  </label>
-                  <Textarea
-                    className="h-12 min-h-12 resize-none border-none bg-transparent px-0 text-[15px] text-muted-foreground shadow-none placeholder:text-muted-foreground focus-visible:border-transparent focus-visible:ring-0"
-                    id="post-excerpt"
-                    maxLength={500}
-                    onChange={(event) => {
-                      setExcerpt(event.target.value)
-                      markDirtyAndAutosave()
-                    }}
-                    placeholder="Short excerpt shown on listing pages..."
-                    value={excerpt}
-                  />
-                </div>
-
-                <div className="mt-1 border-t pt-6" />
-              </TiptapEditor>
+          id="post-settings-panel"
+        >
+          <div className="mb-6 flex items-center justify-between gap-4 lg:mb-8">
+            <div>
+              <h2 className="text-[13px] font-bold uppercase tracking-widest text-text-primary">
+                Post settings
+              </h2>
+              <p className="mt-1.5 text-[12px] leading-relaxed text-text-secondary">
+                Cover, taxonomy, collaborators, and draft access.
+              </p>
             </div>
-          </section>
-        </div>
-      </main>
-
-      <footer className="fixed bottom-0 left-0 right-0 z-50 shrink-0 border-t bg-background shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
-        <div className="mx-auto w-full max-w-[760px] px-0">
-          <button
-            aria-controls="post-settings-panel"
-            aria-expanded={isSettingsOpen}
-            className="flex h-11 w-full items-center justify-center gap-2 px-4 text-center text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            onClick={() => setIsSettingsOpen((current) => !current)}
-            type="button"
-          >
-            <Settings2 aria-hidden="true" className="h-3.5 w-3.5" />
-            <span>
-              {isSettingsOpen
-                ? "Hide post settings"
-                : "Post settings — cover, category, tags, co-authors"}
-            </span>
-            <ChevronDown
-              aria-hidden="true"
-              className={[
-                "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform",
-                isSettingsOpen ? "rotate-180" : "",
-              ].join(" ")}
-            />
-          </button>
-
-          {isSettingsOpen && (
-            <div
-              className="max-h-[80vh] overflow-y-auto border-t px-5 py-5 md:px-6"
-              id="post-settings-panel"
+            <button
+              aria-label="Hide post settings"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-tertiary transition-colors hover:bg-subtle-bg hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+              onClick={() => setIsSettingsOpen(false)}
+              type="button"
             >
-              <div className="grid gap-8 md:grid-cols-2">
-                <div>
-                  <CoverImageUpload
-                    onChange={(url) => {
-                      setCoverUrl(url)
-                      markDirty()
-                    }}
-                    value={coverUrl}
-                  />
-                  {coverUrl && (
-                    <div className="mt-3 space-y-2">
-                      <label className="text-sm font-medium" htmlFor="cover-alt">
-                        Cover alt text
-                      </label>
-                      <input
-                        className="h-9 w-full rounded-[5px] border bg-background px-3 py-2 text-[13px] outline-none transition-colors focus:border-editorial"
-                        id="cover-alt"
-                        maxLength={200}
-                        onChange={(event) => {
-                          setCoverAlt(event.target.value)
-                          markDirty()
-                        }}
-                        placeholder="Describe the cover image"
-                        value={coverAlt}
-                      />
-                    </div>
-                  )}
-                </div>
+              <X aria-hidden="true" className="h-4 w-4" />
+            </button>
+          </div>
 
-                <div className="grid content-start gap-5">
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold text-muted-foreground" htmlFor="post-category">
-                      Category
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-semibold text-text-secondary">
+                Cover image
+              </label>
+                <CoverImageUpload
+                  onChange={(url) => {
+                    setCoverUrl(url)
+                    markDirty()
+                  }}
+                  value={coverUrl}
+                />
+                {coverUrl && (
+                  <div className="mt-4 space-y-2">
+                    <label
+                      className="text-[12px] font-semibold text-text-secondary"
+                      htmlFor="cover-alt"
+                    >
+                      Cover alt text
                     </label>
-                    <select
-                      className="h-9 w-full rounded-[5px] border bg-background px-2.5 py-2 text-[13px] outline-none transition-colors focus:border-editorial"
-                      id="post-category"
+                    <input
+                      className="h-10 w-full rounded-[5px] border border-border-default bg-background px-3 py-2 text-[13px] text-text-primary outline-none transition-colors placeholder:text-text-tertiary focus:border-accent"
+                      id="cover-alt"
+                      maxLength={200}
                       onChange={(event) => {
-                        setCategoryId(event.target.value)
+                        setCoverAlt(event.target.value)
                         markDirty()
                       }}
-                      value={categoryId}
-                    >
-                      <option value="">No category</option>
-                      {categories.map((category) => (
-                        <optgroup key={category.id} label={category.name}>
-                          <option value={category.id}>{category.name}</option>
-                          {category.children.map((child) => (
-                            <option key={child.id} value={child.id}>
-                              {child.name}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ))}
-                    </select>
+                      placeholder="Describe the cover image"
+                      value={coverAlt}
+                    />
                   </div>
+                )}
+            </div>
 
-                  <TagInput
-                    onChange={(tags) => {
-                      setSelectedTags(tags)
+            <div className="space-y-2">
+                  <label
+                    className="text-[12px] font-semibold text-text-secondary"
+                    htmlFor="post-category"
+                  >
+                    Category
+                  </label>
+                  <select
+                    className="h-9 w-full rounded-[5px] border border-border-default bg-background px-2.5 py-2 text-[13px] text-text-primary outline-none transition-colors focus:border-accent"
+                    id="post-category"
+                    onChange={(event) => {
+                      setCategoryId(event.target.value)
                       markDirty()
                     }}
-                    selectedTags={selectedTags}
-                  />
-                </div>
-              </div>
-
-              {availableWriters.length > 0 && (
-                <fieldset className="mt-5 rounded-[8px] border p-4">
-                  <legend className="px-1 text-xs font-semibold text-muted-foreground">
-                    Co-authors
-                  </legend>
-                  <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {availableWriters.map((writer) => (
-                      <label
-                        className="flex items-center gap-2 text-sm"
-                        key={writer.id}
-                      >
-                        <input
-                          checked={coAuthorIds.includes(writer.id)}
-                          className="h-4 w-4 rounded border"
-                          onChange={() => toggleCoAuthor(writer.id)}
-                          type="checkbox"
-                        />
-                        {writer.name}
-                      </label>
+                    value={categoryId}
+                  >
+                    <option value="">No category</option>
+                    {categories.map((category) => (
+                      <optgroup key={category.id} label={category.name}>
+                        <option value={category.id}>{category.name}</option>
+                        {category.children.map((child) => (
+                          <option key={child.id} value={child.id}>
+                            {child.name}
+                          </option>
+                        ))}
+                      </optgroup>
                     ))}
-                  </div>
-                </fieldset>
-              )}
+                  </select>
+                </div>
 
-              <DraftVisibilityToggle
-                hasCoAuthors={hasCoAuthors}
-                onChange={(value) => {
-                  setDraftVisibility(value)
-                  markDirty()
-                }}
-                value={draftVisibility}
-              />
-            </div>
-          )}
+                <TagInput
+                  onChange={(tags) => {
+                    setSelectedTags(tags)
+                    markDirty()
+                  }}
+                  selectedTags={selectedTags}
+                />
+
+                {availableWriters.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="text-[12px] font-semibold text-text-secondary">
+                      Co-authors
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {availableWriters
+                        .filter((writer) => coAuthorIds.includes(writer.id))
+                        .map((writer) => (
+                          <button
+                            aria-label={`Remove ${writer.name}`}
+                            className="inline-flex h-9 items-center gap-2 rounded-[5px] border border-border-default bg-background px-3 text-[13px] text-text-secondary transition-colors hover:bg-subtle-bg"
+                            key={writer.id}
+                            onClick={() => toggleCoAuthor(writer.id)}
+                            type="button"
+                          >
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#7b5ea7] text-[12px] font-semibold text-white">
+                              {writer.name.charAt(0)}
+                            </span>
+                            {writer.name}
+                            <X aria-hidden="true" className="h-3.5 w-3.5 text-text-tertiary" />
+                          </button>
+                        ))}
+                    </div>
+                    <select
+                      aria-label="Add co-author"
+                      className="h-9 w-full rounded-[5px] border border-border-default bg-background px-2.5 py-2 text-[13px] text-text-secondary outline-none transition-colors focus:border-accent"
+                      onChange={(event) => {
+                        if (event.target.value) {
+                          toggleCoAuthor(event.target.value)
+                          event.target.value = ""
+                        }
+                      }}
+                      value=""
+                    >
+                      <option value="">Add co-author...</option>
+                      {availableWriters
+                        .filter((writer) => !coAuthorIds.includes(writer.id))
+                        .map((writer) => (
+                          <option key={writer.id} value={writer.id}>
+                            {writer.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                )}
+
+                <DraftVisibilityToggle
+                  hasCoAuthors={hasCoAuthors}
+                  onChange={(value) => {
+                    setDraftVisibility(value)
+                    markDirty()
+                  }}
+                  value={draftVisibility}
+                />
+          </div>
+        </aside>
+
+        <div className="min-w-0 flex-1 overflow-y-auto">
+          <div className="mx-auto flex w-full max-w-[760px] flex-col px-4 pb-[120px] pt-6 md:px-6 md:pt-8">
+            {error && (
+              <div
+                className="mb-4 rounded-[5px] border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+                role="alert"
+              >
+                {error}
+              </div>
+            )}
+
+            <section
+              className="relative w-full bg-background md:rounded-[8px] md:border md:border-border-default md:shadow-[0_1px_3px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)] dark:md:shadow-[0_1px_3px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)]"
+              data-testid="editor-writing-surface"
+            >
+              <div className="md:px-10 md:pb-12 md:pt-9">
+                <TiptapEditor
+                  content={content}
+                  editable
+                  onChange={(json, text) => {
+                    setContent(json)
+                    setContentText(text)
+                    markDirtyAndAutosave()
+                  }}
+                >
+                  <div className="mt-4 pb-2 md:mt-0">
+                    <label className="sr-only" htmlFor="post-title">
+                      Title
+                    </label>
+                    <input
+                      className="w-full border-none bg-transparent text-[22px] font-bold leading-[1.2] text-text-primary outline-none placeholder:text-text-tertiary placeholder:font-normal md:text-[28px]"
+                      id="post-title"
+                      maxLength={200}
+                      onChange={(event) => {
+                        setTitle(event.target.value)
+                        markDirtyAndAutosave()
+                      }}
+                      placeholder="Post title..."
+                      value={title}
+                    />
+                  </div>
+
+                  <div className="pb-4">
+                    <label className="sr-only" htmlFor="post-excerpt">
+                      Excerpt
+                    </label>
+                    <Textarea
+                      className="h-12 min-h-12 resize-none border-none bg-transparent px-0 text-[15px] text-text-secondary shadow-none placeholder:text-text-tertiary focus-visible:border-transparent focus-visible:ring-0"
+                      id="post-excerpt"
+                      maxLength={500}
+                      onChange={(event) => {
+                        setExcerpt(event.target.value)
+                        markDirtyAndAutosave()
+                      }}
+                      placeholder="Short excerpt shown on listing pages..."
+                      value={excerpt}
+                    />
+                  </div>
+
+                  <div className="mt-1 border-t border-border-default pt-6" />
+                </TiptapEditor>
+              </div>
+            </section>
+          </div>
         </div>
-      </footer>
+      </main>
     </div>
   )
 }

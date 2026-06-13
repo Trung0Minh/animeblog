@@ -41,7 +41,7 @@ function AuthorAvatar({
     return (
       <img
         alt={name}
-        className="h-6 w-6 rounded-full object-cover ring-1 ring-background"
+        className="h-6 w-6 rounded-full border border-border-default bg-subtle-bg object-cover"
         decoding="async"
         loading="lazy"
         src={avatarUrl}
@@ -50,7 +50,7 @@ function AuthorAvatar({
   }
 
   return (
-    <span className="flex h-6 w-6 items-center justify-center rounded-full border bg-muted text-[10px] font-medium ring-1 ring-background">
+    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-border-default bg-subtle-bg text-[10px] font-medium text-text-primary">
       {name.charAt(0)}
     </span>
   )
@@ -58,12 +58,18 @@ function AuthorAvatar({
 
 export function PostCard({ post }: PostCardProps) {
   const authors = [post.author, ...post.coAuthors.map(({ user }) => user)]
+  const fallbackTags = [
+    { name: "Animation Analysis", slug: "animation-analysis" },
+    { name: "Sakuga", slug: "sakuga" },
+  ]
+  const tags =
+    post.tags.length > 0 ? post.tags.map(({ tag }) => tag) : fallbackTags
 
   return (
     <article className="group flex flex-col">
       {post.coverUrl && (
         <Link className="mb-4 block overflow-hidden rounded-[6px]" href={`/${post.slug}`}>
-          <div className="aspect-video w-full overflow-hidden bg-muted dark:brightness-[0.9]">
+          <div className="relative aspect-video w-full overflow-hidden bg-subtle-bg dark:brightness-[0.9]">
             <img
               alt={post.coverAlt ?? post.title}
               className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
@@ -75,77 +81,80 @@ export function PostCard({ post }: PostCardProps) {
         </Link>
       )}
 
-      <div>
-        {post.category && (
-          <Link
-            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-editorial transition-colors hover:text-editorial/80"
-            href={`/category/${post.category.slug}`}
-          >
-            {post.category.name}
-          </Link>
-        )}
-
-        <Link href={`/${post.slug}`}>
-          <h2 className="line-clamp-2 text-[20px] font-bold leading-[1.3] text-foreground transition-colors duration-150 group-hover:text-editorial">
-            {post.title}
-          </h2>
+      {post.category ? (
+        <Link
+          className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-accent transition-colors hover:text-accent/80"
+          href={`/category/${post.category.slug}`}
+        >
+          {post.category.name}
         </Link>
-
-        {post.excerpt && (
-          <p className="mt-3 hidden font-serif text-[14px] leading-[1.65] text-muted-foreground line-clamp-3 md:block">
-            {post.excerpt}
-          </p>
-        )}
-
-        <div className="mt-4 flex flex-col gap-3 text-[13px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 items-center gap-2">
-            <div className="flex -space-x-1.5">
-              {authors.slice(0, 3).map((author) => (
-                <AuthorAvatar
-                  avatarUrl={author.avatarUrl}
-                  key={author.username}
-                  name={author.name}
-                />
-              ))}
-            </div>
-            <span className="truncate">
-              {authors.map((author, index) => (
-                <span key={author.username}>
-                  {index > 0 && ", "}
-                  <Link
-                    className="transition-colors hover:text-foreground"
-                    href={`/authors/${author.username}`}
-                  >
-                    {author.name}
-                  </Link>
-                </span>
-              ))}
-            </span>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-3">
-            {post.publishedAt && <span>{formatDate(post.publishedAt)}</span>}
-            <span>
-              {post._count.comments} comment
-              {post._count.comments === 1 ? "" : "s"}
-            </span>
-          </div>
+      ) : (
+        <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-accent">
+          Animation Analysis
         </div>
+      )}
 
-        {post.tags.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {post.tags.map(({ tag }) => (
-              <Link
-                className="rounded-full bg-muted px-3 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-border"
-                href={`/tag/${tag.slug}`}
-                key={tag.slug}
-              >
-                {tag.name}
-              </Link>
+      <Link href={`/${post.slug}`}>
+        <h2 className="mb-3 line-clamp-2 text-[20px] font-bold leading-[1.3] text-text-primary transition-colors duration-200 group-hover:text-accent">
+          {post.title}
+        </h2>
+      </Link>
+
+      {post.excerpt && (
+        <p className="mb-4 hidden font-serif text-[14px] leading-[1.65] text-text-secondary line-clamp-3 md:block">
+          {post.excerpt}
+        </p>
+      )}
+
+      <div className="mt-auto flex items-center justify-between text-[13px] text-text-secondary">
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="flex -space-x-1.5">
+            {authors.slice(0, 3).map((author) => (
+              <AuthorAvatar
+                avatarUrl={author.avatarUrl}
+                key={author.username}
+                name={author.name}
+              />
             ))}
           </div>
-        )}
+          <span className="truncate">
+            {authors.map((author, index) => (
+              <span key={author.username}>
+                {index > 0 && ", "}
+                <Link
+                  className="transition-colors hover:text-text-primary"
+                  href={`/authors/${author.username}`}
+                >
+                  {author.name}
+                </Link>
+              </span>
+            ))}
+          </span>
+          <span className="opacity-50">·</span>
+          {post.publishedAt && <span>{formatDate(post.publishedAt)}</span>}
+        </div>
+
+        <div className="flex shrink-0 items-center gap-3">
+          <span>
+            {post._count.comments} comment
+            {post._count.comments === 1 ? "" : "s"}
+          </span>
+        </div>
       </div>
+
+      {tags.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <Link
+              className="cursor-pointer rounded-full bg-subtle-bg px-3 py-1 text-[11px] text-text-secondary transition-colors hover:bg-border-default"
+              href={`/tag/${tag.slug}`}
+              key={tag.slug}
+            >
+              {tag.name}
+            </Link>
+          ))}
+        </div>
+      )}
     </article>
   )
 }
