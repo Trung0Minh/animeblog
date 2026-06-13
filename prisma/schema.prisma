@@ -341,3 +341,14 @@ model AnalyticsDailySession {
   @@unique([day, sessionHash])
   @@map("analytics_daily_sessions")
 }
+
+model SitePage {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  content     Json
+  contentText String?  @db.Text
+  updatedAt   DateTime @updatedAt
+
+  @@map("site_pages")
+}

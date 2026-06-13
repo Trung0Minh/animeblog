@@ -2,7 +2,10 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { PageContainer } from "@/components/layout/PageContainer"
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 import { buildMetadata, getAppName } from "@/lib/seo"
+import { AboutClient } from "./AboutClient"
 
 const PUBLISHING_NOTES = [
   {
@@ -29,8 +32,14 @@ export async function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
   const appName = getAppName()
+  const session = await auth()
+  const isAdmin = session?.user?.role === "ADMIN"
+
+  const page = await prisma.sitePage.findUnique({
+    where: { slug: "about" },
+  })
 
   return (
     <PageContainer>
@@ -41,14 +50,7 @@ export default function AboutPage() {
         <h1 className="max-w-3xl text-balance text-[32px] font-bold leading-tight tracking-tight md:text-[40px]">
           {appName} là một nơi yên tĩnh dành cho những bài viết nghiêm túc về hoạt hình Nhật Bản.
         </h1>
-        <div className="mt-6 grid gap-5 font-serif text-lg leading-relaxed text-muted-foreground sm:grid-cols-[1.2fr_0.8fr]">
-          <p>
-            Ấn phẩm này được xây dựng dành cho các bài tiểu luận, bài phê bình và ghi chú cần không gian để phân tích sâu. Trọng tâm không phải là các cuộc thảo luận hàng ngày hay chấm điểm nhanh chóng. Mà là sự chú ý kỹ lưỡng: một cảnh phim đang thể hiện điều gì, nó được thực hiện như thế nào và tại sao những lựa chọn đó lại quan trọng.
-          </p>
-          <p>
-            Các tác giả tham gia theo lời mời để trang web có thể duy trì quy mô nhỏ, có chủ đích và được biên tập theo một tiêu chuẩn chung cho các bài phê bình anime dài kỳ.
-          </p>
-        </div>
+        <AboutClient initialPage={page} isAdmin={isAdmin} appName={appName} />
       </section>
 
       <section className="py-10">
