@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
     canonicalPath: "/contributors",
     description: `Meet the writers behind ${getAppName()}.`,
-    title: "Contributors",
+    title: "Người đóng góp",
   })
 }
 
@@ -20,12 +20,11 @@ export default async function ContributorsPage() {
     <PageContainer>
       <section className="mb-10 border-b pb-8">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
-          Contributors
+          Người đóng góp
         </p>
-        <h1 className="text-[32px] font-bold leading-tight tracking-tight">Writers</h1>
+        <h1 className="text-[32px] font-bold leading-tight tracking-tight">Tác giả</h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          People invited to write analysis, reviews, and production notes for
-          this publication.
+          Những người được mời viết phân tích, đánh giá và ghi chú sản xuất cho ấn phẩm này.
         </p>
       </section>
 
@@ -52,8 +51,7 @@ export default async function ContributorsPage() {
             <span>
               <span className="block font-semibold">{contributor.name}</span>
               <span className="mt-0.5 block text-sm text-muted-foreground">
-                @{contributor.username} · {contributor._count.posts} post
-                {contributor._count.posts === 1 ? "" : "s"}
+                @{contributor.username} · {contributor._count.posts} bài viết
               </span>
               {contributor.bio && (
                 <span className="mt-2 line-clamp-2 block text-sm leading-relaxed text-muted-foreground">

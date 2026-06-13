@@ -14,18 +14,18 @@ const messages: Record<
   { body: string; heading: string; tone: string }
 > = {
   already: {
-    body: "This address is not currently subscribed to newsletter emails.",
-    heading: "Already unsubscribed",
+    body: "Địa chỉ này hiện không đăng ký nhận email bản tin.",
+    heading: "Đã hủy đăng ký",
     tone: "border-muted bg-muted/30",
   },
   invalid: {
-    body: "This unsubscribe link is not valid. It may have expired or been copied incorrectly.",
-    heading: "Invalid link",
+    body: "Liên kết hủy đăng ký này không hợp lệ. Nó có thể đã hết hạn hoặc được sao chép không chính xác.",
+    heading: "Liên kết không hợp lệ",
     tone: "border-destructive/30 bg-destructive/5",
   },
   success: {
-    body: "You will not receive any more newsletter emails from this blog.",
-    heading: "You've been unsubscribed",
+    body: "Bạn sẽ không nhận được thêm bất kỳ email bản tin nào từ blog này.",
+    heading: "Bạn đã được hủy đăng ký",
     tone: "border-editorial/30 bg-editorial/5",
   },
 }
@@ -70,7 +70,7 @@ function UnsubscribeResult({ status }: { status: UnsubscribeStatus }) {
         className={`w-full max-w-md rounded-[8px] border p-8 text-center ${message.tone}`}
       >
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-editorial">
-          Newsletter
+          Bản tin
         </p>
         <h1 className="text-2xl font-bold tracking-tight">
           {message.heading}
@@ -82,7 +82,7 @@ function UnsubscribeResult({ status }: { status: UnsubscribeStatus }) {
           className="mt-6 inline-flex rounded-[5px] bg-primary px-4 py-2 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           href="/"
         >
-          Back to blog
+          Quay lại blog
         </Link>
       </section>
     </PageContainer>

@@ -33,7 +33,7 @@ export async function generateMetadata({
   return buildMetadata({
     canonicalPath: query ? `/search?q=${encodeURIComponent(query)}` : "/search",
     noIndex: true,
-    title: query ? `Search: ${query}` : "Search",
+    title: query ? `Tìm kiếm: ${query}` : "Tìm kiếm",
   })
 }
 
@@ -42,8 +42,8 @@ function EmptySearchState({ query }: { query: string }) {
     <div className="rounded-[8px] border border-dashed p-8 text-center">
       <p className="text-sm text-muted-foreground">
         {query
-          ? "No posts matched your search. Try fewer or different keywords."
-          : "Enter a search term to find posts."}
+          ? "Không có bài viết nào khớp với tìm kiếm của bạn. Thử ít từ khóa hơn hoặc dùng từ khóa khác."
+          : "Nhập từ khóa để tìm kiếm bài viết."}
       </p>
     </div>
   )
@@ -95,7 +95,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   if (!query || !tsQuery) {
     return (
       <PageContainer className="py-10">
-        <h1 className="text-[32px] font-bold leading-tight tracking-tight">Search</h1>
+        <h1 className="text-[32px] font-bold leading-tight tracking-tight">Tìm kiếm</h1>
         <div className="mt-8">
           <EmptySearchState query={query} />
         </div>
@@ -113,13 +113,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     <PageContainer className="py-10">
       <SearchPageTracker query={query} />
       <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-editorial">
-        Search archive
+        Tìm kiếm kho lưu trữ
       </p>
       <h1 className="mt-2 text-[32px] font-bold leading-tight tracking-tight">
-        Results for &quot;{query}&quot;
+        Kết quả cho &quot;{query}&quot;
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        {total} result{total === 1 ? "" : "s"} found
+        Tìm thấy {total} kết quả
       </p>
 
       <div className="mt-8">

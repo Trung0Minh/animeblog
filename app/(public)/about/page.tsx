@@ -6,16 +6,16 @@ import { buildMetadata, getAppName } from "@/lib/seo"
 
 const PUBLISHING_NOTES = [
   {
-    title: "Close readings",
-    text: "Essays that treat animation, direction, editing, and performance as choices worth studying frame by frame.",
+    title: "Phân tích chuyên sâu",
+    text: "Những bài luận xem xét hoạt hình, đạo diễn, chỉnh sửa và diễn xuất như những lựa chọn đáng nghiên cứu từng khung hình.",
   },
   {
-    title: "Reviews with context",
-    text: "Series and episode writing that cares about craft, production history, and the expectations a work is responding to.",
+    title: "Đánh giá có bối cảnh",
+    text: "Những bài viết về series và tập phim quan tâm đến kỹ thuật, lịch sử sản xuất và những kỳ vọng mà tác phẩm đang đáp ứng.",
   },
   {
-    title: "Production notes",
-    text: "Shorter pieces on studios, staff, visual motifs, and the practical decisions behind memorable anime scenes.",
+    title: "Ghi chú sản xuất",
+    text: "Những bài viết ngắn hơn về các studio, nhân viên, mô-típ hình ảnh và những quyết định thực tế đằng sau những cảnh anime đáng nhớ.",
   },
 ]
 
@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
     canonicalPath: "/about",
     description: `${appName} is an invite-only editorial blog for anime analysis, reviews, and production insight.`,
-    title: "About",
+    title: "Giới thiệu",
   })
 }
 
@@ -36,29 +36,24 @@ export default function AboutPage() {
     <PageContainer>
       <section className="border-b pb-10">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
-          About
+          Giới thiệu
         </p>
         <h1 className="max-w-3xl text-balance text-[32px] font-bold leading-tight tracking-tight md:text-[40px]">
-          {appName} is a quiet place for serious writing about Japanese
-          animation.
+          {appName} là một nơi yên tĩnh dành cho những bài viết nghiêm túc về hoạt hình Nhật Bản.
         </h1>
         <div className="mt-6 grid gap-5 font-serif text-lg leading-relaxed text-muted-foreground sm:grid-cols-[1.2fr_0.8fr]">
           <p>
-            This publication is built for essays, reviews, and notes that need
-            room to breathe. The focus is not daily discourse or quick scoring.
-            It is close attention: what a scene is doing, how it is made, and
-            why those choices matter.
+            Ấn phẩm này được xây dựng dành cho các bài tiểu luận, bài phê bình và ghi chú cần không gian để phân tích sâu. Trọng tâm không phải là các cuộc thảo luận hàng ngày hay chấm điểm nhanh chóng. Mà là sự chú ý kỹ lưỡng: một cảnh phim đang thể hiện điều gì, nó được thực hiện như thế nào và tại sao những lựa chọn đó lại quan trọng.
           </p>
           <p>
-            Writers join by invite so the site can stay small, deliberate, and
-            edited around a shared standard for long-form anime criticism.
+            Các tác giả tham gia theo lời mời để trang web có thể duy trì quy mô nhỏ, có chủ đích và được biên tập theo một tiêu chuẩn chung cho các bài phê bình anime dài kỳ.
           </p>
         </div>
       </section>
 
       <section className="py-10">
         <p className="mb-6 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
-          What We Publish
+          Những gì chúng tôi xuất bản
         </p>
         <div className="grid gap-4 sm:grid-cols-3">
           {PUBLISHING_NOTES.map((note) => (
@@ -74,24 +69,23 @@ export default function AboutPage() {
 
       <section className="border-t py-8">
         <h2 className="text-xl font-semibold tracking-tight">
-          Read through the archive.
+          Đọc toàn bộ kho lưu trữ.
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Start with the latest essays, or meet the writers shaping the
-          publication.
+          Bắt đầu với những bài luận mới nhất, hoặc gặp gỡ các tác giả đang định hình ấn phẩm này.
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
             className="inline-flex h-10 items-center justify-center rounded-[5px] bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             href="/"
           >
-            Latest posts
+            Bài viết mới nhất
           </Link>
           <Link
             className="inline-flex h-10 items-center justify-center rounded-[5px] border px-4 text-[13px] font-medium transition-colors hover:bg-muted"
             href="/contributors"
           >
-            Contributors
+            Người đóng góp
           </Link>
         </div>
       </section>

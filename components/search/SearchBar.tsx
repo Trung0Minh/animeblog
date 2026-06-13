@@ -112,7 +112,7 @@ export function SearchBar() {
           className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-tertiary transition-colors group-focus-within:text-accent"
         />
         <input
-          aria-label="Search posts"
+          aria-label="Tìm kiếm bài viết"
           className="h-8 w-full rounded-full border border-transparent bg-subtle-bg pl-9 pr-9 text-[13px] text-text-primary outline-none transition-colors placeholder:text-text-tertiary focus:border-border-default focus:bg-background"
           onChange={(event) => {
             const nextQuery = event.target.value
@@ -127,7 +127,7 @@ export function SearchBar() {
             if (results.length > 0 || query.trim()) setIsOpen(true)
           }}
           onKeyDown={handleKeyDown}
-          placeholder="Search posts..."
+          placeholder="Tìm kiếm bài viết..."
           type="search"
           value={query}
         />
@@ -138,7 +138,7 @@ export function SearchBar() {
           />
         ) : query ? (
           <Button
-            aria-label="Clear search"
+            aria-label="Xóa tìm kiếm"
             className="absolute right-0 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full text-text-tertiary hover:text-text-primary"
             onClick={clearSearch}
             size="icon"
@@ -154,7 +154,7 @@ export function SearchBar() {
         <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-[8px] border border-border-default bg-background shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.28)]">
           {results.length === 0 && !isLoading && (
             <p className="px-4 py-3 text-sm text-text-secondary">
-              No results for &quot;{debouncedQuery.trim()}&quot;
+              Không có kết quả cho &quot;{debouncedQuery.trim()}&quot;
             </p>
           )}
 
@@ -192,7 +192,7 @@ export function SearchBar() {
               href={`/search?q=${encodeURIComponent(query.trim())}`}
               onClick={() => setIsOpen(false)}
             >
-              See all results for &quot;{query.trim()}&quot;
+              Xem tất cả kết quả cho &quot;{query.trim()}&quot;
             </Link>
           )}
         </div>
