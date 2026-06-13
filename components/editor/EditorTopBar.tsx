@@ -76,7 +76,7 @@ export function EditorTopBar({
               aria-controls="post-settings-panel"
               aria-expanded={isSettingsOpen}
               aria-label={isSettingsOpen ? "Hide post settings" : "Post settings"}
-              className="h-8 px-2 md:px-3 lg:hidden"
+              className="h-8 px-2 md:px-3"
               onClick={onToggleSettings}
               size="sm"
               type="button"

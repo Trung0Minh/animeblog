@@ -290,7 +290,7 @@ export function PostEditor({
         <aside
           className={cn(
             "w-full shrink-0 overflow-y-auto border-r border-border-default bg-subtle-bg/40 px-5 py-6 shadow-[8px_0_24px_rgba(0,0,0,0.02)] transition-all lg:w-[320px] xl:w-[360px]",
-            isSettingsOpen ? "flex fixed inset-y-0 left-0 z-50 pt-16 bg-background flex-col lg:static lg:bg-subtle-bg/40 lg:pt-6" : "hidden lg:flex lg:flex-col lg:static lg:pt-6"
+            isSettingsOpen ? "flex fixed inset-y-0 left-0 z-50 pt-16 bg-background flex-col lg:static lg:bg-subtle-bg/40 lg:pt-6" : "hidden"
           )}
           id="post-settings-panel"
         >
@@ -305,7 +305,7 @@ export function PostEditor({
             </div>
             <button
               aria-label="Hide post settings"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-tertiary transition-colors hover:bg-subtle-bg hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-tertiary transition-colors hover:bg-subtle-bg hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => setIsSettingsOpen(false)}
               type="button"
             >
@@ -315,9 +315,6 @@ export function PostEditor({
 
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-[12px] font-semibold text-text-secondary">
-                Cover image
-              </label>
                 <CoverImageUpload
                   onChange={(url) => {
                     setCoverUrl(url)
@@ -445,7 +442,7 @@ export function PostEditor({
         </aside>
 
         <div className="min-w-0 flex-1 overflow-y-auto">
-          <div className="mx-auto flex w-full max-w-[760px] flex-col px-4 pb-[120px] pt-6 md:px-6 md:pt-8">
+          <div className="mx-auto flex w-full max-w-[1024px] flex-col px-4 pb-[120px] pt-6 md:px-6 md:pt-8">
             {error && (
               <div
                 className="mb-4 rounded-[5px] border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
