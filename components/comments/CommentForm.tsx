@@ -61,7 +61,7 @@ export function CommentForm({
       const result = (await response.json()) as CommentResponse
 
       if (!response.ok || !result.data) {
-        throw new Error(result.error ?? "Could not post comment")
+        throw new Error(result.error ?? "Không thể đăng bình luận")
       }
 
       onSuccess({ ...result.data, replies: [] })
@@ -72,12 +72,12 @@ export function CommentForm({
       setAuthorName("")
       setContent("")
       setNotifyReply(true)
-      setSuccessMessage(parentId ? "Reply posted." : "Comment posted.")
+      setSuccessMessage(parentId ? "Đã đăng trả lời." : "Đã đăng bình luận.")
     } catch (submitError) {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Could not post comment",
+          : "Không thể đăng bình luận",
       )
     } finally {
       setIsSubmitting(false)
@@ -108,7 +108,7 @@ export function CommentForm({
               className="text-[13px] font-medium text-text-primary"
               htmlFor={`${id}-comment-name`}
             >
-              Name *
+              Tên *
             </label>
             <Input
               autoComplete="name"
@@ -136,7 +136,7 @@ export function CommentForm({
               value={authorEmail}
             />
             <p className="text-[11px] text-text-tertiary">
-              Not shown publicly
+              Không hiển thị công khai
             </p>
           </div>
         </div>
@@ -146,7 +146,7 @@ export function CommentForm({
             className="text-[13px] font-medium text-text-primary"
             htmlFor={`${id}-comment-content`}
           >
-            Comment *
+            Bình luận *
           </label>
           <Textarea
             id={`${id}-comment-content`}
@@ -167,15 +167,15 @@ export function CommentForm({
               onChange={(event) => setNotifyReply(event.target.checked)}
               type="checkbox"
             />
-            Notify me by email when someone replies
+            Thông báo cho tôi qua email khi có người trả lời
           </label>
 
           <Button className="h-[38px] px-5 font-semibold" disabled={isSubmitting}>
             {isSubmitting
-              ? "Posting..."
+              ? "Đang đăng..."
               : parentId
-                ? "Post reply"
-                : "Post comment"}
+                ? "Đăng trả lời"
+                : "Đăng bình luận"}
           </Button>
           {onCancel && (
             <Button
@@ -184,7 +184,7 @@ export function CommentForm({
               type="button"
               variant="outline"
             >
-              Cancel
+              Hủy
             </Button>
           )}
         </div>

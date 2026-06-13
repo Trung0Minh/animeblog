@@ -18,7 +18,7 @@ function getApiError(value: unknown) {
     return value.error
   }
 
-  return "Failed to upload cover image"
+  return "Lỗi tải lên ảnh bìa"
 }
 
 function getUploadUrl(value: unknown) {
@@ -64,7 +64,7 @@ export function CoverImageUpload({ onChange, value }: CoverImageUploadProps) {
       const url = getUploadUrl(result)
 
       if (!url) {
-        throw new Error("Upload response did not include a URL")
+        throw new Error("Phản hồi tải lên không bao gồm URL")
       }
 
       onChange(url)
@@ -72,7 +72,7 @@ export function CoverImageUpload({ onChange, value }: CoverImageUploadProps) {
       setError(
         uploadError instanceof Error
           ? uploadError.message
-          : "Failed to upload cover image",
+          : "Lỗi tải lên ảnh bìa",
       )
     } finally {
       setUploading(false)
@@ -85,13 +85,13 @@ export function CoverImageUpload({ onChange, value }: CoverImageUploadProps) {
   return (
     <div className="space-y-2.5">
       <label className="block text-[12px] font-semibold text-text-secondary" htmlFor="cover-image">
-        Cover image
+        Ảnh bìa
       </label>
 
       {value ? (
         <div className="group relative aspect-video w-full overflow-hidden rounded-[8px] border border-border-default bg-subtle-bg">
           <img
-            alt="Selected cover"
+            alt="Ảnh bìa đã chọn"
             className="h-full w-full object-cover"
             src={value}
           />
@@ -101,10 +101,10 @@ export function CoverImageUpload({ onChange, value }: CoverImageUploadProps) {
             type="button"
           >
             <Camera aria-hidden="true" className="mb-2 h-6 w-6" />
-            <span className="text-[13px] font-medium">Change</span>
+            <span className="text-[13px] font-medium">Thay đổi</span>
           </button>
           <button
-            aria-label="Remove cover image"
+            aria-label="Xóa ảnh bìa"
             className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black"
             onClick={() => onChange("")}
             type="button"
@@ -125,17 +125,17 @@ export function CoverImageUpload({ onChange, value }: CoverImageUploadProps) {
             <ImagePlus aria-hidden="true" className="h-6 w-6 text-text-tertiary" />
           )}
           <span className="mt-2 text-[13px] text-text-secondary">
-            {uploading ? "Uploading..." : "Add cover image"}
+            {uploading ? "Đang tải lên..." : "Thêm ảnh bìa"}
           </span>
           <span className="mt-1 text-[11px] text-text-tertiary">
-            JPG, PNG, GIF, WebP · Max 10MB
+            JPG, PNG, GIF, WebP · Tối đa 10MB
           </span>
         </button>
       )}
 
       <input
         accept="image/jpeg,image/png,image/gif,image/webp"
-        aria-label="Upload cover image"
+        aria-label="Tải lên ảnh bìa"
         className="sr-only"
         id="cover-image"
         onChange={(event) => {

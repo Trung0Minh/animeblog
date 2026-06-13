@@ -17,7 +17,7 @@ function getApiError(value: unknown) {
     return value.error
   }
 
-  return "Something went wrong. Please try again."
+  return "Đã xảy ra lỗi. Vui lòng thử lại."
 }
 
 function getApiMessage(value: unknown) {
@@ -33,7 +33,7 @@ function getApiMessage(value: unknown) {
     return value.data.message
   }
 
-  return "Subscribed successfully."
+  return "Đăng ký thành công."
 }
 
 export function NewsletterForm() {
@@ -65,7 +65,7 @@ export function NewsletterForm() {
       setState("success")
       trackEvent("newsletter_subscribed")
     } catch {
-      setMessage("Something went wrong. Please try again.")
+      setMessage("Đã xảy ra lỗi. Vui lòng thử lại.")
       setState("error")
     }
   }
@@ -73,12 +73,12 @@ export function NewsletterForm() {
   return (
     <div>
       <p className="text-[13px] text-text-secondary mb-4">
-        Get notified when new posts are published.
+        Nhận thông báo khi có bài viết mới.
       </p>
       <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <label className="sr-only" htmlFor="newsletter-email">
-            Email address
+            Địa chỉ email
           </label>
           <Input
             autoCapitalize="none"
@@ -88,7 +88,7 @@ export function NewsletterForm() {
             inputMode="email"
             onChange={(event) => setEmail(event.target.value)}
             className="w-full h-10 px-3 border border-border-default rounded-[4px] bg-transparent text-[13px] outline-none focus:border-accent transition-colors"
-            placeholder="Your email address"
+            placeholder="Địa chỉ email của bạn"
             required
             type="email"
             value={email}
@@ -112,11 +112,11 @@ export function NewsletterForm() {
           disabled={state === "loading"}
           type="submit"
         >
-          {state === "loading" ? "Subscribing..." : "Subscribe"}
+          {state === "loading" ? "Đang đăng ký..." : "Đăng ký"}
         </button>
       </form>
       <p className="mt-3 text-xs leading-5 text-text-tertiary">
-        No spam. Every email includes a one-click unsubscribe link.
+        Không spam. Mỗi email đều bao gồm liên kết hủy đăng ký bằng một lần nhấp.
       </p>
     </div>
   )

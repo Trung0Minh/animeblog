@@ -22,7 +22,7 @@ export function DraftVisibilityToggle({
   return (
     <fieldset className="space-y-3">
       <legend className="text-[12px] font-semibold text-text-secondary">
-        Draft visibility
+        Quyền truy cập bản nháp
       </legend>
       <div className="flex flex-wrap gap-2">
         <button
@@ -37,7 +37,7 @@ export function DraftVisibilityToggle({
           type="button"
         >
           <Lock aria-hidden="true" className="h-4 w-4 shrink-0" />
-          <span>Private</span>
+          <span>Riêng tư</span>
         </button>
         <button
           aria-pressed={value === "CO_AUTHORS"}
@@ -51,13 +51,13 @@ export function DraftVisibilityToggle({
           type="button"
         >
           <Users aria-hidden="true" className="h-4 w-4 shrink-0" />
-          <span>Visible to co-authors</span>
+          <span>Hiển thị với đồng tác giả</span>
         </button>
       </div>
       <p className="text-xs text-text-tertiary">
         {value === "PRIVATE"
-          ? "Only you and admins can open this draft."
-          : "Listed co-authors can open this draft while it remains unpublished."}
+          ? "Chỉ bạn và quản trị viên mới có thể mở bản nháp này."
+          : "Đồng tác giả có tên có thể mở bản nháp này khi chưa xuất bản."}
       </p>
     </fieldset>
   )

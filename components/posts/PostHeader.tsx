@@ -105,8 +105,7 @@ export function PostHeader({ post }: PostHeaderProps) {
             <>
               <span className="hidden md:inline" aria-hidden="true">·</span>
               <span className="text-text-tertiary">
-                {post._count.comments} comment
-                {post._count.comments === 1 ? "" : "s"}
+                {post._count.comments} bình luận
               </span>
             </>
           )}

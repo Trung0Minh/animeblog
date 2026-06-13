@@ -136,8 +136,7 @@ export function PostCard({ post }: PostCardProps) {
 
         <div className="flex shrink-0 items-center gap-3">
           <span>
-            {post._count.comments} comment
-            {post._count.comments === 1 ? "" : "s"}
+            {post._count.comments} bình luận
           </span>
         </div>
       </div>

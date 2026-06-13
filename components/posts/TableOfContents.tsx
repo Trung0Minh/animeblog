@@ -72,9 +72,9 @@ export function TableOfContents({ content }: TableOfContentsProps) {
   }, [headings])
 
   return (
-    <nav className="sticky top-[80px] font-sans" aria-label="Table of contents">
+    <nav className="sticky top-[80px] font-sans" aria-label="Mục lục">
       <h4 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-text-tertiary">
-        Contents
+        Nội dung
       </h4>
       <ul className="flex flex-col relative">
         <div className="absolute left-0 top-0 bottom-0 w-px bg-border-default"></div>

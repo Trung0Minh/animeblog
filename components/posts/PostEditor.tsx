@@ -288,7 +288,7 @@ export function PostEditor({
 
       <main className="relative mt-12 flex min-h-0 flex-1 overflow-hidden bg-background">
         <button
-          aria-label={isSettingsOpen ? "Close settings" : "Open settings"}
+          aria-label={isSettingsOpen ? "Đóng cài đặt" : "Mở cài đặt"}
           className={cn(
             "hidden lg:flex absolute top-1/2 -translate-y-1/2 z-50 h-10 w-6 items-center justify-center border border-border-default bg-subtle-bg/40 text-text-tertiary transition-colors hover:bg-subtle-bg hover:text-text-primary",
             isSettingsOpen
@@ -309,14 +309,14 @@ export function PostEditor({
           <div className="mb-6 flex items-center justify-between gap-4 lg:mb-8">
             <div>
               <h2 className="text-[13px] font-bold uppercase tracking-widest text-text-primary">
-                Post settings
+                Cài đặt bài viết
               </h2>
               <p className="mt-1.5 text-[12px] leading-relaxed text-text-secondary">
-                Cover, taxonomy, collaborators, and draft access.
+                Ảnh bìa, phân loại, cộng tác viên, và quyền truy cập bản nháp.
               </p>
             </div>
             <button
-              aria-label="Hide post settings"
+              aria-label="Ẩn cài đặt bài viết"
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-tertiary transition-colors hover:bg-subtle-bg hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => setIsSettingsOpen(false)}
               type="button"
@@ -350,7 +350,7 @@ export function PostEditor({
                         setCoverAlt(event.target.value)
                         markDirty()
                       }}
-                      placeholder="Describe the cover image"
+                      placeholder="Mô tả ảnh bìa"
                       value={coverAlt}
                     />
                   </div>
@@ -362,7 +362,7 @@ export function PostEditor({
                     className="text-[12px] font-semibold text-text-secondary"
                     htmlFor="post-category"
                   >
-                    Category
+                    Danh mục
                   </label>
                   <select
                     className="h-9 w-full rounded-[5px] border border-border-default bg-background px-2.5 py-2 text-[13px] text-text-primary outline-none transition-colors focus:border-accent"
@@ -373,7 +373,7 @@ export function PostEditor({
                     }}
                     value={categoryId}
                   >
-                    <option value="">No category</option>
+                    <option value="">Không có danh mục</option>
                     {categories.map((category) => (
                       <optgroup key={category.id} label={category.name}>
                         <option value={category.id}>{category.name}</option>
@@ -398,14 +398,14 @@ export function PostEditor({
                 {availableWriters.length > 0 && (
                   <div className="space-y-2">
                     <div className="text-[12px] font-semibold text-text-secondary">
-                      Co-authors
+                      Đồng tác giả
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {availableWriters
                         .filter((writer) => coAuthorIds.includes(writer.id))
                         .map((writer) => (
                           <button
-                            aria-label={`Remove ${writer.name}`}
+                            aria-label={`Xóa ${writer.name}`}
                             className="inline-flex h-9 items-center gap-2 rounded-[5px] border border-border-default bg-background px-3 text-[13px] text-text-secondary transition-colors hover:bg-subtle-bg"
                             key={writer.id}
                             onClick={() => toggleCoAuthor(writer.id)}
@@ -420,7 +420,7 @@ export function PostEditor({
                         ))}
                     </div>
                     <select
-                      aria-label="Add co-author"
+                      aria-label="Thêm đồng tác giả"
                       className="h-9 w-full rounded-[5px] border border-border-default bg-background px-2.5 py-2 text-[13px] text-text-secondary outline-none transition-colors focus:border-accent"
                       onChange={(event) => {
                         if (event.target.value) {
@@ -430,7 +430,7 @@ export function PostEditor({
                       }}
                       value=""
                     >
-                      <option value="">Add co-author...</option>
+                      <option value="">Thêm đồng tác giả...</option>
                       {availableWriters
                         .filter((writer) => !coAuthorIds.includes(writer.id))
                         .map((writer) => (
@@ -480,7 +480,7 @@ export function PostEditor({
                 >
                   <div className="mt-4 pb-2 md:mt-0">
                     <label className="sr-only" htmlFor="post-title">
-                      Title
+                      Tiêu đề
                     </label>
                     <input
                       className="w-full border-none bg-transparent text-[22px] font-bold leading-[1.2] text-text-primary outline-none placeholder:text-text-tertiary placeholder:font-normal md:text-[28px]"
@@ -490,14 +490,14 @@ export function PostEditor({
                         setTitle(event.target.value)
                         markDirtyAndAutosave()
                       }}
-                      placeholder="Post title..."
+                      placeholder="Tiêu đề bài viết..."
                       value={title}
                     />
                   </div>
 
                   <div className="pb-4">
                     <label className="sr-only" htmlFor="post-excerpt">
-                      Excerpt
+                      Đoạn trích
                     </label>
                     <Textarea
                       className="h-12 min-h-12 resize-none border-none bg-transparent px-0 text-[15px] text-text-secondary shadow-none placeholder:text-text-tertiary focus-visible:border-transparent focus-visible:ring-0"
@@ -507,7 +507,7 @@ export function PostEditor({
                         setExcerpt(event.target.value)
                         markDirtyAndAutosave()
                       }}
-                      placeholder="Short excerpt shown on listing pages..."
+                      placeholder="Đoạn trích ngắn hiển thị trên trang danh sách..."
                       value={excerpt}
                     />
                   </div>

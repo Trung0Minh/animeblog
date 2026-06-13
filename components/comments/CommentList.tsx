@@ -90,21 +90,21 @@ function CommentThread({
       <CommentBubble comment={comment} />
       <div className="mt-3 pl-11">
         <Button
-          aria-label={`Reply to ${comment.authorName}'s comment`}
+          aria-label={`Trả lời bình luận của ${comment.authorName}`}
           className="h-auto min-h-0 px-0 py-1 text-[12px] text-text-tertiary hover:bg-transparent hover:text-text-primary"
           onClick={() => setIsReplying((value) => !value)}
           type="button"
           variant="ghost"
         >
           <Reply aria-hidden="true" />
-          {isReplying ? "Cancel reply" : "Reply"}
+          {isReplying ? "Hủy trả lời" : "Trả lời"}
         </Button>
       </div>
 
       {isReplying && (
         <div className="mt-4 border-l border-border-default pl-4 sm:ml-11">
           <CommentForm
-            ariaLabel={`Reply to ${comment.authorName}`}
+            ariaLabel={`Trả lời ${comment.authorName}`}
             onCancel={() => setIsReplying(false)}
             onSuccess={handleReply}
             parentId={comment.id}

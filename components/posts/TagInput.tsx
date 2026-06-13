@@ -190,7 +190,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
   return (
     <div className="relative" ref={containerRef}>
       <label className="mb-2 block text-xs font-semibold text-text-secondary" htmlFor="post-tags">
-        Tags
+        Thẻ
       </label>
 
       {selectedTags.length > 0 && (
@@ -202,7 +202,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
             >
               {tag.name}
               <button
-                aria-label={`Remove ${tag.name}`}
+                aria-label={`Xóa thẻ ${tag.name}`}
                 className="-m-1.5 inline-flex items-center justify-center rounded-full p-1.5 text-text-tertiary transition-colors hover:bg-background hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() =>
                   onChange(
@@ -222,7 +222,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
 
       <div className="relative">
         <input
-          aria-label="Tags"
+          aria-label="Thẻ"
           autoComplete="off"
           className="h-[34px] w-full rounded-[5px] border border-border-default bg-background px-2.5 py-2 text-[13px] text-text-primary outline-none transition-colors placeholder:text-text-tertiary focus:border-accent"
           id="post-tags"
@@ -258,7 +258,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
               }
             }
           }}
-          placeholder="Search or create tags..."
+          placeholder="Tìm kiếm hoặc tạo thẻ..."
           value={query}
         />
         {loading && (
@@ -294,7 +294,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
               ) : (
                 <Plus aria-hidden="true" className="h-3.5 w-3.5" />
               )}
-              Create tag &quot;{query.trim()}&quot;
+              Tạo thẻ &quot;{query.trim()}&quot;
             </button>
           )}
         </div>
@@ -306,7 +306,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
         </p>
       )}
       <p className="mt-1 text-xs text-text-tertiary">
-        Search existing tags or create a new one inline.
+        Tìm kiếm thẻ có sẵn hoặc tạo thẻ mới.
       </p>
     </div>
   )

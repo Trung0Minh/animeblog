@@ -50,15 +50,15 @@ export function CommentSection({
     <section className="mt-12 font-sans" id="comments">
       <div className="mb-6">
         <h2 className="text-[20px] font-bold tracking-tight text-text-primary">
-          Comments
+          Bình luận
         </h2>
         <p className="mt-1 text-[14px] text-text-secondary">
-          {total} comment{total === 1 ? "" : "s"}
+          {total} bình luận
         </p>
       </div>
 
       <h3 className="mb-4 text-[14px] font-semibold text-text-primary">
-        Leave a comment
+        Để lại bình luận
       </h3>
       <CommentForm
         onSuccess={handleNewComment}

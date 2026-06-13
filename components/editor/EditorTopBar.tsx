@@ -22,7 +22,7 @@ interface EditorTopBarProps {
 }
 
 export function EditorTopBar({
-  autosaveHint = "Autosave starts after you edit title, excerpt, or body.",
+  autosaveHint = "Tự động lưu sau khi chỉnh sửa tiêu đề, đoạn trích hoặc nội dung.",
   canSave,
   exitHref,
   isPending,
@@ -37,7 +37,7 @@ export function EditorTopBar({
   const actionsDisabled = isPending || !canSave
   const statusText = canSave
     ? autosaveHint
-    : "Add a title to enable saving and publishing."
+    : "Thêm tiêu đề để có thể lưu và xuất bản."
 
   return (
     <header className="fixed left-0 right-0 top-0 z-[100] h-12 border-b border-border-default bg-background px-5">
@@ -48,14 +48,14 @@ export function EditorTopBar({
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
           <span className="hidden text-[13px] font-medium md:inline">
-            Dashboard
+            Bảng điều khiển
           </span>
         </Link>
 
         <div className="absolute left-1/2 flex h-full -translate-x-1/2 items-center">
           <div className="flex min-w-[70px] justify-end">
             {isPending ? (
-              <span className="text-xs text-text-tertiary">Saving...</span>
+              <span className="text-xs text-text-tertiary">Đang lưu...</span>
             ) : saveStatus === "idle" ? (
               <span className="block max-w-[150px] truncate text-xs text-text-tertiary">
                 {statusText}
@@ -66,7 +66,7 @@ export function EditorTopBar({
           </div>
           <div className="mx-3 hidden h-4 w-px bg-border-default md:block" />
           <div className="hidden max-w-[280px] truncate text-[13px] text-text-tertiary md:block">
-            {titlePreview?.trim() || "Untitled post"}
+            {titlePreview?.trim() || "Bài viết không có tiêu đề"}
           </div>
         </div>
 
@@ -75,7 +75,7 @@ export function EditorTopBar({
             <Button
               aria-controls="post-settings-panel"
               aria-expanded={isSettingsOpen}
-              aria-label={isSettingsOpen ? "Hide post settings" : "Post settings"}
+              aria-label={isSettingsOpen ? "Ẩn cài đặt bài viết" : "Cài đặt bài viết"}
               className="h-8 px-2 md:px-3 lg:hidden"
               onClick={onToggleSettings}
               size="sm"
@@ -84,7 +84,7 @@ export function EditorTopBar({
             >
               <Settings2 aria-hidden="true" className="h-4 w-4" />
               <span className="hidden md:inline">
-                {isSettingsOpen ? "Hide settings" : "Post settings"}
+                {isSettingsOpen ? "Ẩn cài đặt" : "Cài đặt bài viết"}
               </span>
             </Button>
           )}
@@ -96,8 +96,8 @@ export function EditorTopBar({
             type="button"
             variant="outline"
           >
-            <span className="hidden md:inline">Save draft</span>
-            <span className="md:hidden">Draft</span>
+            <span className="hidden md:inline">Lưu nháp</span>
+            <span className="md:hidden">Nháp</span>
           </Button>
           <Button
             className="h-8 px-3.5 font-semibold"
@@ -106,7 +106,7 @@ export function EditorTopBar({
             size="sm"
             type="button"
           >
-            {isPublished ? "Update" : "Publish"}
+            {isPublished ? "Cập nhật" : "Xuất bản"}
           </Button>
         </div>
       </div>

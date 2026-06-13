@@ -33,11 +33,11 @@ export function Sidebar({
       )}
     >
       {newsletter && (
-        <SidebarSection title="Newsletter">{newsletter}</SidebarSection>
+        <SidebarSection title="Bản tin">{newsletter}</SidebarSection>
       )}
 
       {categories.length > 0 && (
-        <SidebarSection title="Categories">
+        <SidebarSection title="Danh mục">
           <ul className="flex flex-col text-sm">
             {categories.map((category) => (
               <li key={category.id} className="group">
@@ -71,7 +71,7 @@ export function Sidebar({
       )}
 
       {recentPosts.length > 0 && (
-        <SidebarSection title="Recent posts">
+        <SidebarSection title="Bài viết gần đây">
           <ul className="space-y-4">
             {recentPosts.map((post) => (
               <li key={post.slug}>

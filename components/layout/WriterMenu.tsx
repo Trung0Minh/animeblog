@@ -134,7 +134,7 @@ export function WriterMenu({ user }: { user?: WriterMenuUser | null }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label="Open writer menu"
+        aria-label="Mở menu tác giả"
         className="inline-flex h-8 items-center gap-1.5 rounded-full px-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-subtle-bg hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <WriterAvatar className="h-6 w-6" user={menuUser} />
@@ -154,27 +154,27 @@ export function WriterMenu({ user }: { user?: WriterMenuUser | null }) {
         <DropdownMenuItem asChild>
           <Link href="/dashboard" prefetch={false}>
             <FileText aria-hidden="true" />
-            My posts
+            Bài viết của tôi
           </Link>
         </DropdownMenuItem>
         {menuUser.role === "ADMIN" && (
           <DropdownMenuItem asChild>
             <Link href="/admin" prefetch={false}>
               <Shield aria-hidden="true" />
-              Admin panel
+              Quản trị
             </Link>
           </DropdownMenuItem>
         )}
         <DropdownMenuItem asChild>
           <Link href="/dashboard/profile" prefetch={false}>
             <User aria-hidden="true" />
-            Edit profile
+            Sửa hồ sơ
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href={`/authors/${menuUser.username}`}>
             <User aria-hidden="true" />
-            View public profile
+            Hồ sơ công khai
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -183,7 +183,7 @@ export function WriterMenu({ user }: { user?: WriterMenuUser | null }) {
           onClick={() => void signOut({ callbackUrl: "/" })}
         >
           <LogOut aria-hidden="true" />
-          Sign out
+          Đăng xuất
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

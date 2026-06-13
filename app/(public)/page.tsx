@@ -47,7 +47,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <PageContainer size="wide">
       <div className="flex flex-col gap-12 lg:flex-row xl:gap-[48px]">
-        <section className="flex-1 lg:w-[calc(100%-288px)] xl:w-[calc(100%-288px)] flex flex-col" aria-label="Published posts">
+        <section className="flex-1 lg:w-[calc(100%-288px)] xl:w-[calc(100%-288px)] flex flex-col" aria-label="Bài viết đã xuất bản">
           <Suspense fallback={<PostListSkeleton />}>
             <HomePostList page={page} />
           </Suspense>
@@ -65,7 +65,7 @@ async function HomePostList({ page }: { page: number }) {
 
   return (
     <PostList
-      emptyMessage="No posts published yet."
+      emptyMessage="Chưa có bài viết nào được xuất bản."
       pagination={{ page, pageSize: PAGE_SIZE, total }}
       posts={posts}
     />

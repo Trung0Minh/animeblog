@@ -6,8 +6,8 @@ import type { WriterMenuUser } from "@/components/layout/WriterMenu"
 import { SearchBar } from "@/components/search/SearchBar"
 
 const NAV_LINKS = [
-  { href: "/contributors", label: "Contributors" },
-  { href: "/about", label: "About" },
+  { href: "/contributors", label: "Đóng góp" },
+  { href: "/about", label: "Giới thiệu" },
 ]
 
 export function Navbar({ user }: { user?: WriterMenuUser | null }) {

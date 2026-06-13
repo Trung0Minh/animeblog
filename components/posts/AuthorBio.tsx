@@ -12,7 +12,7 @@ interface AuthorBioProps {
 }
 
 function fallbackBio(authorName: string) {
-  return `${authorName} writes about anime production, visual storytelling, and the craft behind contemporary animation.`
+  return `${authorName} viết về quá trình sản xuất anime, nghệ thuật kể chuyện qua hình ảnh và kỹ thuật đằng sau hoạt hình đương đại.`
 }
 
 export function AuthorBio({ author }: AuthorBioProps) {
@@ -33,7 +33,7 @@ export function AuthorBio({ author }: AuthorBioProps) {
       )}
       <div>
         <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-text-tertiary">
-          Written by
+          Viết bởi
         </div>
         <Link
           className="mb-2 block text-[16px] font-bold text-text-primary hover:underline"
@@ -48,7 +48,7 @@ export function AuthorBio({ author }: AuthorBioProps) {
           className="text-[13px] font-medium text-accent hover:underline"
           href={`/authors/${author.username}`}
         >
-          View all posts -&gt;
+          Xem tất cả bài viết -&gt;
         </Link>
       </div>
     </section>
