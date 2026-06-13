@@ -2,9 +2,9 @@
 
 ## 1. Overview
 
-Analytics is handled inside the app instead of Umami. The goal is to show useful
-blog analytics in the admin panel without paying for a hosted analytics API and
-without slowing down navigation.
+Analytics is handled inside the app. The goal is to show useful blog analytics
+in the admin panel without relying on a hosted analytics API and without slowing
+down navigation.
 
 Tracking is first-party, lightweight, and anonymous:
 
@@ -119,7 +119,7 @@ The widget must fall back gracefully if analytics data is unavailable.
 - [x] Add tracker to `app/layout.tsx`.
 - [x] Track post reads, comment submissions, newsletter signups, and searches.
 - [x] Update `AnalyticsWidget` and `/admin/analytics` to read internal stats.
-- [x] Remove Umami script/API dependency.
+- [x] Remove external analytics script/API dependency.
 
 ---
 

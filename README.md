@@ -8,7 +8,7 @@ and reviews.
 - Next.js 16 App Router with React 19 and TypeScript
 - Tailwind CSS and shadcn/ui
 - Prisma with PostgreSQL on Supabase
-- Auth.js, Tiptap, Cloudflare R2, Resend, and Umami
+- Auth.js, Tiptap, Cloudflare R2, Resend, and first-party analytics
 - Vitest and Playwright
 
 ## Local Setup

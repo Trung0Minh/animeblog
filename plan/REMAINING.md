@@ -21,9 +21,8 @@ Evidence:
 
 Completed:
 
-- Phase 13 now uses internal analytics instead of Umami.
-- The app no longer requires Umami Cloud, Umami API access, or Railway-hosted
-  Umami for admin analytics.
+- Phase 13 uses internal analytics.
+- The app does not require an external analytics service for admin analytics.
 - `ANALYTICS_HASH_SALT` is optional; the app falls back to the existing auth
   secret for anonymous visitor/session hashing.
 

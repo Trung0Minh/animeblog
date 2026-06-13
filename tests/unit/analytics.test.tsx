@@ -38,11 +38,6 @@ vi.mock("next/font/google", () => ({
 vi.mock("next-themes", () => ({
   ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
-vi.mock("next/script", () => ({
-  default: (props: React.ScriptHTMLAttributes<HTMLScriptElement>) => (
-    <script data-testid="umami-script" {...props} />
-  ),
-}))
 vi.mock("@/components/analytics/InternalAnalyticsTracker", () => ({
   InternalAnalyticsTracker: () => {
     analyticsTrackerMock()
@@ -71,10 +66,8 @@ describe("internal analytics layout", () => {
     vi.unstubAllEnvs()
   })
 
-  it("mounts the internal tracker and does not load Umami scripts", () => {
+  it("mounts the internal tracker", () => {
     vi.stubEnv("NODE_ENV", "production")
-    vi.stubEnv("NEXT_PUBLIC_UMAMI_SCRIPT_URL", "https://umami.example/script.js")
-    vi.stubEnv("NEXT_PUBLIC_UMAMI_WEBSITE_ID", "website-public")
 
     render(
       <RootLayout>
@@ -83,7 +76,6 @@ describe("internal analytics layout", () => {
     )
 
     expect(screen.getByTestId("internal-analytics-tracker")).toBeVisible()
-    expect(screen.queryByTestId("umami-script")).not.toBeInTheDocument()
   })
 })
 

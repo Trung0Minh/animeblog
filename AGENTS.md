@@ -24,7 +24,7 @@ Before writing any code, read the relevant plan file for the feature you are imp
 | `plan/09_seo.md` | Meta tags, Open Graph, sitemap, JSON-LD |
 | `plan/10_admin.md` | Admin panel, writer management, comment moderation |
 | `plan/11_testing.md` | Vitest unit/integration tests, Playwright E2E, CI |
-| `plan/12_analytics.md` | Umami analytics setup, AnalyticsWidget, custom events |
+| `plan/12_analytics.md` | Internal analytics setup, AnalyticsWidget, custom events |
 | `plan/13_autosave_draft_visibility.md` | Autosave hook, draft visibility control |
 | `plan/14_writer_profile.md` | Writer edit profile, avatar upload, WriterMenu |
 | `plan/15_responsive.md` | Responsive design — mobile vs desktop behavior for every component |
@@ -95,7 +95,7 @@ npm run lint
 
 8. **Never use `any` type — use `unknown` or create a proper interface.**
 
-9. **The analytics script must not load in development.** Guard with `process.env.NODE_ENV === 'production'`.
+9. **Analytics must be first-party and fire-and-forget.** Tracking must never block page rendering or navigation.
 
 10. **Test-only API routes (`/api/test/*`) must be guarded with `NODE_ENV === 'test'` check.** They must never be reachable in production.
 
@@ -173,11 +173,7 @@ Key variables and where they are used:
 | `R2_PUBLIC_URL` | Public base URL for uploaded files |
 | `NEXT_PUBLIC_APP_URL` | Canonical URL used in emails and SEO |
 | `NEXT_PUBLIC_APP_NAME` | Blog name shown in UI and emails |
-| `NEXT_PUBLIC_UMAMI_SCRIPT_URL` | Umami analytics tracking script |
-| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Umami website identifier |
-| `UMAMI_API_URL` | Umami API for admin analytics widget |
-| `UMAMI_USERNAME` | Umami API auth |
-| `UMAMI_PASSWORD` | Umami API auth |
+| `ANALYTICS_HASH_SALT` | Optional salt for anonymous analytics hashes; falls back to auth secret when blank |
 
 ---
 
@@ -216,8 +212,7 @@ These must be completed manually before the app will work end-to-end. They canno
 1. **Supabase** — Create a project, copy `DATABASE_URL` and `DIRECT_URL`
 2. **Cloudflare R2** — Create a bucket, enable public access, set CORS policy, copy credentials
 3. **Resend** — Create an account, verify a sending domain, copy API key
-4. **Umami on Railway** — Deploy using Railway template, change default password, create website entry, copy Website ID
-5. **Vercel** — Connect GitHub repo, add all env variables from `.env.example`
+4. **Vercel** — Connect GitHub repo, add all env variables from `.env.example`
 
 Detailed instructions for each service are in the relevant plan files.
 

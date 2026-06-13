@@ -89,12 +89,12 @@ describe("AdminAnalyticsPage", () => {
     analyticsMocks.getInternalTopPages.mockResolvedValue([])
   })
 
-  it("renders the full analytics page without an external Umami link", async () => {
+  it("renders the full analytics page without an external dashboard link", async () => {
     renderAsync(await AdminAnalyticsPage())
 
     expect(screen.getByRole("heading", { name: "Analytics" })).toBeVisible()
     expect(
-      screen.queryByRole("link", { name: /open umami dashboard/i }),
+      screen.queryByRole("link", { name: /open analytics dashboard/i }),
     ).not.toBeInTheDocument()
     expect(
       screen.getByText(/stored directly in this site/i),
