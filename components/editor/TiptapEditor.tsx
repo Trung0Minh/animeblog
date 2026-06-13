@@ -66,7 +66,7 @@ export function TiptapEditor({
         openOnClick: false,
       }),
       Placeholder.configure({
-        placeholder: "Start writing your post...",
+        placeholder: "Bắt đầu viết bài...",
       }),
       Typography,
       CharacterCount,
@@ -106,7 +106,7 @@ export function TiptapEditor({
       {editable && (
         <p className="mt-2 text-right text-xs text-text-tertiary">
           {editor.storage.characterCount.characters().toLocaleString()}{" "}
-          characters
+          ký tự
         </p>
       )}
     </div>
