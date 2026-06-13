@@ -199,7 +199,10 @@ describe("Navbar", () => {
   it("aligns navigation content with page containers", () => {
     const { container } = render(<Navbar user={null} />)
 
-    expect(container.querySelector("header > div")).toHaveClass("container")
+    expect(container.querySelector("header > div")).toHaveClass(
+      "mx-auto",
+      "max-w-[1440px]",
+    )
   })
 })
 
@@ -208,11 +211,12 @@ describe("PageContainer", () => {
     const { container } = render(<PageContainer>Content</PageContainer>)
 
     expect(container.firstElementChild).toHaveClass(
-      "container",
+      "mx-auto",
+      "w-full",
       "max-w-5xl",
       "xl:max-w-6xl",
       "py-8",
-      "sm:py-10",
+      "md:py-12",
     )
   })
 
@@ -225,16 +229,13 @@ describe("PageContainer", () => {
 
     expect(container.firstElementChild?.tagName).toBe("ARTICLE")
     expect(container.firstElementChild).toHaveClass(
-      "max-w-3xl",
-      "xl:max-w-4xl",
+      "max-w-[720px]",
     )
 
     rerender(<PageContainer size="wide">Listing</PageContainer>)
 
     expect(container.firstElementChild).toHaveClass(
-      "max-w-6xl",
-      "xl:max-w-7xl",
-      "2xl:max-w-[1400px]",
+      "max-w-[1440px]",
     )
   })
 })
@@ -449,9 +450,7 @@ describe("Sidebar", () => {
     )
 
     expect(container.firstElementChild).toHaveClass(
-      "lg:w-64",
-      "xl:w-80",
-      "2xl:w-96",
+      "lg:w-[240px]",
     )
   })
 })

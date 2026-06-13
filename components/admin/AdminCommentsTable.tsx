@@ -62,16 +62,16 @@ export function AdminCommentsTable({
 
   if (comments.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+      <div className="rounded-[8px] border border-dashed p-8 text-center text-sm text-muted-foreground">
         No approved comments found.
       </div>
     )
   }
 
   return (
-    <div className="space-y-3">
+    <div>
       {comments.map((comment) => (
-        <article className="rounded-2xl border bg-card p-4" key={comment.id}>
+        <article className="border-t py-4 first:border-t-0" key={comment.id}>
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">

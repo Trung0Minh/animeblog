@@ -64,7 +64,7 @@ export async function AnalyticsWidget() {
     ])
   } catch {
     return (
-      <section className="rounded-2xl border border-dashed p-5 text-sm text-muted-foreground">
+      <section className="rounded-[8px] border border-dashed p-5 text-sm text-muted-foreground">
         Analytics data unavailable.
       </section>
     )
@@ -128,7 +128,7 @@ export async function AnalyticsWidget() {
   ]
 
   return (
-    <section className="rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
+    <section className="rounded-[8px] border bg-background p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-editorial">
@@ -150,14 +150,14 @@ export async function AnalyticsWidget() {
           const isFlat = change === "0%"
 
           return (
-            <div className="rounded-2xl border bg-background/60 p-4" key={label}>
+            <div className="rounded-[8px] border bg-background p-4" key={label}>
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-medium text-muted-foreground">
                   {label}
                 </p>
                 <Icon aria-hidden="true" className="h-4 w-4 text-editorial" />
               </div>
-              <p className="mt-4 text-3xl font-bold tracking-tight">{value}</p>
+              <p className="mt-4 text-[32px] font-bold leading-tight tracking-tight">{value}</p>
               <p
                 className={cn(
                   "mt-1 text-xs font-medium",
@@ -175,7 +175,7 @@ export async function AnalyticsWidget() {
         })}
       </div>
 
-      <div className="mt-6 rounded-2xl border bg-background/60 p-4">
+      <div className="mt-6 rounded-[8px] border bg-background p-4">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-sm font-semibold">Top pages</h3>
           <span className="text-xs text-muted-foreground">Ranked by views</span>

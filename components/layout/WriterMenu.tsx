@@ -87,7 +87,7 @@ function WriterAvatar({
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center rounded-full bg-muted text-xs font-semibold",
+        "inline-flex items-center justify-center rounded-full border border-border bg-muted text-xs font-semibold",
         className,
       )}
     >
@@ -135,9 +135,9 @@ export function WriterMenu({ user }: { user?: WriterMenuUser | null }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Open writer menu"
-        className="inline-flex h-11 items-center gap-1.5 rounded-md px-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="inline-flex h-8 items-center gap-1.5 rounded-full px-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <WriterAvatar className="h-7 w-7" user={menuUser} />
+        <WriterAvatar className="h-6 w-6" user={menuUser} />
         <ChevronDown aria-hidden="true" className="h-3.5 w-3.5" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

@@ -31,7 +31,7 @@ function Avatar({ author }: { author: HeaderAuthor }) {
     return (
       <img
         alt={author.name}
-        className="h-8 w-8 rounded-full object-cover"
+        className="h-9 w-9 rounded-full border-2 border-background object-cover"
         decoding="async"
         src={author.avatarUrl}
       />
@@ -39,7 +39,7 @@ function Avatar({ author }: { author: HeaderAuthor }) {
   }
 
   return (
-    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-sm font-semibold">
+    <span className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-background bg-muted text-sm font-semibold">
       {author.name.charAt(0)}
     </span>
   )
@@ -49,28 +49,28 @@ export function PostHeader({ post }: PostHeaderProps) {
   const authors = [post.author, ...post.coAuthors.map(({ user }) => user)]
 
   return (
-    <header className="mx-auto max-w-3xl xl:max-w-4xl">
+    <header className="mb-10 md:mb-12">
       {post.category && (
         <Link
-          className="text-xs font-semibold uppercase tracking-[0.12em] text-editorial transition-colors hover:text-editorial/80"
+          className="text-[11px] font-semibold uppercase tracking-[0.1em] text-editorial transition-colors hover:text-editorial/80"
           href={`/category/${post.category.slug}`}
         >
           {post.category.name}
         </Link>
       )}
 
-      <h1 className="mt-2 text-balance text-2xl font-bold leading-tight tracking-tight md:text-3xl">
+      <h1 className="mt-[10px] text-[26px] font-bold leading-[1.25] tracking-[-0.02em] md:text-[36px] md:leading-[1.2]">
         {post.title}
       </h1>
 
       {post.excerpt && (
-        <p className="mt-4 font-serif text-lg leading-relaxed text-muted-foreground">
+        <p className="mt-4 font-serif text-[16px] leading-[1.7] text-muted-foreground md:text-[17px]">
           {post.excerpt}
         </p>
       )}
 
-      <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-        <div className="flex -space-x-2">
+      <div className="mt-5 flex items-center gap-3 text-[13px] text-muted-foreground">
+        <div className="flex -space-x-2.5">
           {authors.slice(0, 3).map((author) => (
             <Avatar author={author} key={author.username} />
           ))}
@@ -81,7 +81,7 @@ export function PostHeader({ post }: PostHeaderProps) {
               <span key={author.username}>
                 {index > 0 && ", "}
                 <Link
-                  className="font-medium text-foreground transition-colors hover:text-editorial"
+                  className="text-[14px] font-medium text-foreground transition-colors hover:text-editorial"
                   href={`/authors/${author.username}`}
                 >
                   {author.name}
@@ -109,30 +109,32 @@ export function PostHeader({ post }: PostHeaderProps) {
         </div>
       </div>
 
+      {post.coverUrl && (
+        <div className="relative mt-7 w-screen -ml-4 overflow-hidden md:ml-0 md:w-full md:rounded-[8px]">
+          <div className="aspect-video w-full bg-muted">
+            <img
+              alt={post.coverAlt ?? post.title}
+              className="h-full w-full object-cover"
+              decoding="async"
+              fetchPriority="high"
+              loading="eager"
+              src={post.coverUrl}
+            />
+          </div>
+        </div>
+      )}
+
       {post.tags.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="no-scrollbar mt-4 flex flex-wrap gap-1.5 overflow-x-auto pb-1">
           {post.tags.map(({ tag }) => (
             <Link
-              className="rounded-full bg-muted px-2.5 py-1 text-xs transition-colors hover:bg-muted/80"
+              className="shrink-0 rounded-full border bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-border"
               href={`/tag/${tag.slug}`}
               key={tag.slug}
             >
               {tag.name}
             </Link>
           ))}
-        </div>
-      )}
-
-      {post.coverUrl && (
-        <div className="mt-6 aspect-video w-full overflow-hidden rounded-xl bg-muted">
-          <img
-            alt={post.coverAlt ?? post.title}
-            className="h-full w-full object-cover"
-            decoding="async"
-            fetchPriority="high"
-            loading="eager"
-            src={post.coverUrl}
-          />
         </div>
       )}
     </header>

@@ -22,17 +22,17 @@ export default async function ContributorsPage() {
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
           Contributors
         </p>
-        <h1 className="text-3xl font-bold tracking-tight">Writers</h1>
+        <h1 className="text-[32px] font-bold leading-tight tracking-tight">Writers</h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
           People invited to write analysis, reviews, and production notes for
           this publication.
         </p>
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-0 sm:grid-cols-2 sm:gap-x-6">
         {contributors.map((contributor) => (
           <Link
-            className="flex gap-4 rounded-xl border p-4 transition-colors hover:bg-muted/50"
+            className="flex gap-4 border-t py-5 transition-colors first:border-t-0 hover:text-editorial sm:[&:nth-child(2)]:border-t-0"
             href={`/authors/${contributor.username}`}
             key={contributor.username}
           >

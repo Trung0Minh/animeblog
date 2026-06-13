@@ -41,7 +41,7 @@ function AuthorAvatar({
     return (
       <img
         alt={name}
-        className="h-5 w-5 rounded-full object-cover ring-1 ring-background"
+        className="h-6 w-6 rounded-full object-cover ring-1 ring-background"
         decoding="async"
         loading="lazy"
         src={avatarUrl}
@@ -50,7 +50,7 @@ function AuthorAvatar({
   }
 
   return (
-    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-medium ring-1 ring-background">
+    <span className="flex h-6 w-6 items-center justify-center rounded-full border bg-muted text-[10px] font-medium ring-1 ring-background">
       {name.charAt(0)}
     </span>
   )
@@ -60,13 +60,13 @@ export function PostCard({ post }: PostCardProps) {
   const authors = [post.author, ...post.coAuthors.map(({ user }) => user)]
 
   return (
-    <article className="group overflow-hidden rounded-xl border bg-card transition-shadow hover:shadow-md">
+    <article className="group flex flex-col">
       {post.coverUrl && (
-        <Link href={`/${post.slug}`}>
-          <div className="aspect-video w-full overflow-hidden bg-muted">
+        <Link className="mb-4 block overflow-hidden rounded-[6px]" href={`/${post.slug}`}>
+          <div className="aspect-video w-full overflow-hidden bg-muted dark:brightness-[0.9]">
             <img
               alt={post.coverAlt ?? post.title}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
               decoding="async"
               loading="lazy"
               src={post.coverUrl}
@@ -75,10 +75,10 @@ export function PostCard({ post }: PostCardProps) {
         </Link>
       )}
 
-      <div className="p-4 sm:p-5">
+      <div>
         {post.category && (
           <Link
-            className="text-xs font-semibold uppercase tracking-[0.08em] text-editorial transition-colors hover:text-editorial/80"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-editorial transition-colors hover:text-editorial/80"
             href={`/category/${post.category.slug}`}
           >
             {post.category.name}
@@ -86,18 +86,18 @@ export function PostCard({ post }: PostCardProps) {
         )}
 
         <Link href={`/${post.slug}`}>
-          <h2 className="mt-1 line-clamp-2 text-lg font-bold leading-snug tracking-tight transition-colors group-hover:text-editorial sm:text-xl">
+          <h2 className="line-clamp-2 text-[20px] font-bold leading-[1.3] text-foreground transition-colors duration-150 group-hover:text-editorial">
             {post.title}
           </h2>
         </Link>
 
         {post.excerpt && (
-          <p className="mt-2 hidden text-sm leading-relaxed text-muted-foreground line-clamp-3 sm:block">
+          <p className="mt-3 hidden font-serif text-[14px] leading-[1.65] text-muted-foreground line-clamp-3 md:block">
             {post.excerpt}
           </p>
         )}
 
-        <div className="mt-4 flex flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-4 flex flex-col gap-3 text-[13px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-2">
             <div className="flex -space-x-1.5">
               {authors.slice(0, 3).map((author) => (
@@ -133,10 +133,10 @@ export function PostCard({ post }: PostCardProps) {
         </div>
 
         {post.tags.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="mt-4 flex flex-wrap gap-2">
             {post.tags.map(({ tag }) => (
               <Link
-                className="rounded-full bg-muted px-2 py-0.5 text-xs transition-colors hover:bg-muted/80"
+                className="rounded-full bg-muted px-3 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-border"
                 href={`/tag/${tag.slug}`}
                 key={tag.slug}
               >

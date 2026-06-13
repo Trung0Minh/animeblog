@@ -50,13 +50,13 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-2xl border bg-card p-5 sm:p-6">
+      <section className="rounded-[8px] border bg-background p-5 sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-editorial">
           Admin
         </p>
         <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-[32px] font-bold leading-tight tracking-tight">
               Publication control room
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -75,7 +75,7 @@ export default async function AdminDashboardPage() {
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {statCards.map(({ href, icon: Icon, key, label }) => (
           <Link
-            className="rounded-2xl border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-[8px] border bg-background p-4 transition-colors hover:border-editorial/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             href={href}
             key={key}
             prefetch={false}
@@ -86,7 +86,7 @@ export default async function AdminDashboardPage() {
               </p>
               <Icon aria-hidden="true" className="h-4 w-4 text-editorial" />
             </div>
-            <p className="mt-4 text-3xl font-bold tracking-tight">
+            <p className="mt-4 text-[32px] font-bold leading-tight tracking-tight">
               {stats[key].toLocaleString()}
             </p>
           </Link>
@@ -95,7 +95,7 @@ export default async function AdminDashboardPage() {
 
       <Suspense
         fallback={
-          <section className="rounded-2xl border p-5 text-sm text-muted-foreground">
+          <section className="rounded-[8px] border p-5 text-sm text-muted-foreground">
             Loading analytics...
           </section>
         }

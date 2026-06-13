@@ -280,13 +280,14 @@ export function PostEditor({
         onPublish={() => startTransition(() => void savePost("PUBLISHED"))}
         onSaveDraft={() => startTransition(() => void savePost("DRAFT"))}
         saveStatus={saveStatus}
+        titlePreview={title}
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-muted/20">
-        <div className="mx-auto flex w-full max-w-4xl flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <main className="mt-12 mb-11 min-h-0 flex-1 overflow-y-auto bg-background">
+        <div className="mx-auto flex w-full max-w-[760px] flex-col px-4 pb-[120px] pt-6 md:px-6 md:pt-8">
           {error && (
             <div
-              className="mb-4 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+              className="mb-4 rounded-[5px] border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
               role="alert"
             >
               {error}
@@ -294,89 +295,79 @@ export function PostEditor({
           )}
 
           <section
-            className="rounded-2xl border bg-background shadow-sm"
+            className="relative w-full bg-background md:rounded-[8px] md:border md:shadow-[0_1px_3px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)] dark:md:shadow-[0_1px_3px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)]"
             data-testid="editor-writing-surface"
           >
-            <div className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10">
-              <div className="space-y-3">
-                <label className="sr-only" htmlFor="post-title">
-                  Title
-                </label>
-                <input
-                  className="w-full border-none bg-transparent text-3xl font-bold leading-[0.98] tracking-tight outline-none placeholder:text-muted-foreground md:text-5xl"
-                  id="post-title"
-                  maxLength={200}
-                  onChange={(event) => {
-                    setTitle(event.target.value)
-                    markDirtyAndAutosave()
-                  }}
-                  placeholder="Post title..."
-                  value={title}
-                />
-              </div>
+            <div className="md:px-10 md:pb-12 md:pt-9">
+              <TiptapEditor
+                content={content}
+                editable
+                onChange={(json, text) => {
+                  setContent(json)
+                  setContentText(text)
+                  markDirtyAndAutosave()
+                }}
+              >
+                <div className="mt-4 pb-2 md:mt-0">
+                  <label className="sr-only" htmlFor="post-title">
+                    Title
+                  </label>
+                  <input
+                    className="w-full border-none bg-transparent text-[22px] font-bold leading-[1.2] text-foreground outline-none placeholder:text-muted-foreground placeholder:font-normal md:text-[28px]"
+                    id="post-title"
+                    maxLength={200}
+                    onChange={(event) => {
+                      setTitle(event.target.value)
+                      markDirtyAndAutosave()
+                    }}
+                    placeholder="Post title..."
+                    value={title}
+                  />
+                </div>
 
-              <div className="mt-5 space-y-2">
-                <label className="sr-only" htmlFor="post-excerpt">
-                  Excerpt
-                </label>
-                <Textarea
-                  className="min-h-14 resize-none border-none bg-transparent px-0 text-base shadow-none placeholder:text-muted-foreground focus-visible:ring-0 sm:text-lg"
-                  id="post-excerpt"
-                  maxLength={500}
-                  onChange={(event) => {
-                    setExcerpt(event.target.value)
-                    markDirtyAndAutosave()
-                  }}
-                  placeholder="Short excerpt shown on listing pages..."
-                  value={excerpt}
-                />
-              </div>
+                <div className="pb-4">
+                  <label className="sr-only" htmlFor="post-excerpt">
+                    Excerpt
+                  </label>
+                  <Textarea
+                    className="h-12 min-h-12 resize-none border-none bg-transparent px-0 text-[15px] text-muted-foreground shadow-none placeholder:text-muted-foreground focus-visible:border-transparent focus-visible:ring-0"
+                    id="post-excerpt"
+                    maxLength={500}
+                    onChange={(event) => {
+                      setExcerpt(event.target.value)
+                      markDirtyAndAutosave()
+                    }}
+                    placeholder="Short excerpt shown on listing pages..."
+                    value={excerpt}
+                  />
+                </div>
 
-              <div className="mt-6 border-t pt-5">
-                <TiptapEditor
-                  content={content}
-                  editable
-                  onChange={(json, text) => {
-                    setContent(json)
-                    setContentText(text)
-                    markDirtyAndAutosave()
-                  }}
-                />
-              </div>
+                <div className="mt-1 border-t pt-6" />
+              </TiptapEditor>
             </div>
           </section>
         </div>
       </main>
 
-      <footer className="shrink-0 border-t bg-background/95 backdrop-blur">
-        <div className="mx-auto w-full max-w-5xl px-4 py-3 sm:px-6 lg:px-8">
+      <footer className="fixed bottom-0 left-0 right-0 z-50 shrink-0 border-t bg-background shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <div className="mx-auto w-full max-w-[760px] px-0">
           <button
             aria-controls="post-settings-panel"
             aria-expanded={isSettingsOpen}
-            className="flex w-full items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3 text-left transition-colors hover:bg-accent/60"
+            className="flex h-11 w-full items-center justify-center gap-2 px-4 text-center text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             onClick={() => setIsSettingsOpen((current) => !current)}
             type="button"
           >
-            <span className="flex min-w-0 items-center gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                <Settings2 aria-hidden="true" className="h-4 w-4" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-medium">
-                  {isSettingsOpen ? "Hide settings" : "Post settings"}
-                </span>
-                <span
-                  aria-hidden="true"
-                  className="block truncate text-xs text-muted-foreground"
-                >
-                  Cover, category, tags, co-authors, and draft visibility
-                </span>
-              </span>
+            <Settings2 aria-hidden="true" className="h-3.5 w-3.5" />
+            <span>
+              {isSettingsOpen
+                ? "Hide post settings"
+                : "Post settings — cover, category, tags, co-authors"}
             </span>
             <ChevronDown
               aria-hidden="true"
               className={[
-                "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform",
                 isSettingsOpen ? "rotate-180" : "",
               ].join(" ")}
             />
@@ -384,10 +375,10 @@ export function PostEditor({
 
           {isSettingsOpen && (
             <div
-              className="max-h-[60vh] overflow-y-auto border-t pt-4"
+              className="max-h-[80vh] overflow-y-auto border-t px-5 py-5 md:px-6"
               id="post-settings-panel"
             >
-              <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+              <div className="grid gap-8 md:grid-cols-2">
                 <div>
                   <CoverImageUpload
                     onChange={(url) => {
@@ -402,7 +393,7 @@ export function PostEditor({
                         Cover alt text
                       </label>
                       <input
-                        className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring"
+                        className="h-9 w-full rounded-[5px] border bg-background px-3 py-2 text-[13px] outline-none transition-colors focus:border-editorial"
                         id="cover-alt"
                         maxLength={200}
                         onChange={(event) => {
@@ -418,11 +409,11 @@ export function PostEditor({
 
                 <div className="grid content-start gap-5">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium" htmlFor="post-category">
+                    <label className="text-xs font-semibold text-muted-foreground" htmlFor="post-category">
                       Category
                     </label>
                     <select
-                      className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring"
+                      className="h-9 w-full rounded-[5px] border bg-background px-2.5 py-2 text-[13px] outline-none transition-colors focus:border-editorial"
                       id="post-category"
                       onChange={(event) => {
                         setCategoryId(event.target.value)
@@ -455,8 +446,8 @@ export function PostEditor({
               </div>
 
               {availableWriters.length > 0 && (
-                <fieldset className="mt-5 rounded-xl border p-4">
-                  <legend className="px-1 text-sm font-medium">
+                <fieldset className="mt-5 rounded-[8px] border p-4">
+                  <legend className="px-1 text-xs font-semibold text-muted-foreground">
                     Co-authors
                   </legend>
                   <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

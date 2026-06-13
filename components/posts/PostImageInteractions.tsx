@@ -85,7 +85,7 @@ export function PostImageInteractions({
   return (
     <>
       <div
-        className="post-content mx-auto w-full max-w-3xl xl:max-w-4xl"
+        className="post-content mx-auto w-full max-w-[720px]"
         onClick={(event) => openLightboxFromTarget(event.target)}
         onKeyDown={(event) => {
           if (event.key !== "Enter" && event.key !== " ") {

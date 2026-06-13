@@ -12,16 +12,16 @@ interface PendingInvite {
 export function PendingInvitesTable({ invites }: { invites: PendingInvite[] }) {
   if (invites.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed p-5 text-sm text-muted-foreground">
+      <div className="rounded-[8px] border border-dashed p-5 text-sm text-muted-foreground">
         No pending invites.
       </div>
     )
   }
 
   return (
-    <div className="space-y-2">
+    <div>
       {invites.map((invite) => (
-        <article className="rounded-2xl border bg-card p-4" key={invite.id}>
+        <article className="border-t py-4 first:border-t-0" key={invite.id}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">{invite.email}</p>

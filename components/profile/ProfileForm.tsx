@@ -87,7 +87,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         </div>
       )}
 
-      <section className="rounded-xl border p-4 sm:p-5">
+      <section className="rounded-[8px] border p-4 sm:p-5">
         <label className="mb-3 block text-sm font-medium">Avatar</label>
         <AvatarUpload name={name} onChange={setAvatarUrl} value={avatarUrl} />
       </section>

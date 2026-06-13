@@ -58,8 +58,8 @@ export function AdminNav() {
             <Link
               aria-current={active ? "page" : undefined}
               className={cn(
-                "inline-flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                active && "bg-muted text-foreground",
+                "inline-flex shrink-0 items-center gap-2 border-b-2 border-transparent px-1 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                active && "border-editorial text-foreground",
               )}
               href={href}
               key={href}

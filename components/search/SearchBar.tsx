@@ -105,15 +105,15 @@ export function SearchBar() {
   }
 
   return (
-    <div className="relative w-full max-w-xs" ref={containerRef}>
-      <div className="relative">
+    <div className="relative w-full" ref={containerRef}>
+      <div className="group relative">
         <Search
           aria-hidden="true"
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-editorial"
         />
         <input
           aria-label="Search posts"
-          className="h-10 w-full rounded-full border bg-background pl-9 pr-9 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring"
+          className="h-8 w-full rounded-full border border-transparent bg-muted pl-9 pr-9 text-[13px] text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-border focus:bg-background"
           onChange={(event) => {
             const nextQuery = event.target.value
             setQuery(nextQuery)
@@ -139,7 +139,7 @@ export function SearchBar() {
         ) : query ? (
           <Button
             aria-label="Clear search"
-            className="absolute right-0 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full text-muted-foreground"
+            className="absolute right-0 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full text-muted-foreground"
             onClick={clearSearch}
             size="icon"
             type="button"
@@ -151,7 +151,7 @@ export function SearchBar() {
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border bg-popover shadow-lg">
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-[8px] border bg-popover shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.28)]">
           {results.length === 0 && !isLoading && (
             <p className="px-4 py-3 text-sm text-muted-foreground">
               No results for &quot;{debouncedQuery.trim()}&quot;
@@ -169,7 +169,7 @@ export function SearchBar() {
               {result.coverUrl && (
                 <img
                   alt=""
-                  className="mt-0.5 h-10 w-14 shrink-0 rounded-md object-cover"
+                  className="mt-0.5 h-10 w-14 shrink-0 rounded-[4px] object-cover"
                   decoding="async"
                   loading="lazy"
                   src={result.coverUrl}
@@ -188,7 +188,7 @@ export function SearchBar() {
 
           {results.length > 0 && (
             <Link
-              className="block border-t px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-primary transition-colors hover:bg-muted"
+              className="block border-t px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-editorial transition-colors hover:bg-muted"
               href={`/search?q=${encodeURIComponent(query.trim())}`}
               onClick={() => setIsOpen(false)}
             >

@@ -17,7 +17,7 @@ export function ThemeToggle() {
   )
 
   if (!mounted) {
-    return <div aria-hidden="true" className="h-11 w-11" />
+    return <div aria-hidden="true" className="h-8 w-8" />
   }
 
   const activeTheme = resolvedTheme ?? theme
@@ -26,7 +26,7 @@ export function ThemeToggle() {
   return (
     <Button
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
-      className="h-11 w-11 text-muted-foreground"
+      className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground [&_svg]:h-[18px] [&_svg]:w-[18px]"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       size="icon"
       type="button"

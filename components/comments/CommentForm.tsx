@@ -87,17 +87,17 @@ export function CommentForm({
   return (
     <form
       aria-label={ariaLabel}
-      className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5"
+      className="font-sans"
       onSubmit={handleSubmit}
     >
       <div className="space-y-4">
         {error && (
-          <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p className="rounded-[5px] bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </p>
         )}
         {successMessage && (
-          <p className="rounded-md bg-muted px-3 py-2 text-sm text-foreground">
+          <p className="rounded-[5px] bg-muted px-3 py-2 text-sm text-foreground">
             {successMessage}
           </p>
         )}
@@ -105,7 +105,7 @@ export function CommentForm({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <label
-              className="text-sm font-medium"
+              className="text-[13px] font-medium"
               htmlFor={`${id}-comment-name`}
             >
               Name
@@ -121,7 +121,7 @@ export function CommentForm({
           </div>
           <div className="space-y-1.5">
             <label
-              className="text-sm font-medium"
+              className="text-[13px] font-medium"
               htmlFor={`${id}-comment-email`}
             >
               Email
@@ -142,8 +142,8 @@ export function CommentForm({
         </div>
 
         <div className="space-y-1.5">
-          <label
-            className="text-sm font-medium"
+            <label
+            className="text-[13px] font-medium"
             htmlFor={`${id}-comment-content`}
           >
             Comment
@@ -167,7 +167,7 @@ export function CommentForm({
           </p>
         </div>
 
-        <label className="flex items-start gap-2 text-sm text-muted-foreground">
+        <label className="flex items-start gap-2 text-[13px] text-muted-foreground">
           <input
             checked={notifyReply}
             className="mt-1 h-4 w-4 rounded border-input accent-primary"

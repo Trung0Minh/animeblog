@@ -48,7 +48,7 @@ export default async function AdminPostsPage({
             Review and remove published posts or drafts from any writer.
           </p>
         </div>
-        <div className="flex gap-1 overflow-x-auto rounded-lg border bg-card p-1">
+        <div className="flex gap-1 overflow-x-auto rounded-[8px] border bg-background p-1">
           {STATUS_FILTERS.map((filter) => {
             const active = filter.status === status || (!filter.status && !status)
 
@@ -56,7 +56,7 @@ export default async function AdminPostsPage({
               <Link
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "whitespace-nowrap rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                  "whitespace-nowrap rounded-[5px] px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
                   active && "bg-muted text-foreground",
                 )}
                 href={filter.href}

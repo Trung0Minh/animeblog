@@ -87,7 +87,7 @@ export function CoverImageUpload({ onChange, value }: CoverImageUploadProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <label className="text-sm font-medium" htmlFor="cover-image">
+        <label className="text-xs font-semibold text-muted-foreground" htmlFor="cover-image">
           Cover image
         </label>
         {value && (
@@ -104,7 +104,7 @@ export function CoverImageUpload({ onChange, value }: CoverImageUploadProps) {
       </div>
 
       {value && (
-        <div className="aspect-video overflow-hidden rounded-xl border bg-muted">
+        <div className="aspect-video overflow-hidden rounded-[8px] border bg-muted">
           <img
             alt="Selected cover"
             className="h-full w-full object-cover"
@@ -113,17 +113,18 @@ export function CoverImageUpload({ onChange, value }: CoverImageUploadProps) {
         </div>
       )}
 
-      <div className="flex flex-col gap-2 rounded-xl border border-dashed p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex aspect-video flex-col items-center justify-center gap-2 rounded-[8px] border border-dashed border-input bg-muted p-4 text-center transition-colors hover:border-muted-foreground/60 hover:bg-border/30">
         <div>
-          <p className="text-sm font-medium">Upload a JPEG, PNG, GIF, or WebP.</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Covers use a responsive 16:9 crop.
+          <p className="text-[13px] font-medium">Add cover image</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            JPG, PNG, GIF, WebP · Max 10MB
           </p>
         </div>
         <Button
           disabled={uploading}
           onClick={() => inputRef.current?.click()}
           type="button"
+          size="sm"
           variant="outline"
         >
           {uploading ? (

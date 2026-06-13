@@ -47,19 +47,11 @@ export function CommentSection({
   }
 
   return (
-    <section className="mt-16 border-t pt-10" id="comments">
-      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-            Reader notes
-          </p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight">
-            {total} comment{total === 1 ? "" : "s"}
-          </h2>
-        </div>
-        <p className="max-w-md text-sm leading-6 text-muted-foreground">
-          Add a close read, correction, or question. Replies stay one level deep
-          so the thread remains readable.
+    <section className="mt-12 border-t pt-10" id="comments">
+      <div className="mb-6">
+        <h2 className="text-[20px] font-bold tracking-tight">Comments</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {total} comment{total === 1 ? "" : "s"}
         </p>
       </div>
 

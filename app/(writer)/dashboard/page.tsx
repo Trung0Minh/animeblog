@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   const posts = await getCachedWriterDashboardPosts(session.user.id)
 
   return (
-    <main className="container max-w-4xl py-8 sm:py-10">
+    <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-10 md:px-6 lg:px-8">
       <div className="mb-8 flex items-center justify-between gap-4">
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
@@ -36,7 +36,7 @@ export default async function DashboardPage() {
       <div className="space-y-2">
         {posts.map((post) => (
           <article
-            className="flex flex-col gap-3 rounded-xl border p-4 transition-colors hover:bg-muted/50 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-3 border-t py-4 transition-colors first:border-t-0 hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between"
             key={post.id}
           >
             <div className="min-w-0">
@@ -84,7 +84,7 @@ export default async function DashboardPage() {
         ))}
 
         {posts.length === 0 && (
-          <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+          <div className="rounded-[8px] border border-dashed p-8 text-center text-sm text-muted-foreground">
             No posts yet.{" "}
             <Link
               className="font-medium text-editorial hover:underline"

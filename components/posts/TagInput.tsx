@@ -189,7 +189,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
 
   return (
     <div className="relative" ref={containerRef}>
-      <label className="mb-2 block text-sm font-medium" htmlFor="post-tags">
+      <label className="mb-2 block text-xs font-semibold text-muted-foreground" htmlFor="post-tags">
         Tags
       </label>
 
@@ -197,7 +197,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
         <div className="mb-2 flex flex-wrap gap-1.5">
           {selectedTags.map((tag) => (
             <span
-              className="inline-flex items-center gap-1 rounded-full border bg-muted px-2 py-0.5 text-xs"
+              className="inline-flex items-center gap-1.5 rounded-full border bg-muted px-3 py-1.5 text-[13px] text-muted-foreground"
               key={tag.id}
             >
               {tag.name}
@@ -224,7 +224,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
         <input
           aria-label="Tags"
           autoComplete="off"
-          className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring"
+          className="h-[34px] w-full rounded-[5px] border bg-background px-2.5 py-2 text-[13px] outline-none transition-colors focus:border-editorial"
           id="post-tags"
           onChange={(event) => {
             const nextQuery = event.target.value
@@ -270,10 +270,10 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
       </div>
 
       {open && query.trim() && (
-        <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-md border bg-background shadow-md">
+        <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-[5px] border bg-background shadow-md">
           {suggestions.map((tag) => (
             <button
-              className="block w-full px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
+              className="block w-full px-3 py-2 text-left text-[13px] transition-colors hover:bg-muted"
               key={tag.id}
               onClick={() => addTag(tag)}
               type="button"
@@ -284,7 +284,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
 
           {!exactMatch && (
             <button
-              className="flex w-full items-center gap-1.5 border-t px-3 py-2 text-left text-sm text-editorial transition-colors hover:bg-muted disabled:opacity-50"
+              className="flex w-full items-center gap-1.5 border-t px-3 py-2 text-left text-[13px] text-editorial transition-colors hover:bg-muted disabled:opacity-50"
               disabled={creating}
               onClick={() => void createTag()}
               type="button"
@@ -301,7 +301,7 @@ export function TagInput({ onChange, selectedTags }: TagInputProps) {
       )}
 
       {error && (
-        <p className="mt-2 text-sm text-destructive" role="alert">
+        <p className="mt-2 text-[13px] text-destructive" role="alert">
           {error}
         </p>
       )}

@@ -18,7 +18,7 @@ export function PostList({
 }: PostListProps) {
   if (posts.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+      <div className="rounded-[8px] border border-dashed p-8 text-center text-sm text-muted-foreground">
         {emptyMessage}
       </div>
     )
@@ -26,7 +26,7 @@ export function PostList({
 
   return (
     <div>
-      <div className="space-y-6">
+      <div className="space-y-10 md:space-y-14">
         {posts.map((post) => (
           <PostCard key={post.slug} post={post} />
         ))}

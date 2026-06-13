@@ -132,13 +132,14 @@ describe("CommentSection", () => {
       />,
     )
 
-    expect(screen.getByRole("heading", { name: "2 comments" })).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Comments" })).toBeVisible()
+    expect(screen.getByText("2 comments")).toBeVisible()
     expect(screen.getByText("<script>alert(1)</script>")).toBeVisible()
     expect(container.querySelector("script")).toBeNull()
     expect(screen.queryByText(/@example\.com/)).not.toBeInTheDocument()
     expect(
       screen.getByRole("button", { name: "Reply to Mina's comment" }),
-    ).toHaveClass("min-h-11")
+    ).toHaveClass("min-h-0", "px-0")
   })
 
   it("adds a successful reply under the selected parent comment", async () => {

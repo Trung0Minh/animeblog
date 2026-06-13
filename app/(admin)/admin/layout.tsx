@@ -23,7 +23,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <main className="container max-w-6xl py-6 sm:py-8">
+    <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8 md:px-6 lg:px-8">
       <AdminNav />
       <div className="pt-6">{children}</div>
     </main>

@@ -37,7 +37,7 @@ export function VideoEmbedModal({ onClose, onInsert }: VideoEmbedModalProps) {
       }}
       role="dialog"
     >
-      <div className="w-full max-w-md rounded-lg border bg-background p-6 shadow-xl">
+      <div className="w-full max-w-md rounded-[8px] border bg-background p-6 shadow-[0_12px_32px_rgba(0,0,0,0.18)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.45)]">
         <div className="mb-5 flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold">Embed video</h2>
           <Button

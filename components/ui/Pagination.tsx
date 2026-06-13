@@ -12,7 +12,7 @@ interface PaginationProps {
 }
 
 const paginationLinkClass =
-  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border px-3 text-sm transition-colors hover:bg-muted"
+  "inline-flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 
 function getPageWindow(page: number, totalPages: number) {
   const start = Math.max(1, page - 2)
@@ -79,7 +79,7 @@ export function Pagination({
           className={cn(
             paginationLinkClass,
             pageNumber === page &&
-              "border-primary bg-primary text-primary-foreground hover:bg-primary",
+              "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
           )}
           href={buildPageHref(pageNumber, query)}
           key={pageNumber}

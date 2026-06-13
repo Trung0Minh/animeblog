@@ -14,7 +14,7 @@ export default async function AdminNewsletterPage() {
         </p>
       </div>
 
-      <section className="rounded-2xl border bg-card p-5">
+      <section className="rounded-[8px] border bg-background p-5">
         <NewsletterBroadcastForm recentPosts={recentPosts} />
       </section>
     </div>

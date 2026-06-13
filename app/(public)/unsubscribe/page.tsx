@@ -67,7 +67,7 @@ function UnsubscribeResult({ status }: { status: UnsubscribeStatus }) {
   return (
     <PageContainer className="flex min-h-[70vh] items-center justify-center py-16">
       <section
-        className={`w-full max-w-md rounded-xl border p-8 text-center shadow-sm ${message.tone}`}
+        className={`w-full max-w-md rounded-[8px] border p-8 text-center ${message.tone}`}
       >
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-editorial">
           Newsletter
@@ -79,7 +79,7 @@ function UnsubscribeResult({ status }: { status: UnsubscribeStatus }) {
           {message.body}
         </p>
         <Link
-          className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="mt-6 inline-flex rounded-[5px] bg-primary px-4 py-2 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           href="/"
         >
           Back to blog

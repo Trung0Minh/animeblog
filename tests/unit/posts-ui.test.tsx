@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import type { AnchorHTMLAttributes } from "react"
+import type { AnchorHTMLAttributes, ReactNode } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const routerMocks = vi.hoisted(() => ({
@@ -21,19 +21,24 @@ vi.mock("next/navigation", () => ({
 }))
 vi.mock("@/components/editor/TiptapEditor", () => ({
   TiptapEditor: ({
+    children,
     editable,
     onChange,
   }: {
+    children?: ReactNode
     editable?: boolean
     onChange?: (json: Record<string, unknown>, text: string) => void
   }) => (
-    <button
-      data-editable={String(editable)}
-      onClick={() => onChange?.({ content: [], type: "doc" }, "Plain body")}
-      type="button"
-    >
-      Mock editor
-    </button>
+    <div>
+      {children}
+      <button
+        data-editable={String(editable)}
+        onClick={() => onChange?.({ content: [], type: "doc" }, "Plain body")}
+        type="button"
+      >
+        Mock editor
+      </button>
+    </div>
   ),
 }))
 
@@ -122,10 +127,10 @@ describe("PostCard", () => {
 
     expect(
       screen.getByRole("heading", { level: 2, name: "Frieren Animation" }),
-    ).toHaveClass("text-lg", "sm:text-xl")
+    ).toHaveClass("text-[20px]")
     expect(screen.getByText("A compact summary of the article.")).toHaveClass(
       "hidden",
-      "sm:block",
+      "md:block",
       "line-clamp-3",
     )
   })
@@ -137,7 +142,7 @@ describe("Post detail responsive components", () => {
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Frieren Animation" }),
-    ).toHaveClass("text-2xl", "md:text-3xl")
+    ).toHaveClass("text-[26px]", "md:text-[36px]")
     const cover = screen.getByRole("img", { name: "Cover alt" })
     expect(cover).toHaveAttribute("loading", "eager")
     expect(cover).toHaveAttribute("fetchpriority", "high")
@@ -152,8 +157,7 @@ describe("Post detail responsive components", () => {
     expect(container.querySelector(".post-content")).toHaveClass(
       "mx-auto",
       "w-full",
-      "max-w-3xl",
-      "xl:max-w-4xl",
+      "max-w-[720px]",
     )
   })
 })
@@ -168,9 +172,7 @@ describe("post loading skeletons", () => {
     rerender(<SidebarSkeleton />)
 
     expect(container.firstElementChild).toHaveClass(
-      "lg:w-64",
-      "xl:w-80",
-      "2xl:w-96",
+      "lg:w-[240px]",
     )
   })
 })
@@ -181,14 +183,14 @@ describe("Pagination", () => {
 
     const previous = screen.getByRole("link", { name: "Previous" })
     expect(previous).toHaveAttribute("href", "?page=1")
-    expect(previous).toHaveClass("min-h-11", "min-w-11")
+    expect(previous).toHaveClass("h-8", "min-w-8")
     expect(screen.getByRole("link", { name: "Next" })).toHaveAttribute(
       "href",
       "?page=3",
     )
     const pageFour = screen.getByRole("link", { name: "Page 4" })
     expect(pageFour).toHaveAttribute("href", "?page=4")
-    expect(pageFour).toHaveClass("min-h-11", "min-w-11")
+    expect(pageFour).toHaveClass("h-8", "min-w-8")
   })
 })
 
@@ -390,7 +392,7 @@ describe("PostEditor", () => {
 
     await user.type(screen.getByLabelText("Title"), "New Post")
     await user.click(screen.getByRole("button", { name: "Mock editor" }))
-    await user.click(screen.getByRole("button", { name: "Post settings" }))
+    await user.click(screen.getByRole("button", { name: /^Post settings/ }))
     await user.selectOptions(screen.getByLabelText("Category"), "category-1")
     await user.click(screen.getByRole("checkbox", { name: "Ken" }))
     await user.click(screen.getByRole("button", { name: "Publish" }))
@@ -439,35 +441,37 @@ describe("PostEditor", () => {
       "z-50",
     )
     expect(screen.getByLabelText("Title")).toHaveClass(
-      "text-3xl",
-      "md:text-5xl",
+      "text-[22px]",
+      "md:text-[28px]",
     )
 
-    const saveDraftButton = screen.getByRole("button", { name: "Save draft" })
+    const saveDraftButton = screen.getByRole("button", { name: /Save draft/ })
     const topBar = saveDraftButton.closest("header")
     if (!topBar) {
       throw new Error("Editor top bar not found")
     }
 
-    expect(topBar).toHaveClass("sticky", "top-0", "z-20")
-    expect(screen.getByRole("link", { name: "Exit" })).toHaveAttribute(
+    expect(topBar).toHaveClass("fixed", "top-0", "z-[100]")
+    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
       "href",
       "/dashboard",
     )
     expect(screen.getByTestId("editor-writing-surface")).toHaveClass(
-      "rounded-2xl",
-      "border",
+      "md:rounded-[8px]",
+      "md:border",
     )
     expect(screen.queryByLabelText("Category")).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole("button", { name: "Post settings" }))
+    await user.click(screen.getByRole("button", { name: /^Post settings/ }))
 
     expect(screen.getByLabelText("Category")).toBeVisible()
     expect(screen.getByRole("checkbox", { name: "Ken" })).toBeVisible()
-    expect(screen.getByRole("button", { name: "Hide settings" })).toBeVisible()
-    expect(saveDraftButton).toHaveClass("h-9")
+    expect(
+      screen.getByRole("button", { name: /^Hide post settings/ }),
+    ).toBeVisible()
+    expect(saveDraftButton).toHaveClass("h-8")
     expect(screen.getByRole("button", { name: "Publish" })).toHaveClass(
-      "h-9",
+      "h-8",
     )
   })
 
@@ -629,12 +633,12 @@ describe("PostEditor", () => {
     )
 
     await user.type(screen.getByLabelText("Title"), "Shared Draft")
-    await user.click(screen.getByRole("button", { name: "Post settings" }))
+    await user.click(screen.getByRole("button", { name: /^Post settings/ }))
     await user.click(screen.getByRole("checkbox", { name: "Ken" }))
     await user.click(
       screen.getByRole("button", { name: "Visible to co-authors" }),
     )
-    await user.click(screen.getByRole("button", { name: "Save draft" }))
+    await user.click(screen.getByRole("button", { name: /Save draft/ }))
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(

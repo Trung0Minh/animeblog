@@ -88,18 +88,22 @@ export default async function PostPage({ params }: PostPageProps) {
         updatedAt={post.updatedAt}
       />
       <PostReadTracker slug={post.slug} title={post.title} />
-      <PageContainer as="article" size="wide">
-        <PostHeader post={post} />
-        <div className="relative mx-auto mt-8 max-w-6xl xl:max-w-7xl">
-          <div className="mx-auto w-full max-w-4xl">
+      <PageContainer
+        as="div"
+        className="flex justify-center pb-20 pt-8 md:pt-12"
+        size="wide"
+      >
+        <div className="flex w-full max-w-[720px] flex-col gap-[48px] xl:max-w-[968px] xl:flex-row">
+          <article className="min-w-0 flex-1">
+            <PostHeader post={post} />
             <PostBody content={content} />
             <CommentSection
               initialComments={post.comments}
               postId={post.id}
               postSlug={post.slug}
             />
-          </div>
-          <aside className="hidden 2xl:absolute 2xl:left-[calc(50%+30rem)] 2xl:top-0 2xl:block 2xl:w-64">
+          </article>
+          <aside className="hidden w-[200px] shrink-0 xl:block">
             <TableOfContents content={content} />
           </aside>
         </div>

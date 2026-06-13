@@ -34,23 +34,23 @@ export function MobileNav({ links, user }: MobileNavProps) {
       <SheetTrigger asChild>
         <Button
           aria-label="Open navigation menu"
-          className="h-11 w-11 text-muted-foreground md:hidden"
+          className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
           size="icon"
           type="button"
           variant="ghost"
         >
-          <Menu aria-hidden="true" />
+          <Menu aria-hidden="true" className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-72 pt-14" side="right">
+      <SheetContent className="w-[280px] border-border bg-background px-6 pt-14" side="right">
         <SheetTitle className="sr-only">Navigation menu</SheetTitle>
         <SheetDescription className="sr-only">
           Browse publication pages and search posts.
         </SheetDescription>
-        <nav aria-label="Mobile navigation" className="flex flex-col gap-1">
+        <nav aria-label="Mobile navigation" className="flex flex-col gap-5">
           {links.map((link) => (
             <Link
-              className="flex min-h-11 items-center rounded-md px-3 text-sm font-medium transition-colors hover:bg-muted"
+              className="text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
               href={link.href}
               key={link.href}
               onClick={() => setOpen(false)}
@@ -63,7 +63,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
         <div className="mt-6 border-t pt-6">
           <Link
             aria-label="Search posts"
-            className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="flex min-h-10 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
             href="/search"
             onClick={() => setOpen(false)}
           >
@@ -74,15 +74,15 @@ export function MobileNav({ links, user }: MobileNavProps) {
 
         {menuUser ? (
           <div className="mt-6 border-t pt-6">
-            <div className="px-3 pb-3">
+            <div className="pb-4">
               <p className="truncate text-sm font-medium">{menuUser.name}</p>
               <p className="truncate text-xs text-muted-foreground">
                 @{menuUser.username}
               </p>
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
               <Link
-                className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="flex min-h-9 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 href="/dashboard"
                 onClick={() => setOpen(false)}
                 prefetch={false}
@@ -92,7 +92,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
               </Link>
               {menuUser.role === "ADMIN" && (
                 <Link
-                  className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  className="flex min-h-9 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                   href="/admin"
                   onClick={() => setOpen(false)}
                   prefetch={false}
@@ -102,7 +102,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
                 </Link>
               )}
               <Link
-                className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="flex min-h-9 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 href="/dashboard/profile"
                 onClick={() => setOpen(false)}
                 prefetch={false}
@@ -111,7 +111,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
                 Edit profile
               </Link>
               <Link
-                className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="flex min-h-9 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 href={`/authors/${menuUser.username}`}
                 onClick={() => setOpen(false)}
               >
@@ -119,7 +119,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
                 View public profile
               </Link>
               <Button
-                className="min-h-11 justify-start gap-2 px-3 text-muted-foreground"
+                className="min-h-9 justify-start gap-2 px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
                 onClick={handleSignOut}
                 type="button"
                 variant="ghost"

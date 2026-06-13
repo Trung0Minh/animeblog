@@ -63,17 +63,17 @@ export function WritersTable({ writers }: { writers: Writer[] }) {
 
   if (writers.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+      <div className="rounded-[8px] border border-dashed p-8 text-center text-sm text-muted-foreground">
         No active writers found.
       </div>
     )
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border bg-card">
+    <div className="overflow-x-auto rounded-[8px] border bg-background">
       <table className="w-full min-w-[720px] text-sm">
         <thead>
-          <tr className="border-b bg-muted/50 text-left">
+          <tr className="border-b bg-muted text-left">
             <th className="px-4 py-3 font-medium">Writer</th>
             <th className="px-4 py-3 font-medium">Email</th>
             <th className="px-4 py-3 font-medium">Joined</th>

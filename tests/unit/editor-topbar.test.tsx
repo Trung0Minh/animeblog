@@ -32,13 +32,13 @@ describe("EditorTopBar", () => {
       />,
     )
 
-    expect(screen.getByRole("link", { name: "Exit" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
       "href",
       "/dashboard",
     )
     expect(screen.getByText("Saved")).toBeVisible()
 
-    await user.click(screen.getByRole("button", { name: "Save draft" }))
+    await user.click(screen.getByRole("button", { name: /Save draft/ }))
     await user.click(screen.getByRole("button", { name: "Publish" }))
 
     expect(onSaveDraft).toHaveBeenCalledTimes(1)
@@ -58,7 +58,7 @@ describe("EditorTopBar", () => {
       />,
     )
 
-    expect(screen.getByRole("button", { name: "Save draft" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: /Save draft/ })).toBeDisabled()
     expect(screen.getByRole("button", { name: "Update" })).toBeDisabled()
     expect(
       screen.getByText("Add a title to enable saving and publishing."),

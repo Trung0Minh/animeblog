@@ -56,7 +56,7 @@ export default async function TagPage({ params, searchParams }: TagPageProps) {
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
           Tag
         </p>
-        <h1 className="text-3xl font-bold tracking-tight">#{tag.name}</h1>
+        <h1 className="text-[32px] font-bold leading-tight tracking-tight">#{tag.name}</h1>
       </section>
 
       <PostList

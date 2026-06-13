@@ -5,8 +5,8 @@ export function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="mt-16 border-t">
-      <div className="container flex flex-col items-center justify-between gap-4 py-8 text-sm text-muted-foreground sm:flex-row">
+    <footer className="mt-16 border-t border-border">
+      <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-4 px-4 py-8 text-[13px] text-muted-foreground sm:flex-row md:px-6 lg:px-8">
         <p>
           &copy; {year} {appName}
         </p>

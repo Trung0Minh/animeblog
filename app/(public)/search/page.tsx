@@ -39,7 +39,7 @@ export async function generateMetadata({
 
 function EmptySearchState({ query }: { query: string }) {
   return (
-    <div className="rounded-2xl border bg-card p-8 text-center">
+    <div className="rounded-[8px] border border-dashed p-8 text-center">
       <p className="text-sm text-muted-foreground">
         {query
           ? "No posts matched your search. Try fewer or different keywords."
@@ -53,12 +53,12 @@ function SearchResultCard({ result }: { result: SearchResult }) {
   const snippet = sanitizeSearchSnippet(result.snippet)
 
   return (
-    <article className="rounded-2xl border bg-card p-4 transition-colors hover:border-primary/50 sm:p-5">
+    <article className="border-t py-5 first:border-t-0">
       <div className="flex gap-4">
         {result.coverUrl && (
           <img
             alt=""
-            className="hidden h-24 w-32 shrink-0 rounded-xl object-cover sm:block"
+            className="hidden h-24 w-32 shrink-0 rounded-[6px] object-cover sm:block"
             decoding="async"
             loading="lazy"
             src={result.coverUrl}
@@ -66,7 +66,7 @@ function SearchResultCard({ result }: { result: SearchResult }) {
         )}
         <div className="min-w-0 flex-1">
           <Link
-            className="text-lg font-semibold tracking-tight transition-colors hover:text-editorial"
+            className="text-lg font-semibold leading-snug tracking-tight transition-colors hover:text-editorial"
             href={`/${result.slug}`}
           >
             {result.title}
@@ -95,7 +95,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   if (!query || !tsQuery) {
     return (
       <PageContainer className="py-10">
-        <h1 className="text-3xl font-bold tracking-tight">Search</h1>
+        <h1 className="text-[32px] font-bold leading-tight tracking-tight">Search</h1>
         <div className="mt-8">
           <EmptySearchState query={query} />
         </div>
@@ -112,10 +112,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <PageContainer className="py-10">
       <SearchPageTracker query={query} />
-      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-editorial">
         Search archive
       </p>
-      <h1 className="mt-2 text-3xl font-bold tracking-tight">
+      <h1 className="mt-2 text-[32px] font-bold leading-tight tracking-tight">
         Results for &quot;{query}&quot;
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
@@ -126,7 +126,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         {results.length === 0 ? (
           <EmptySearchState query={query} />
         ) : (
-          <div className="space-y-4">
+          <div>
             {results.map((result) => (
               <SearchResultCard key={result.id} result={result} />
             ))}

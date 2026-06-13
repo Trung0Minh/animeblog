@@ -46,20 +46,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return (
     <PageContainer size="wide">
-      <section className="mb-10 max-w-4xl">
-        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
-          Latest analysis
-        </p>
-        <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-5xl">
-          Serious writing about Japanese animation.
-        </h1>
-        <p className="mt-5 max-w-2xl font-serif text-lg leading-relaxed text-muted-foreground">
-          In-depth anime analysis, production insight, interviews, and reviews
-          in an editorial space designed for comfortable long-form reading.
-        </p>
-      </section>
-
-      <div className="flex flex-col gap-8 lg:flex-row xl:gap-10">
+      <div className="flex flex-col gap-12 lg:flex-row xl:gap-[48px]">
         <section className="min-w-0 flex-1" aria-label="Published posts">
           <Suspense fallback={<PostListSkeleton />}>
             <HomePostList page={page} />

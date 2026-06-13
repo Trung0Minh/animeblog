@@ -67,7 +67,7 @@ export function ImagePreviewModal({
       }}
       role="dialog"
     >
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border bg-background shadow-2xl">
+      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-[8px] border bg-background shadow-[0_12px_32px_rgba(0,0,0,0.18)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.45)]">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div>
             <h3 className="font-sans text-sm font-semibold">
@@ -90,7 +90,7 @@ export function ImagePreviewModal({
         <div className="flex flex-wrap gap-2 border-b p-4">
           <button
             className={[
-              "inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm transition-colors",
+              "inline-flex items-center gap-1.5 rounded-[5px] border px-3 py-1.5 text-sm transition-colors",
               mode === "individual"
                 ? "border-primary bg-primary text-primary-foreground"
                 : "hover:bg-muted",
@@ -103,7 +103,7 @@ export function ImagePreviewModal({
           </button>
           <button
             className={[
-              "inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm transition-colors",
+              "inline-flex items-center gap-1.5 rounded-[5px] border px-3 py-1.5 text-sm transition-colors",
               mode === "gallery"
                 ? "border-primary bg-primary text-primary-foreground"
                 : "hover:bg-muted",
@@ -121,7 +121,7 @@ export function ImagePreviewModal({
             <div
               aria-label={`Selected image ${image.file.name}`}
               className={[
-                "grid gap-3 rounded-lg border bg-muted/25 p-3 transition-opacity sm:grid-cols-[auto_5rem_1fr_auto]",
+                "grid gap-3 rounded-[8px] border bg-muted/25 p-3 transition-opacity sm:grid-cols-[auto_5rem_1fr_auto]",
                 dragIndex === index ? "opacity-50" : "",
               ].join(" ")}
               draggable
@@ -148,7 +148,7 @@ export function ImagePreviewModal({
                   Caption for {image.file.name}
                 </label>
                 <input
-                  className="w-full rounded-md border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                  className="w-full rounded-[5px] border bg-background px-2 py-1.5 text-sm focus:border-editorial focus:outline-none"
                   id={`caption-${image.id}`}
                   onChange={(event) =>
                     updateImage(index, { caption: event.target.value })
@@ -161,7 +161,7 @@ export function ImagePreviewModal({
                   Alt text for {image.file.name}
                 </label>
                 <input
-                  className="w-full rounded-md border bg-background px-2 py-1.5 text-xs text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  className="w-full rounded-[5px] border bg-background px-2 py-1.5 text-xs text-muted-foreground focus:border-editorial focus:outline-none"
                   id={`alt-${image.id}`}
                   onChange={(event) =>
                     updateImage(index, { alt: event.target.value })
@@ -186,14 +186,14 @@ export function ImagePreviewModal({
 
         <div className="flex justify-end gap-2 border-t p-4">
           <button
-            className="rounded-md border px-4 py-2 text-sm transition-colors hover:bg-muted"
+            className="rounded-[5px] border px-4 py-2 text-sm transition-colors hover:bg-muted"
             onClick={onClose}
             type="button"
           >
             Cancel
           </button>
           <button
-            className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="rounded-[5px] bg-primary px-4 py-2 text-sm text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
             disabled={images.length === 0}
             onClick={() => onConfirm(images, mode)}
             type="button"

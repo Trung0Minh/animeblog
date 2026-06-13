@@ -20,13 +20,15 @@ export function DraftVisibilityToggle({
   if (!hasCoAuthors) return null
 
   return (
-    <fieldset className="mt-6 rounded-xl border p-4">
-      <legend className="px-1 text-sm font-medium">Draft visibility</legend>
+    <fieldset className="mt-6 rounded-[8px] border p-4">
+      <legend className="px-1 text-xs font-semibold text-muted-foreground">
+        Draft visibility
+      </legend>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         <button
           aria-pressed={value === "PRIVATE"}
           className={cn(
-            "flex items-center gap-2 rounded-md border px-3 py-2 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "flex h-[34px] items-center gap-2 rounded-[5px] border px-4 text-left text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             value === "PRIVATE"
               ? "border-primary bg-primary text-primary-foreground"
               : "hover:bg-muted",
@@ -40,7 +42,7 @@ export function DraftVisibilityToggle({
         <button
           aria-pressed={value === "CO_AUTHORS"}
           className={cn(
-            "flex items-center gap-2 rounded-md border px-3 py-2 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "flex h-[34px] items-center gap-2 rounded-[5px] border px-4 text-left text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             value === "CO_AUTHORS"
               ? "border-primary bg-primary text-primary-foreground"
               : "hover:bg-muted",

@@ -19,7 +19,7 @@ export default async function AdminWritersPage() {
       </section>
 
       <aside className="space-y-6">
-        <section className="rounded-2xl border bg-card p-4">
+        <section className="rounded-[8px] border bg-background p-4">
           <h2 className="font-semibold">Invite a writer</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Send an invite link to create a writer account.

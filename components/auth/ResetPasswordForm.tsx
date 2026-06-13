@@ -67,7 +67,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
-      <section className="w-full max-w-sm rounded-lg border bg-background p-6 shadow-sm sm:p-8">
+      <section className="w-full max-w-sm rounded-[8px] border bg-background p-6 sm:p-8">
         <h1 className="text-2xl font-bold tracking-tight">Set new password</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Create a new Anime Blog password. This is separate from your Gmail

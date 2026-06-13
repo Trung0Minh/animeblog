@@ -72,13 +72,13 @@ export function NewsletterForm() {
   }
 
   return (
-    <div className="rounded-xl border bg-card/60 p-4 shadow-sm">
-      <p className="text-sm leading-6 text-muted-foreground">
+    <div>
+      <p className="text-[13px] leading-6 text-muted-foreground">
         Get notified when new essays are published.
       </p>
       <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
         <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="newsletter-email">
+          <label className="sr-only" htmlFor="newsletter-email">
             Email address
           </label>
           <Input
@@ -88,7 +88,8 @@ export function NewsletterForm() {
             id="newsletter-email"
             inputMode="email"
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="reader@example.com"
+            className="text-[13px]"
+            placeholder="Your email address"
             required
             type="email"
             value={email}
@@ -96,13 +97,13 @@ export function NewsletterForm() {
         </div>
 
         {state === "error" && (
-          <p className="text-sm text-destructive" role="alert">
+          <p className="text-[13px] text-destructive" role="alert">
             {message}
           </p>
         )}
 
         {state === "success" && (
-          <p className="text-sm font-medium text-editorial" role="status">
+          <p className="text-[13px] font-medium text-editorial" role="status">
             {message}
           </p>
         )}

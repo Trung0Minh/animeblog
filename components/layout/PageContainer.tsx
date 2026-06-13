@@ -12,8 +12,8 @@ interface PageContainerProps {
 
 const sizeClasses: Record<PageContainerSize, string> = {
   default: "max-w-5xl xl:max-w-6xl",
-  narrow: "max-w-3xl xl:max-w-4xl",
-  wide: "max-w-6xl xl:max-w-7xl 2xl:max-w-[1400px]",
+  narrow: "max-w-[720px]",
+  wide: "max-w-[1440px]",
 }
 
 export function PageContainer({
@@ -26,7 +26,11 @@ export function PageContainer({
 
   return (
     <Component
-      className={cn("container py-8 sm:py-10", sizeClasses[size], className)}
+      className={cn(
+        "mx-auto w-full px-4 py-8 md:px-6 md:py-12 lg:px-8",
+        sizeClasses[size],
+        className,
+      )}
     >
       {children}
     </Component>

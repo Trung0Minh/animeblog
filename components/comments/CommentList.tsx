@@ -36,7 +36,7 @@ function CommentBubble({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className="text-sm font-semibold">{comment.authorName}</span>
+          <span className="text-[13px] font-semibold">{comment.authorName}</span>
           <time
             className="text-xs text-muted-foreground"
             dateTime={new Date(comment.createdAt).toISOString()}
@@ -49,7 +49,7 @@ function CommentBubble({
             </span>
           )}
         </div>
-        <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-foreground">
+        <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground">
           {comment.content}
         </p>
       </div>
@@ -77,14 +77,14 @@ function CommentThread({
 
   return (
     <article
-      className="scroll-mt-24 rounded-2xl border bg-card p-4 sm:p-5"
+      className="scroll-mt-24 border-t pt-6 first:border-t-0 first:pt-0"
       id={`comment-${comment.id}`}
     >
       <CommentBubble comment={comment} />
       <div className="mt-3 pl-11">
         <Button
           aria-label={`Reply to ${comment.authorName}'s comment`}
-          className="min-h-11 px-3 py-2 text-xs"
+          className="h-auto min-h-0 px-0 py-1 text-xs hover:bg-transparent"
           onClick={() => setIsReplying((value) => !value)}
           type="button"
           variant="ghost"
@@ -111,7 +111,7 @@ function CommentThread({
         <div className="mt-5 space-y-4 border-l pl-4 sm:ml-11">
           {comment.replies.map((reply) => (
             <article
-              className="scroll-mt-24 rounded-xl bg-muted/35 p-4"
+              className="scroll-mt-24"
               id={`comment-${reply.id}`}
               key={reply.id}
             >
@@ -131,7 +131,7 @@ export function CommentList({
   postSlug,
 }: CommentListProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {comments.map((comment) => (
         <CommentThread
           comment={comment}

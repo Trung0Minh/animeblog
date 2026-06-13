@@ -38,7 +38,7 @@ export default function AboutPage() {
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
           About
         </p>
-        <h1 className="max-w-3xl text-balance text-3xl font-bold leading-tight tracking-tight sm:text-5xl">
+        <h1 className="max-w-3xl text-balance text-[32px] font-bold leading-tight tracking-tight md:text-[40px]">
           {appName} is a quiet place for serious writing about Japanese
           animation.
         </h1>
@@ -62,7 +62,7 @@ export default function AboutPage() {
         </p>
         <div className="grid gap-4 sm:grid-cols-3">
           {PUBLISHING_NOTES.map((note) => (
-            <article className="rounded-xl border p-5" key={note.title}>
+            <article className="border-t py-5 sm:border-t-0 sm:border-l sm:pl-5 sm:first:border-l-0 sm:first:pl-0" key={note.title}>
               <h2 className="font-semibold tracking-tight">{note.title}</h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 {note.text}
@@ -72,7 +72,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border bg-muted/30 p-6 sm:p-8">
+      <section className="border-t py-8">
         <h2 className="text-xl font-semibold tracking-tight">
           Read through the archive.
         </h2>
@@ -82,13 +82,13 @@ export default function AboutPage() {
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
-            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex h-10 items-center justify-center rounded-[5px] bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             href="/"
           >
             Latest posts
           </Link>
           <Link
-            className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors hover:bg-muted"
+            className="inline-flex h-10 items-center justify-center rounded-[5px] border px-4 text-[13px] font-medium transition-colors hover:bg-muted"
             href="/contributors"
           >
             Contributors

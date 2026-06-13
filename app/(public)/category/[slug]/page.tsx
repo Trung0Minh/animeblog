@@ -67,7 +67,7 @@ export default async function CategoryPage({
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-editorial">
           Category
         </p>
-        <h1 className="text-3xl font-bold tracking-tight">{category.name}</h1>
+        <h1 className="text-[32px] font-bold leading-tight tracking-tight">{category.name}</h1>
         {category.description && (
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             {category.description}

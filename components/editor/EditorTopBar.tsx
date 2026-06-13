@@ -1,5 +1,6 @@
 "use client"
 
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 import { SaveStatusIndicator } from "@/components/editor/SaveStatusIndicator"
@@ -15,6 +16,7 @@ interface EditorTopBarProps {
   onPublish: () => void
   onSaveDraft: () => void
   saveStatus: SaveStatus
+  titlePreview?: string
 }
 
 export function EditorTopBar({
@@ -26,6 +28,7 @@ export function EditorTopBar({
   onPublish,
   onSaveDraft,
   saveStatus,
+  titlePreview,
 }: EditorTopBarProps) {
   const actionsDisabled = isPending || !canSave
   const statusText = canSave
@@ -33,30 +36,50 @@ export function EditorTopBar({
     : "Add a title to enable saving and publishing."
 
   return (
-    <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
-      <div className="flex min-h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-3">
-          <Button asChild size="sm" variant="ghost">
-            <Link href={exitHref}>Exit</Link>
-          </Button>
-          <div className="hidden min-w-0 sm:block">
-            <p className="truncate text-sm font-medium">Writing mode</p>
+    <header className="fixed left-0 right-0 top-0 z-[100] h-12 border-b bg-background px-5">
+      <div className="flex h-full items-center justify-between gap-3">
+        <Link
+          className="group flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+          href={exitHref}
+        >
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+          <span className="hidden text-[13px] font-medium md:inline">
+            Dashboard
+          </span>
+        </Link>
+
+        <div className="absolute left-1/2 flex h-full -translate-x-1/2 items-center">
+          <div className="flex min-w-[70px] justify-end">
+            {isPending ? (
+              <span className="text-xs text-muted-foreground">Saving...</span>
+            ) : saveStatus === "idle" ? (
+              <span className="block max-w-[150px] truncate text-xs text-muted-foreground">
+                {statusText}
+              </span>
+            ) : (
+              <SaveStatusIndicator status={saveStatus} />
+            )}
+          </div>
+          <div className="mx-3 hidden h-4 w-px bg-border md:block" />
+          <div className="hidden max-w-[280px] truncate text-[13px] text-muted-foreground md:block">
+            {titlePreview?.trim() || "Untitled post"}
           </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
           <Button
-            className="h-9"
+            className="h-8 px-2 md:px-3.5"
             disabled={actionsDisabled}
             onClick={onSaveDraft}
             size="sm"
             type="button"
             variant="outline"
           >
-            Save draft
+            <span className="hidden md:inline">Save draft</span>
+            <span className="md:hidden">Draft</span>
           </Button>
           <Button
-            className="h-9"
+            className="h-8 px-3.5 font-semibold"
             disabled={actionsDisabled}
             onClick={onPublish}
             size="sm"
@@ -65,16 +88,6 @@ export function EditorTopBar({
             {isPublished ? "Update" : "Publish"}
           </Button>
         </div>
-      </div>
-
-      <div className="border-t px-4 py-2 text-xs text-muted-foreground sm:px-6 lg:px-8">
-        {isPending ? (
-          "Saving..."
-        ) : saveStatus === "idle" ? (
-          <span>{statusText}</span>
-        ) : (
-          <SaveStatusIndicator status={saveStatus} />
-        )}
       </div>
     </header>
   )

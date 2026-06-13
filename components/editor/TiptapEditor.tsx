@@ -22,12 +22,14 @@ import {
 const lowlight = createLowlight(common)
 
 interface TiptapEditorProps {
+  children?: React.ReactNode
   content?: JSONContent
   editable?: boolean
   onChange?: (json: JSONContent, text: string) => void
 }
 
 export function TiptapEditor({
+  children,
   content,
   editable = true,
   onChange,
@@ -96,6 +98,8 @@ export function TiptapEditor({
           <BubbleMenuComponent editor={editor} />
         </>
       )}
+
+      {children}
 
       <EditorContent editor={editor} />
 

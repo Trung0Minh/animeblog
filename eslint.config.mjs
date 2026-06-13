@@ -10,6 +10,7 @@ export default defineConfig([
     "artifacts/**",
     "coverage/**",
     "playwright-report/**",
+    "plan/**",
     "test-results/**",
   ]),
 ])

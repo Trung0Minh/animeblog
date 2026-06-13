@@ -42,9 +42,9 @@ function ToolbarButton({
   return (
     <button
       className={[
-        "rounded p-1.5 transition-colors",
+        "flex h-[30px] w-[30px] items-center justify-center rounded-[5px] transition-colors",
         active
-          ? "bg-primary/10 text-primary"
+          ? "bg-muted/70 text-foreground"
           : "text-muted-foreground hover:bg-muted hover:text-foreground",
         disabled ? "cursor-not-allowed opacity-40" : "",
       ].join(" ")}
@@ -62,7 +62,7 @@ function ToolbarButton({
 }
 
 function Divider() {
-  return <div className="mx-1 h-5 w-px shrink-0 bg-border" />
+  return <div className="mx-1 hidden h-4 w-px shrink-0 bg-border sm:block" />
 }
 
 export function EditorToolbar({ editor }: { editor: Editor }) {
@@ -87,7 +87,7 @@ export function EditorToolbar({ editor }: { editor: Editor }) {
 
   return (
     <>
-      <div className="sticky top-0 z-10 mb-4 flex flex-wrap items-center gap-0.5 rounded-md border bg-background/95 p-2 backdrop-blur">
+      <div className="no-scrollbar sticky top-0 z-10 mb-6 flex min-h-11 flex-wrap items-center gap-0.5 overflow-x-auto bg-background pb-2 md:-mt-9 md:border-b md:border-border/50 md:pt-4">
         <ToolbarButton
           active={editor.isActive("bold")}
           onClick={() => editor.chain().focus().toggleBold().run()}
