@@ -14,16 +14,10 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut } from "next-auth/react"
 import { useState } from "react"
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { WriterMenu } from "@/components/layout/WriterMenu"
+
 import { cn } from "@/lib/utils"
 
 const ADMIN_LINKS = [
@@ -90,31 +84,9 @@ export function AdminNav() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="hidden items-center gap-1.5 transition-opacity hover:opacity-80 md:flex"
-                type="button"
-              >
-                <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-[#c0392b] text-[14px] font-semibold text-white">
-                  A
-                </span>
-                <ChevronDown aria-hidden="true" className="h-3.5 w-3.5 text-text-tertiary" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem asChild>
-                <Link href="/" prefetch={false}>
-                  View blog &rarr;
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => void signOut({ callbackUrl: "/" })}>
-                <LogOut aria-hidden="true" className="h-4 w-4" />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="hidden md:block">
+            <WriterMenu />
+          </div>
 
           <button
             aria-label="Open admin menu"

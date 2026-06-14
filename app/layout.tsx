@@ -5,6 +5,7 @@ import { Suspense } from "react"
 import { InternalAnalyticsTracker } from "@/components/analytics/InternalAnalyticsTracker"
 import { Footer } from "@/components/layout/Footer"
 import { Navbar } from "@/components/layout/Navbar"
+import { NavbarWrapper } from "@/components/layout/NavbarWrapper"
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
 import { DEFAULT_DESCRIPTION, getAppName, getAppUrl } from "@/lib/seo"
 
@@ -55,7 +56,9 @@ export default function RootLayout({
           enableSystem
         >
           <div className="flex min-h-screen flex-col">
-            <Navbar />
+            <NavbarWrapper>
+              <Navbar />
+            </NavbarWrapper>
             <div className="flex-1">{children}</div>
             <Footer />
           </div>
