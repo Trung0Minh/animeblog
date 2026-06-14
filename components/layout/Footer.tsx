@@ -17,15 +17,21 @@ export function Footer() {
           <nav aria-label="Footer navigation" className="flex gap-6 text-[13px] text-text-secondary">
             <Link
               className="hover:text-text-primary transition-colors"
-              href="/about"
+              href="/contributors"
             >
-              About
+              Đóng góp
             </Link>
             <Link
               className="hover:text-text-primary transition-colors"
-              href="/contributors"
+              href="/resources"
             >
-              Contributors
+              Nguồn tham khảo
+            </Link>
+            <Link
+              className="hover:text-text-primary transition-colors"
+              href="/about"
+            >
+              Giới thiệu
             </Link>
           </nav>
         </div>

@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/search/SearchBar"
 
 const NAV_LINKS = [
   { href: "/contributors", label: "Đóng góp" },
+  { href: "/resources", label: "Nguồn tham khảo" },
   { href: "/about", label: "Giới thiệu" },
 ]
 
