@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react"
+import { within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import type { AnchorHTMLAttributes } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
@@ -68,11 +69,17 @@ describe("admin client components", () => {
       "aria-current",
       "page",
     )
-    expect(
-      screen.getByRole("link", { name: /overview/i }).parentElement,
-    ).toHaveClass("overflow-x-auto")
+    expect(screen.getByRole("link", { name: /dashboard/i })).toHaveAttribute(
+      "href",
+      "/admin",
+    )
+    expect(screen.getByRole("link", { name: /blog/i })).toHaveAttribute(
+      "href",
+      "/",
+    )
 
-    await user.click(screen.getByRole("button", { name: /sign out/i }))
+    await user.click(screen.getByRole("button", { name: "A" }))
+    await user.click(await screen.findByRole("menuitem", { name: /sign out/i }))
 
     expect(signOutMock).toHaveBeenCalledWith({ callbackUrl: "/" })
   })
@@ -105,6 +112,11 @@ describe("admin client components", () => {
     )
 
     await user.click(screen.getByRole("button", { name: /delete/i }))
+    expect(screen.getByRole("heading", { name: "Delete post?" })).toBeVisible()
+    await user.click(
+      within(screen.getByRole("heading", { name: "Delete post?" }).closest("div")!)
+        .getByRole("button", { name: "Delete post" }),
+    )
 
     expect(fetchMock).toHaveBeenCalledWith("/api/posts/post-1", {
       method: "DELETE",
@@ -149,12 +161,22 @@ describe("admin client components", () => {
     expect(screen.getByText("Archived")).toBeVisible()
 
     await user.click(screen.getByRole("button", { name: /archive post/i }))
+    expect(screen.getByRole("heading", { name: "Archive post?" })).toBeVisible()
+    await user.click(
+      within(screen.getByRole("heading", { name: "Archive post?" }).closest("div")!)
+        .getByRole("button", { name: "Archive post" }),
+    )
     expect(fetchMock).toHaveBeenCalledWith("/api/posts/post-1/archive", {
       method: "POST",
     })
 
     await user.click(
       screen.getByRole("button", { name: /restore post to draft/i }),
+    )
+    expect(screen.getByRole("heading", { name: "Restore post?" })).toBeVisible()
+    await user.click(
+      within(screen.getByRole("heading", { name: "Restore post?" }).closest("div")!)
+        .getByRole("button", { name: "Restore post" }),
     )
     expect(fetchMock).toHaveBeenCalledWith("/api/posts/post-2/archive", {
       method: "DELETE",
@@ -235,7 +257,9 @@ describe("admin client components", () => {
       />,
     )
 
-    await user.click(screen.getByRole("button", { name: /remove access/i }))
+    await user.click(
+      screen.getByRole("button", { name: /remove writer access/i }),
+    )
 
     expect(fetchMock).toHaveBeenCalledWith("/api/admin/writers/writer-1", {
       method: "DELETE",

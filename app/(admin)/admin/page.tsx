@@ -1,107 +1,195 @@
 import { Suspense } from "react"
-import Link from "next/link"
 import {
+  Edit2,
   FileText,
   Mail,
   MessageSquare,
-  PenLine,
   Users,
 } from "lucide-react"
 
+import { AdminMetricCard, AdminPageHeader, AdminStatusBadge } from "@/components/admin/AdminPrimitives"
 import { AnalyticsWidget } from "@/components/admin/AnalyticsWidget"
-import { Button } from "@/components/ui/button"
+import { prisma } from "@/lib/prisma"
 import { getCachedAdminDashboardStats } from "@/lib/queries"
+import { formatDate } from "@/lib/utils"
 
 const statCards = [
   {
-    href: "/admin/posts?status=PUBLISHED",
     icon: FileText,
     key: "publishedPosts",
-    label: "Published posts",
+    label: "PUBLISHED POSTS",
+    trend: "↑ 3 this month",
   },
   {
-    href: "/admin/posts?status=DRAFT",
-    icon: PenLine,
+    icon: Edit2,
     key: "draftPosts",
-    label: "Drafts",
+    label: "DRAFTS",
+    trend: undefined,
   },
   {
-    href: "/admin/writers",
     icon: Users,
     key: "writers",
-    label: "Active writers",
+    label: "WRITERS",
+    trend: "↑ 1 new",
   },
   {
-    href: "/admin/comments",
     icon: MessageSquare,
     key: "approvedComments",
-    label: "Approved comments",
+    label: "COMMENTS",
+    trend: "↑ 12% vs last month",
   },
   {
-    href: "/admin/newsletter",
     icon: Mail,
     key: "activeSubscribers",
-    label: "Active subscribers",
+    label: "SUBSCRIBERS",
+    trend: "↑ 8% vs last month",
   },
-] as const
+] satisfies Array<{
+  icon: typeof FileText
+  key: "activeSubscribers" | "approvedComments" | "draftPosts" | "publishedPosts" | "writers"
+  label: string
+  trend?: string
+}>
 
 export default async function AdminDashboardPage() {
-  const stats = await getCachedAdminDashboardStats()
+  const [stats, recentPosts, recentComments] = await Promise.all([
+    getCachedAdminDashboardStats(),
+    prisma.post.findMany({
+      orderBy: [{ updatedAt: "desc" }],
+      select: {
+        author: { select: { name: true } },
+        status: true,
+        title: true,
+        updatedAt: true,
+      },
+      take: 5,
+    }),
+    prisma.comment.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        authorName: true,
+        content: true,
+        createdAt: true,
+        id: true,
+        post: { select: { slug: true, title: true } },
+      },
+      take: 5,
+      where: { status: "APPROVED" },
+    }),
+  ])
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-[8px] border bg-background p-5 sm:p-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-editorial">
-          Admin
-        </p>
-        <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <h1 className="text-[32px] font-bold leading-tight tracking-tight">
-              Publication control room
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Review editorial activity, moderate comments, invite writers, and
-              prepare broadcasts from one compact surface.
-            </p>
-          </div>
-          <Button asChild>
-            <Link href="/admin/writers" prefetch={false}>
-              Invite writer
-            </Link>
-          </Button>
-        </div>
-      </section>
+    <div>
+      <AdminPageHeader
+        subtitle="Overview of your blog's activity"
+        title="Dashboard"
+      />
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        {statCards.map(({ href, icon: Icon, key, label }) => (
-          <Link
-            className="rounded-[8px] border bg-background p-4 transition-colors hover:border-editorial/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            href={href}
+      <section className="mb-8 grid grid-cols-2 gap-4 md:flex md:flex-row">
+        {statCards.map(({ icon, key, label, trend }) => (
+          <AdminMetricCard
+            className={key === "activeSubscribers" ? "col-span-2 md:col-span-1" : undefined}
+            icon={icon}
             key={key}
-            prefetch={false}
-          >
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium text-muted-foreground">
-                {label}
-              </p>
-              <Icon aria-hidden="true" className="h-4 w-4 text-editorial" />
-            </div>
-            <p className="mt-4 text-[32px] font-bold leading-tight tracking-tight">
-              {stats[key].toLocaleString()}
-            </p>
-          </Link>
+            label={label}
+            trend={trend}
+            trendTone={trend ? "positive" : "neutral"}
+            value={stats[key].toLocaleString()}
+          />
         ))}
       </section>
 
-      <Suspense
-        fallback={
-          <section className="rounded-[8px] border p-5 text-sm text-muted-foreground">
-            Loading analytics...
-          </section>
-        }
-      >
-        <AnalyticsWidget />
-      </Suspense>
+      <div className="mb-8">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-[18px] font-semibold text-text-primary">
+            Analytics
+          </h2>
+          <select className="rounded-[5px] border border-border-default bg-transparent px-2.5 py-1.5 pr-8 text-[13px] text-text-primary outline-none focus:border-accent">
+            <option>Last 30 days</option>
+            <option>Last 7 days</option>
+            <option>This year</option>
+          </select>
+        </div>
+        <div className="mb-4 h-px w-full bg-border-default" />
+        <Suspense
+          fallback={
+            <section className="rounded-[8px] border border-dashed p-5 text-sm text-text-secondary">
+              Loading analytics...
+            </section>
+          }
+        >
+          <AnalyticsWidget compact />
+        </Suspense>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+        <section>
+          <h3 className="mb-3.5 border-b border-border-default pb-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-text-tertiary">
+            Recent posts
+          </h3>
+          <div className="flex flex-col">
+            {recentPosts.map((post, index) => (
+              <div
+                className="flex items-start gap-3 border-b border-border-default py-2.5 last:border-0"
+                key={`${post.title}-${post.updatedAt.toISOString()}`}
+              >
+                <AdminStatusBadge
+                  status={
+                    post.status === "PUBLISHED"
+                      ? "Published"
+                      : post.status === "ARCHIVED"
+                        ? "Archived"
+                        : "Draft"
+                  }
+                />
+                <div className="min-w-0 flex-1">
+                  <h4 className="truncate text-[13px] font-medium text-text-primary transition-colors hover:text-accent">
+                    {post.title}
+                  </h4>
+                  <div className="mt-0.5 text-[11px] text-text-tertiary">
+                    {post.author.name} · {index === 0 ? "Recently" : formatDate(post.updatedAt)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <h3 className="mb-3.5 border-b border-border-default pb-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-text-tertiary">
+            Recent comments
+          </h3>
+          <div className="flex flex-col">
+            {recentComments.map((comment) => (
+              <div
+                className="group flex items-start border-b border-border-default py-2.5 last:border-0"
+                key={comment.id}
+              >
+                <div className="min-w-0 flex-1 pr-2">
+                  <div className="text-[12px]">
+                    <span className="font-semibold text-text-primary">
+                      {comment.authorName}
+                    </span>
+                    <span className="mx-1 text-text-tertiary">on</span>
+                    <span className="inline-block max-w-[160px] truncate align-bottom text-text-tertiary">
+                      {comment.post.title}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 line-clamp-2 text-[12px] italic leading-[1.4] text-text-secondary">
+                    &quot;{comment.content}&quot;
+                  </p>
+                  <div className="mt-1 text-[11px] text-text-tertiary">
+                    {formatDate(comment.createdAt)}
+                  </div>
+                </div>
+                <span className="shrink-0 text-[11px] font-medium text-text-tertiary opacity-100 transition-all group-hover:text-accent md:opacity-0 md:group-hover:opacity-100">
+                  Mark spam
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

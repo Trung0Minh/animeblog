@@ -49,9 +49,10 @@ describe("AnalyticsWidget", () => {
   it("renders summary metrics and top pages", async () => {
     renderAsync(await AnalyticsWidget())
 
-    expect(screen.getByRole("heading", { name: "Analytics" })).toBeVisible()
+    expect(screen.getByText("Total page views")).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Top Referrers" })).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Device Breakdown" })).toBeVisible()
     expect(screen.getByText("150")).toBeVisible()
-    expect(screen.getByText("45")).toBeVisible()
     expect(screen.getAllByText("60").length).toBeGreaterThan(0)
     expect(screen.getByRole("link", { name: "/frieren-memory" })).toHaveAttribute(
       "href",
@@ -94,10 +95,13 @@ describe("AdminAnalyticsPage", () => {
 
     expect(screen.getByRole("heading", { name: "Analytics" })).toBeVisible()
     expect(
+      screen.getByText(/Detailed traffic and engagement data/i),
+    ).toBeVisible()
+    expect(screen.getByRole("button", { name: /Last 30 Days/i })).toBeVisible()
+    expect(screen.getByRole("button", { name: /Export/i })).toBeVisible()
+    expect(screen.getByText("Loading analytics...")).toBeVisible()
+    expect(
       screen.queryByRole("link", { name: /open analytics dashboard/i }),
     ).not.toBeInTheDocument()
-    expect(
-      screen.getByText(/stored directly in this site/i),
-    ).toBeVisible()
   })
 })

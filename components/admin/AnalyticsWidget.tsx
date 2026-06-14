@@ -1,6 +1,5 @@
 import Link from "next/link"
 import {
-  BarChart3,
   BookOpenCheck,
   Eye,
   Mail,
@@ -11,13 +10,13 @@ import {
   Users,
 } from "lucide-react"
 
+import { AdminMetricCard } from "@/components/admin/AdminPrimitives"
 import {
   getInternalAnalyticsStats,
   getInternalTopPages,
   type InternalAnalyticsStats,
   type InternalTopPage,
 } from "@/lib/internalAnalytics"
-import { cn } from "@/lib/utils"
 
 function last30Days() {
   const endAt = Date.now()
@@ -52,7 +51,26 @@ function formatDuration(totalSeconds: number, reads: number) {
   return `${minutes}m ${remainingSeconds}s`
 }
 
-export async function AnalyticsWidget() {
+function buildLinePoints(values: number[]) {
+  const width = 720
+  const height = 240
+  const max = Math.max(...values, 1)
+  const min = Math.min(...values, 0)
+  const range = Math.max(max - min, 1)
+
+  return values
+    .map((value, index) => {
+      const x = (index / Math.max(values.length - 1, 1)) * width
+      const y = height - ((value - min) / range) * (height - 24) - 12
+
+      return `${x.toFixed(1)},${y.toFixed(1)}`
+    })
+    .join(" ")
+}
+
+export async function AnalyticsWidget({
+  compact = false,
+}: { compact?: boolean } = {}) {
   const { endAt, startAt } = last30Days()
   let stats: InternalAnalyticsStats
   let topPages: InternalTopPage[]
@@ -127,76 +145,248 @@ export async function AnalyticsWidget() {
     },
   ]
 
-  return (
-    <section className="rounded-[8px] border bg-background p-5 sm:p-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-editorial">
-            Last 30 days
-          </p>
-          <h2 className="mt-2 flex items-center gap-2 text-2xl font-bold tracking-tight">
-            <BarChart3 aria-hidden="true" className="h-5 w-5 text-editorial" />
-            Analytics
-          </h2>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-            Stored directly in this site from lightweight first-party events.
-          </p>
-        </div>
-      </div>
+  const visibleMetrics = compact ? metrics.slice(0, 4) : metrics
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map(({ change, icon: Icon, label, value }) => {
+  if (!compact) {
+    const chartValues = [
+      Math.max(stats.pageviews.prev, 0),
+      Math.max(stats.visits.prev, 0),
+      Math.max(stats.visitors.prev, 0),
+      Math.max(stats.reads.prev, 0),
+      Math.max(stats.reads.value, 0),
+      Math.max(stats.visitors.value, 0),
+      Math.max(stats.visits.value, 0),
+      Math.max(stats.pageviews.value, 0),
+    ]
+    const chartPoints = buildLinePoints(chartValues)
+    const chartLabels = ["Day 1", "Day 5", "Day 9", "Day 13"]
+    const totalViews = stats.pageviews.value
+    const topPanelPages = topPages.slice(0, 5)
+    const engagementRows = [
+      {
+        label: "Visits",
+        percent: stats.pageviews.value
+          ? Math.min(Math.round((stats.visits.value / stats.pageviews.value) * 100), 100)
+          : 0,
+        value: stats.visits.value.toLocaleString(),
+      },
+      {
+        label: "Readers",
+        percent: stats.visitors.value
+          ? Math.min(Math.round((stats.reads.value / stats.visitors.value) * 100), 100)
+          : 0,
+        value: stats.reads.value.toLocaleString(),
+      },
+      {
+        label: "Searches",
+        percent: stats.pageviews.value
+          ? Math.min(Math.round((stats.searches.value / stats.pageviews.value) * 100), 100)
+          : 0,
+        value: stats.searches.value.toLocaleString(),
+      },
+    ]
+
+    return (
+      <section>
+        <div className="mb-8 rounded-[8px] border border-border-default bg-background p-5 md:p-6">
+          <div className="mb-6 flex items-end gap-3">
+            <div className="text-[32px] font-bold leading-none text-text-primary">
+              {totalViews.toLocaleString()}
+            </div>
+            <div className="mb-1 text-[13px] text-text-secondary">
+              Total page views
+            </div>
+            <div className="mb-1 ml-auto text-[13px] font-medium text-[#15803d] dark:text-[#4ade80]">
+              {percentChange(stats.pageviews.value, stats.pageviews.prev)} vs previous period
+            </div>
+          </div>
+
+          <div className="h-[300px] w-full">
+            <svg
+              aria-label="Page views trend"
+              className="h-full w-full overflow-visible"
+              preserveAspectRatio="none"
+              viewBox="0 0 720 300"
+            >
+              {[48, 96, 144, 192, 240].map((y) => (
+                <line
+                  key={y}
+                  stroke="var(--border-default)"
+                  strokeDasharray="3 3"
+                  strokeWidth="1"
+                  x1="0"
+                  x2="720"
+                  y1={y}
+                  y2={y}
+                />
+              ))}
+              <polyline
+                fill="none"
+                points={chartPoints}
+                stroke="var(--accent)"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                vectorEffect="non-scaling-stroke"
+              />
+              {chartPoints.split(" ").map((point, index, points) => {
+                if (index !== points.length - 1) return null
+                const [cx, cy] = point.split(",")
+
+                return (
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    fill="var(--accent)"
+                    key={point}
+                    r="4"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                )
+              })}
+              {chartLabels.map((label, index) => (
+                <text
+                  fill="var(--text-tertiary)"
+                  fontSize="11"
+                  key={label}
+                  x={index * 240}
+                  y="292"
+                >
+                  {label}
+                </text>
+              ))}
+            </svg>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+          <div className="overflow-hidden rounded-[8px] border border-border-default bg-background">
+            <div className="border-b border-border-default bg-subtle-bg/50 p-4">
+              <h3 className="text-[13px] font-semibold text-text-primary">
+                Top Referrers
+              </h3>
+            </div>
+            <div className="flex flex-col">
+              {topPanelPages.length > 0 ? (
+                topPanelPages.map((page) => (
+                  <div
+                    className="flex items-center justify-between border-b border-border-default p-4 last:border-0"
+                    key={page.path}
+                  >
+                    <Link
+                      className="min-w-0 truncate text-[13px] font-medium text-text-primary hover:text-accent"
+                      href={page.path}
+                      prefetch={false}
+                    >
+                      {page.path}
+                    </Link>
+                    <div className="flex items-center gap-4">
+                      <span className="text-[13px] text-text-secondary">
+                        {page.views.toLocaleString()}
+                      </span>
+                      <span className="w-8 text-right text-[12px] text-text-tertiary">
+                        {page.readRate}%
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-[13px] text-text-tertiary">
+                  No page data yet.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-[8px] border border-border-default bg-background">
+            <div className="border-b border-border-default bg-subtle-bg/50 p-4">
+              <h3 className="text-[13px] font-semibold text-text-primary">
+                Device Breakdown
+              </h3>
+            </div>
+            <div className="flex flex-col gap-5 p-5">
+              {engagementRows.map((row, index) => (
+                <div key={row.label}>
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span className="text-[13px] font-medium text-text-primary">
+                      {row.label}
+                    </span>
+                    <span className="text-[13px] text-text-secondary">
+                      {row.value}
+                      <span className="ml-1 text-[11px] text-text-tertiary">
+                        ({row.percent}%)
+                      </span>
+                    </span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full border border-border-default bg-subtle-bg">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        backgroundColor:
+                          index === 0
+                            ? "var(--accent)"
+                            : index === 1
+                              ? "var(--text-secondary)"
+                              : "var(--text-tertiary)",
+                        width: `${row.percent}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section>
+      <div className={compact ? "mb-5 grid grid-cols-2 gap-4 md:flex md:flex-row" : "mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"}>
+        {visibleMetrics.map(({ change, icon, label, value }) => {
           const isPositive = change.startsWith("+")
           const isFlat = change === "0%"
 
           return (
-            <div className="rounded-[8px] border bg-background p-4" key={label}>
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-muted-foreground">
-                  {label}
-                </p>
-                <Icon aria-hidden="true" className="h-4 w-4 text-editorial" />
-              </div>
-              <p className="mt-4 text-[32px] font-bold leading-tight tracking-tight">{value}</p>
-              <p
-                className={cn(
-                  "mt-1 text-xs font-medium",
-                  isFlat && "text-muted-foreground",
-                  !isFlat &&
-                    isPositive &&
-                    "text-emerald-600 dark:text-emerald-400",
-                  !isFlat && !isPositive && "text-destructive",
-                )}
-              >
-                {change} vs previous period
-              </p>
-            </div>
+            <AdminMetricCard
+              icon={icon}
+              key={label}
+              label={label}
+              trend={`${change} vs prev period`}
+              trendTone={isFlat ? "neutral" : isPositive ? "positive" : "negative"}
+              value={value}
+            />
           )
         })}
       </div>
 
-      <div className="mt-6 rounded-[8px] border bg-background p-4">
+      <div className={compact ? "mt-5 hidden md:block" : "mt-6 rounded-[8px] border border-border-default bg-background p-4"}>
         <div className="flex items-center justify-between gap-3">
-          <h3 className="text-sm font-semibold">Top pages</h3>
-          <span className="text-xs text-muted-foreground">Ranked by views</span>
+          <h3 className="text-[14px] font-semibold text-text-primary">
+            Top pages {compact ? "— last 30 days" : ""}
+          </h3>
+          {!compact && (
+            <span className="text-xs text-text-tertiary">Ranked by views</span>
+          )}
         </div>
 
         {topPages.length > 0 ? (
-          <div className="mt-4 space-y-3">
+          <div className={compact ? "mt-3 flex flex-col" : "mt-4 space-y-3"}>
             {topPages.map((page) => (
               <div
-                className="flex items-center justify-between gap-4 text-sm"
+                className={compact ? "flex items-center justify-between gap-4 border-b border-border-default py-2.5 text-[13px] last:border-0" : "flex items-center justify-between gap-4 text-sm"}
                 key={page.path}
               >
                 <Link
-                  className="min-w-0 truncate text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="min-w-0 truncate font-mono text-text-secondary transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   href={page.path}
                 >
                   {page.path}
                 </Link>
-                <span className="shrink-0 font-semibold">
-                  {page.views.toLocaleString()} views
-                  {page.reads > 0 && (
+                <span className="shrink-0 font-semibold text-text-primary">
+                  {page.views.toLocaleString()}
+                  {!compact && page.reads > 0 && (
                     <span className="ml-2 text-xs font-normal text-muted-foreground">
                       {page.readRate}% read
                     </span>
@@ -211,6 +401,15 @@ export async function AnalyticsWidget() {
           </p>
         )}
       </div>
+      {compact && (
+        <Link
+          className="mt-4 inline-block text-[13px] font-medium text-accent hover:underline"
+          href="/admin/analytics"
+          prefetch={false}
+        >
+          View full analytics dashboard &rarr;
+        </Link>
+      )}
     </section>
   )
 }

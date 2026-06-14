@@ -1,6 +1,6 @@
 "use client"
 
-import { Trash2 } from "lucide-react"
+import { Check, ShieldAlert, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -32,8 +32,12 @@ function getApiError(value: unknown) {
 
 export function AdminCommentsTable({
   comments,
+  emptyLabel = "No approved comments found.",
+  status = "APPROVED",
 }: {
   comments: AdminComment[]
+  emptyLabel?: string
+  status?: "APPROVED" | "PENDING" | "SPAM"
 }) {
   const router = useRouter()
   const [spammingId, setSpammingId] = useState<string | null>(null)
@@ -62,45 +66,103 @@ export function AdminCommentsTable({
 
   if (comments.length === 0) {
     return (
-      <div className="rounded-[8px] border border-dashed p-8 text-center text-sm text-muted-foreground">
-        No approved comments found.
+      <div className="rounded-[8px] border border-border-default bg-background p-8 text-center text-[13px] text-text-tertiary">
+        {emptyLabel}
       </div>
     )
   }
 
   return (
-    <div>
+    <div className="overflow-hidden rounded-[8px] border border-border-default bg-background">
       {comments.map((comment) => (
-        <article className="border-t py-4 first:border-t-0" key={comment.id}>
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">
-                  {comment.authorName}
-                </span>
-                <span>{formatDate(comment.createdAt)}</span>
-                <span>on</span>
-                <Link
-                  className="max-w-[16rem] truncate text-editorial transition-colors hover:text-foreground hover:underline"
-                  href={`/${comment.post.slug}`}
-                >
-                  {comment.post.title}
-                </Link>
-              </div>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
-                {comment.content}
-              </p>
+        <article
+          className="group flex flex-col gap-4 border-b border-border-default p-4 transition-colors last:border-0 hover:bg-subtle-bg md:flex-row md:p-5"
+          key={comment.id}
+        >
+          <div className="hidden shrink-0 pt-1 md:block">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-border-default text-[13px] font-semibold text-text-secondary">
+              {comment.authorName.charAt(0)}
             </div>
-            <Button
-              aria-label="Mark as spam"
-              disabled={spammingId === comment.id}
-              onClick={() => void handleMarkSpam(comment)}
-              size="sm"
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-[14px] font-semibold text-text-primary">
+                {comment.authorName}
+              </span>
+              <span className="text-[12px] text-text-tertiary">
+                {status === "SPAM" ? "Hidden" : "Reader"}
+              </span>
+              <span className="px-1 text-[12px] text-text-tertiary">·</span>
+              <span className="text-[12px] text-text-tertiary">
+                {formatDate(comment.createdAt)}
+              </span>
+            </div>
+
+            <div className="mb-2 flex items-center gap-1.5 text-[12px] text-text-secondary">
+              <span>on</span>
+              <Link
+                className="max-w-[200px] truncate font-medium text-text-primary hover:text-accent hover:underline md:max-w-[300px]"
+                href={`/${comment.post.slug}`}
+                prefetch={false}
+              >
+                {comment.post.title}
+              </Link>
+            </div>
+
+            <p className="whitespace-pre-wrap break-words text-[14px] leading-[1.5] text-text-primary">
+              {comment.content}
+            </p>
+          </div>
+
+          <div className="mt-2 flex shrink-0 items-start gap-1.5 md:mt-0">
+            {status === "PENDING" && (
+              <>
+                <button className="flex h-8 items-center gap-1.5 rounded-[5px] border border-[#15803d]/20 bg-[#f0fdf4] px-3 text-[12px] font-semibold text-[#15803d] transition-opacity hover:opacity-80 dark:bg-[#14532d30] dark:text-[#4ade80]">
+                  <Check aria-hidden="true" className="h-3.5 w-3.5" />
+                  Approve
+                </button>
+                <button
+                  className="flex h-8 w-8 items-center justify-center rounded-[5px] border border-border-default text-text-secondary transition-all hover:border-text-tertiary hover:bg-background"
+                  title="Mark as spam"
+                  type="button"
+                >
+                  <ShieldAlert aria-hidden="true" className="h-4 w-4" />
+                </button>
+              </>
+            )}
+
+            {status === "APPROVED" && (
+              <Button
+                aria-label="Mark as spam"
+                className="h-8 border border-border-default px-3 text-[12px] font-medium text-text-secondary hover:bg-subtle-bg hover:text-accent"
+                disabled={spammingId === comment.id}
+                onClick={() => void handleMarkSpam(comment)}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Mark spam
+              </Button>
+            )}
+
+            {status === "SPAM" && (
+              <button
+                className="flex h-8 items-center gap-1.5 rounded-[5px] border border-border-default bg-background px-3 text-[12px] font-medium text-text-secondary transition-colors hover:bg-subtle-bg"
+                type="button"
+              >
+                <Check aria-hidden="true" className="h-3.5 w-3.5" />
+                Not Spam
+              </button>
+            )}
+
+            <button
+              aria-label="Delete"
+              className="flex h-8 w-8 items-center justify-center rounded-[5px] border border-transparent text-text-tertiary transition-all hover:bg-[#fef2f2] hover:text-accent dark:hover:bg-[#3f0f0f40]"
               type="button"
-              variant="ghost"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
         </article>
       ))}

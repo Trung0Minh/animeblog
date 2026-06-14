@@ -244,6 +244,7 @@ type DbCount = bigint | number | null | undefined
 interface AdminDashboardStatsRow {
   activeSubscribers: DbCount
   approvedComments: DbCount
+  archivedPosts?: DbCount
   draftPosts: DbCount
   publishedPosts: DbCount
   writers: DbCount
@@ -271,6 +272,11 @@ interface AdminCommentRow {
   postTitle: string | null
   status: string | null
   totalCount: DbCount
+}
+
+interface AdminCommentCountsRow {
+  approvedComments: DbCount
+  spamComments: DbCount
 }
 
 function countToNumber(value: DbCount) {
@@ -419,6 +425,7 @@ export const getCachedAdminDashboardStats = unstable_cache(
       SELECT
         (SELECT COUNT(*) FROM posts WHERE status::text = 'PUBLISHED') AS "publishedPosts",
         (SELECT COUNT(*) FROM posts WHERE status::text = 'DRAFT') AS "draftPosts",
+        (SELECT COUNT(*) FROM posts WHERE status::text = 'ARCHIVED') AS "archivedPosts",
         (SELECT COUNT(*) FROM users WHERE role::text = 'WRITER') AS "writers",
         (SELECT COUNT(*) FROM comments WHERE status::text = 'APPROVED') AS "approvedComments",
         (SELECT COUNT(*) FROM newsletter_subscribers WHERE status::text = 'ACTIVE') AS "activeSubscribers"
@@ -427,6 +434,7 @@ export const getCachedAdminDashboardStats = unstable_cache(
     return {
       activeSubscribers: countToNumber(stats?.activeSubscribers),
       approvedComments: countToNumber(stats?.approvedComments),
+      archivedPosts: countToNumber(stats?.archivedPosts),
       draftPosts: countToNumber(stats?.draftPosts),
       publishedPosts: countToNumber(stats?.publishedPosts),
       writers: countToNumber(stats?.writers),
@@ -508,7 +516,7 @@ export const getCachedAdminPosts = unstable_cache(
 )
 
 export const getCachedAdminComments = unstable_cache(
-  async (page: number, pageSize: number) => {
+  async (page: number, status: CommentStatus, pageSize: number) => {
     const offset = (page - 1) * pageSize
     const rows = await prisma.$queryRaw<AdminCommentRow[]>`
       WITH filtered AS (
@@ -522,7 +530,7 @@ export const getCachedAdminComments = unstable_cache(
           p.title AS "postTitle"
         FROM comments c
         JOIN posts p ON p.id = c."postId"
-        WHERE c.status::text = 'APPROVED'
+        WHERE c.status::text = ${status}
       ),
       counted AS (
         SELECT COUNT(*) AS "totalCount" FROM filtered
@@ -566,6 +574,24 @@ export const getCachedAdminComments = unstable_cache(
     return { comments, total }
   },
   ["admin-comments"],
+  { revalidate: 60, tags: ["comments"] },
+)
+
+export const getCachedAdminCommentCounts = unstable_cache(
+  async () => {
+    const [counts] = await prisma.$queryRaw<AdminCommentCountsRow[]>`
+      SELECT
+        (SELECT COUNT(*) FROM comments WHERE status::text = 'APPROVED') AS "approvedComments",
+        (SELECT COUNT(*) FROM comments WHERE status::text = 'SPAM') AS "spamComments"
+    `
+
+    return {
+      approvedComments: countToNumber(counts?.approvedComments),
+      pendingComments: 0,
+      spamComments: countToNumber(counts?.spamComments),
+    }
+  },
+  ["admin-comment-counts"],
   { revalidate: 60, tags: ["comments"] },
 )
 

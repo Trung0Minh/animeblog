@@ -1,26 +1,28 @@
 import { Suspense } from "react"
+import { Calendar, Download } from "lucide-react"
 
+import { AdminPageHeader } from "@/components/admin/AdminPrimitives"
 import { AnalyticsWidget } from "@/components/admin/AnalyticsWidget"
 
 export default async function AdminAnalyticsPage() {
   return (
-    <div className="space-y-8">
-      <section className="rounded-[8px] border bg-background p-5 sm:p-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-editorial">
-          Audience
-        </p>
-        <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <h1 className="text-[32px] font-bold leading-tight tracking-tight">Analytics</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Review traffic, readers, and top pages from analytics stored
-              directly in this site. Tracking runs in the background and the
-              admin panel reads daily aggregates instead of blocking on visitor
-              events.
-            </p>
+    <div>
+      <AdminPageHeader
+        action={
+          <div className="flex items-center gap-2">
+            <button className="flex h-[34px] items-center gap-1.5 rounded-[5px] border border-border-default px-3 text-[13px] font-medium text-text-secondary transition-colors hover:bg-subtle-bg">
+              <Calendar aria-hidden="true" className="h-3.5 w-3.5" />
+              Last 30 Days
+            </button>
+            <button className="flex h-[34px] items-center gap-1.5 rounded-[5px] border border-border-default px-3 text-[13px] font-medium text-text-secondary transition-colors hover:bg-subtle-bg">
+              <Download aria-hidden="true" className="h-3.5 w-3.5" />
+              Export
+            </button>
           </div>
-        </div>
-      </section>
+        }
+        subtitle="Detailed traffic and engagement data"
+        title="Analytics"
+      />
 
       <Suspense
         fallback={

@@ -70,7 +70,7 @@ export function InviteWriterForm() {
       )}
 
       <div className="space-y-2">
-        <label className="text-sm font-medium" htmlFor="writer-email">
+        <label className="text-[13px] font-medium text-text-primary" htmlFor="writer-email">
           Writer email
         </label>
         <Input
@@ -84,7 +84,7 @@ export function InviteWriterForm() {
         />
       </div>
 
-      <Button className="w-full" disabled={loading} type="submit">
+      <Button className="h-[34px] w-full font-semibold" disabled={loading} type="submit">
         {loading ? "Sending..." : "Send invite"}
       </Button>
     </form>

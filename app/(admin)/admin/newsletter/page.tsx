@@ -1,3 +1,14 @@
+import {
+  ArrowUpRight,
+  MailOpen,
+  MoreHorizontal,
+  MousePointerClick,
+  Plus,
+  Search,
+  Users,
+} from "lucide-react"
+
+import { AdminMetricCard, AdminPageHeader } from "@/components/admin/AdminPrimitives"
 import { NewsletterBroadcastForm } from "@/components/admin/NewsletterBroadcastForm"
 import { getCachedAdminNewsletterData } from "@/lib/queries"
 
@@ -5,16 +16,126 @@ export default async function AdminNewsletterPage() {
   const { activeCount, recentPosts } = await getCachedAdminNewsletterData()
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Newsletter</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {activeCount.toLocaleString()} active subscriber
-          {activeCount === 1 ? "" : "s"}
-        </p>
-      </div>
+    <div className="animate-in fade-in duration-300">
+      <AdminPageHeader
+        action={
+          <button className="flex h-[34px] w-full shrink-0 items-center justify-center gap-1.5 rounded-[5px] bg-button-bg px-3.5 text-[13px] font-semibold text-button-text transition-opacity hover:opacity-90 md:w-auto">
+            <Plus aria-hidden="true" className="h-3.5 w-3.5" />
+            New Email
+          </button>
+        }
+        subtitle="Manage subscribers and email broadcasts"
+        title="Newsletter"
+      />
 
-      <section className="rounded-[8px] border bg-background p-5">
+      <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <AdminMetricCard
+          icon={Users}
+          label="TOTAL SUBSCRIBERS"
+          trend="Active subscribers"
+          value={activeCount.toLocaleString()}
+        />
+        <AdminMetricCard
+          icon={MailOpen}
+          label="AVG OPEN RATE"
+          trend="Stored after broadcasts are sent"
+          trendTone="neutral"
+          value="0%"
+        />
+        <AdminMetricCard
+          icon={MousePointerClick}
+          label="AVG CLICK RATE"
+          trend="No click data yet"
+          trendTone="neutral"
+          value="0%"
+        />
+      </section>
+
+      <section className="mb-8">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-[16px] font-semibold text-text-primary">
+            Recent Broadcasts
+          </h2>
+          <div className="relative hidden w-[180px] md:block">
+            <Search
+              aria-hidden="true"
+              className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-tertiary"
+            />
+            <input
+              className="h-[30px] w-full rounded-[5px] border border-border-default bg-transparent pl-8 pr-2.5 text-[12px] outline-none transition-colors placeholder:text-text-tertiary focus:border-accent"
+              placeholder="Search emails..."
+              type="text"
+            />
+          </div>
+        </div>
+
+        <div className="w-full overflow-x-auto rounded-[8px] border border-border-default bg-background">
+          <div className="min-w-[700px]">
+            <div className="flex h-[40px] items-center border-b border-border-default bg-subtle-bg px-4 text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary">
+              <div className="min-w-0 flex-1 pr-4">Subject</div>
+              <div className="w-[120px] shrink-0">Date</div>
+              <div className="w-[100px] shrink-0 text-right">Recipients</div>
+              <div className="w-[80px] shrink-0 text-right">Opens</div>
+              <div className="w-[80px] shrink-0 text-right">Clicks</div>
+              <div className="w-[80px] shrink-0 pr-2 text-right">Actions</div>
+            </div>
+
+            <div className="flex flex-col">
+              {recentPosts.map((post) => (
+                <div
+                  className="group flex h-[52px] items-center border-b border-border-default px-4 transition-colors last:border-0 hover:bg-subtle-bg"
+                  key={post.id}
+                >
+                  <div className="min-w-0 flex-1 pr-4">
+                    <span className="block truncate text-[13px] font-medium text-text-primary hover:text-accent">
+                      {post.title}
+                    </span>
+                  </div>
+                  <div className="w-[120px] shrink-0 text-[12px] text-text-secondary">
+                    Draft
+                  </div>
+                  <div className="w-[100px] shrink-0 text-right text-[13px] font-medium text-text-secondary">
+                    {activeCount.toLocaleString()}
+                  </div>
+                  <div className="w-[80px] shrink-0 text-right text-[13px] font-medium text-text-secondary">
+                    -
+                  </div>
+                  <div className="w-[80px] shrink-0 text-right text-[13px] font-medium text-text-secondary">
+                    -
+                  </div>
+                  <div className="flex w-[80px] shrink-0 items-center justify-end gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
+                    <button
+                      className="flex h-7 w-7 items-center justify-center rounded-[4px] border border-transparent text-text-tertiary transition-all hover:border-border-default hover:bg-background"
+                      title="View report"
+                      type="button"
+                    >
+                      <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      className="flex h-7 w-7 items-center justify-center rounded-[4px] border border-transparent text-text-tertiary transition-all hover:border-border-default hover:bg-background"
+                      title="More"
+                      type="button"
+                    >
+                      <MoreHorizontal aria-hidden="true" className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {recentPosts.length === 0 && (
+                <div className="p-8 text-center text-[13px] text-text-tertiary">
+                  No published posts available for broadcasts.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-[8px] border border-border-default bg-background p-5">
+        <h2 className="mb-4 text-[16px] font-semibold text-text-primary">
+          Compose broadcast
+        </h2>
         <NewsletterBroadcastForm recentPosts={recentPosts} />
       </section>
     </div>

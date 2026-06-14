@@ -130,7 +130,7 @@ export function NewsletterBroadcastForm({
       )}
 
       <div className="space-y-2">
-        <label className="text-sm font-medium" htmlFor="broadcast-subject">
+        <label className="text-[13px] font-medium text-text-primary" htmlFor="broadcast-subject">
           Subject
         </label>
         <Input
@@ -144,7 +144,7 @@ export function NewsletterBroadcastForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium" htmlFor="broadcast-preview">
+        <label className="text-[13px] font-medium text-text-primary" htmlFor="broadcast-preview">
           Preview text
         </label>
         <Input
@@ -157,11 +157,11 @@ export function NewsletterBroadcastForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium" htmlFor="broadcast-post">
+        <label className="text-[13px] font-medium text-text-primary" htmlFor="broadcast-post">
           Featured post
         </label>
         <select
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="flex h-10 w-full rounded-[5px] border border-border-default bg-background px-3 py-2 text-[13px] ring-offset-background focus-visible:border-accent focus-visible:outline-none"
           id="broadcast-post"
           onChange={(event) => setPostId(event.target.value)}
           value={postId}
@@ -176,7 +176,7 @@ export function NewsletterBroadcastForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium" htmlFor="broadcast-body">
+        <label className="text-[13px] font-medium text-text-primary" htmlFor="broadcast-body">
           Custom message
         </label>
         <Textarea
@@ -189,7 +189,7 @@ export function NewsletterBroadcastForm({
         />
       </div>
 
-      <Button disabled={loading || !subject.trim()} type="submit">
+      <Button className="h-9 px-4 font-semibold" disabled={loading || !subject.trim()} type="submit">
         {loading ? "Sending..." : "Send broadcast"}
       </Button>
     </form>

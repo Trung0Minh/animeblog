@@ -43,6 +43,7 @@ vi.mock("@/lib/prisma", () => ({ prisma: mocks.prisma }))
 vi.mock("next/cache", () => ({ unstable_cache: mocks.unstableCache }))
 
 import {
+  getCachedAdminCommentCounts,
   getCachedAdminComments,
   getCachedAdminDashboardStats,
   getCachedAdminNewsletterData,
@@ -268,6 +269,7 @@ describe("cached Prisma query helpers", () => {
       {
         activeSubscribers: BigInt(21),
         approvedComments: BigInt(12),
+        archivedPosts: BigInt(1),
         draftPosts: BigInt(2),
         publishedPosts: BigInt(8),
         writers: BigInt(3),
@@ -277,6 +279,7 @@ describe("cached Prisma query helpers", () => {
     await expect(getCachedAdminDashboardStats()).resolves.toEqual({
       activeSubscribers: 21,
       approvedComments: 12,
+      archivedPosts: 1,
       draftPosts: 2,
       publishedPosts: 8,
       writers: 3,
@@ -340,7 +343,7 @@ describe("cached Prisma query helpers", () => {
       ],
       total: 1,
     })
-    await expect(getCachedAdminComments(1, 30)).resolves.toEqual({
+    await expect(getCachedAdminComments(1, "APPROVED", 30)).resolves.toEqual({
       comments: [
         {
           authorName: "Reader",
@@ -354,7 +357,19 @@ describe("cached Prisma query helpers", () => {
       total: 1,
     })
 
-    expect(mocks.prisma.$queryRaw).toHaveBeenCalledTimes(2)
+    mocks.prisma.$queryRaw.mockResolvedValueOnce([
+      {
+        approvedComments: BigInt(3),
+        spamComments: BigInt(2),
+      },
+    ])
+    await expect(getCachedAdminCommentCounts()).resolves.toEqual({
+      approvedComments: 3,
+      pendingComments: 0,
+      spamComments: 2,
+    })
+
+    expect(mocks.prisma.$queryRaw).toHaveBeenCalledTimes(3)
     expect(mocks.prisma.post.findMany).not.toHaveBeenCalled()
     expect(mocks.prisma.post.count).not.toHaveBeenCalled()
     expect(mocks.prisma.comment.findMany).not.toHaveBeenCalled()
@@ -365,6 +380,10 @@ describe("cached Prisma query helpers", () => {
     })
     expect(mocks.cacheEntries).toContainEqual({
       keyParts: ["admin-comments"],
+      options: { revalidate: 60, tags: ["comments"] },
+    })
+    expect(mocks.cacheEntries).toContainEqual({
+      keyParts: ["admin-comment-counts"],
       options: { revalidate: 60, tags: ["comments"] },
     })
   })

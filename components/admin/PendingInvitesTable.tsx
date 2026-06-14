@@ -21,14 +21,14 @@ export function PendingInvitesTable({ invites }: { invites: PendingInvite[] }) {
   return (
     <div>
       {invites.map((invite) => (
-        <article className="border-t py-4 first:border-t-0" key={invite.id}>
+        <article className="border-t border-border-default py-4 first:border-t-0" key={invite.id}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{invite.email}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="truncate text-[13px] font-medium text-text-primary">{invite.email}</p>
+              <p className="mt-1 text-[11px] text-text-tertiary">
                 Invited by {invite.createdBy.name} on {formatDate(invite.createdAt)}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-[11px] text-text-tertiary">
                 Expires {formatDate(invite.expiresAt)}
               </p>
             </div>

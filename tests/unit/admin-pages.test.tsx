@@ -132,37 +132,69 @@ describe("admin server pages", () => {
       {
         activeSubscribers: BigInt(21),
         approvedComments: BigInt(12),
+        archivedPosts: BigInt(1),
         draftPosts: BigInt(2),
         publishedPosts: BigInt(8),
         writers: BigInt(3),
       },
     ])
+    mocks.prisma.post.findMany.mockResolvedValue([
+      {
+        _count: { comments: 4 },
+        author: { name: "Mina", username: "mina" },
+        publishedAt: new Date("2026-01-01T00:00:00Z"),
+        slug: "recent-post",
+        status: "PUBLISHED",
+        title: "Recent post",
+        updatedAt: new Date("2026-01-02T00:00:00Z"),
+      },
+    ])
+    mocks.prisma.comment.findMany.mockResolvedValue([
+      {
+        authorName: "Reader",
+        content: "Thoughtful comment",
+        createdAt: new Date("2026-01-03T00:00:00Z"),
+        id: "comment-1",
+        post: { slug: "recent-post", title: "Recent post" },
+      },
+    ])
 
     renderAsync(await AdminDashboardPage())
 
-    expect(screen.getByText("Admin")).toBeVisible()
-    expect(screen.getByText("Published posts")).toBeVisible()
-    expect(screen.getByText("Drafts")).toBeVisible()
-    expect(screen.getByText("Active subscribers")).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Dashboard" })).toBeVisible()
+    expect(screen.getByText(/Published posts/i)).toBeVisible()
+    expect(screen.getByText(/Drafts/i)).toBeVisible()
+    expect(screen.getByText(/Subscribers/i)).toBeVisible()
     expect(screen.getByTestId("analytics-widget")).toBeVisible()
     expect(mocks.prisma.$queryRaw).toHaveBeenCalledTimes(1)
   })
 
   it("lists all posts with explicit safe selects and status filtering", async () => {
-    mocks.prisma.$queryRaw.mockResolvedValue([
-      {
-        authorName: "Mina",
-        authorUsername: "mina",
-        commentCount: BigInt(2),
-        id: "post-1",
-        publishedAt: null,
-        slug: "draft",
-        status: "DRAFT",
-        title: "Draft",
-        totalCount: BigInt(1),
-        updatedAt: new Date("2026-01-01T00:00:00Z"),
-      },
-    ])
+    mocks.prisma.$queryRaw
+      .mockResolvedValueOnce([
+        {
+          authorName: "Mina",
+          authorUsername: "mina",
+          commentCount: BigInt(2),
+          id: "post-1",
+          publishedAt: null,
+          slug: "draft",
+          status: "DRAFT",
+          title: "Draft",
+          totalCount: BigInt(1),
+          updatedAt: new Date("2026-01-01T00:00:00Z"),
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          activeSubscribers: BigInt(0),
+          approvedComments: BigInt(0),
+          archivedPosts: BigInt(0),
+          draftPosts: BigInt(1),
+          publishedPosts: BigInt(0),
+          writers: BigInt(0),
+        },
+      ])
 
     renderAsync(
       await AdminPostsPage({
@@ -171,24 +203,35 @@ describe("admin server pages", () => {
     )
 
     expect(screen.getByTestId("admin-posts-table")).toHaveTextContent("1 posts")
-    expect(mocks.prisma.$queryRaw).toHaveBeenCalledTimes(1)
+    expect(mocks.prisma.$queryRaw).toHaveBeenCalledTimes(2)
   })
 
   it("adds an archived posts filter for admins", async () => {
-    mocks.prisma.$queryRaw.mockResolvedValue([
-      {
-        authorName: null,
-        authorUsername: null,
-        commentCount: null,
-        id: null,
-        publishedAt: null,
-        slug: null,
-        status: null,
-        title: null,
-        totalCount: BigInt(0),
-        updatedAt: null,
-      },
-    ])
+    mocks.prisma.$queryRaw
+      .mockResolvedValueOnce([
+        {
+          authorName: null,
+          authorUsername: null,
+          commentCount: null,
+          id: null,
+          publishedAt: null,
+          slug: null,
+          status: null,
+          title: null,
+          totalCount: BigInt(0),
+          updatedAt: null,
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          activeSubscribers: BigInt(0),
+          approvedComments: BigInt(0),
+          archivedPosts: BigInt(0),
+          draftPosts: BigInt(0),
+          publishedPosts: BigInt(0),
+          writers: BigInt(0),
+        },
+      ])
 
     renderAsync(
       await AdminPostsPage({
@@ -196,11 +239,11 @@ describe("admin server pages", () => {
       }),
     )
 
-    expect(screen.getByRole("link", { name: "Archived" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Archived/ })).toHaveAttribute(
       "aria-current",
       "page",
     )
-    expect(mocks.prisma.$queryRaw).toHaveBeenCalledTimes(1)
+    expect(mocks.prisma.$queryRaw).toHaveBeenCalledTimes(2)
   })
 
   it("loads active writers and pending invites for writer management", async () => {
@@ -238,18 +281,25 @@ describe("admin server pages", () => {
   })
 
   it("lists approved comments without selecting private author emails", async () => {
-    mocks.prisma.$queryRaw.mockResolvedValue([
-      {
-        authorName: "Reader",
-        content: "Good note",
-        createdAt: new Date("2026-01-01T00:00:00Z"),
-        id: "comment-1",
-        postSlug: "post",
-        postTitle: "Post",
-        status: "APPROVED",
-        totalCount: BigInt(1),
-      },
-    ])
+    mocks.prisma.$queryRaw
+      .mockResolvedValueOnce([
+        {
+          approvedComments: BigInt(1),
+          spamComments: BigInt(0),
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          authorName: "Reader",
+          content: "Good note",
+          createdAt: new Date("2026-01-01T00:00:00Z"),
+          id: "comment-1",
+          postSlug: "post",
+          postTitle: "Post",
+          status: "APPROVED",
+          totalCount: BigInt(1),
+        },
+      ])
 
     renderAsync(
       await AdminCommentsPage({
@@ -260,7 +310,11 @@ describe("admin server pages", () => {
     expect(screen.getByTestId("admin-comments-table")).toHaveTextContent(
       "1 comments",
     )
-    expect(mocks.prisma.$queryRaw).toHaveBeenCalledTimes(1)
+    expect(screen.getByRole("link", { name: /Approved/ })).toHaveAttribute(
+      "aria-current",
+      "page",
+    )
+    expect(mocks.prisma.$queryRaw).toHaveBeenCalledTimes(2)
   })
 
   it("loads active subscriber count and recent posts for newsletter broadcasts", async () => {
@@ -272,7 +326,9 @@ describe("admin server pages", () => {
     renderAsync(await AdminNewsletterPage())
 
     expect(screen.getByText("Newsletter")).toBeVisible()
-    expect(screen.getByText("42 active subscribers")).toBeVisible()
+    expect(screen.getByText("TOTAL SUBSCRIBERS")).toBeVisible()
+    expect(screen.getAllByText("42").length).toBeGreaterThan(0)
+    expect(screen.getByText("Recent Broadcasts")).toBeVisible()
     expect(screen.getByTestId("newsletter-broadcast-form")).toHaveTextContent(
       "1 recent posts",
     )
